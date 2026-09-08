@@ -1,0 +1,152 @@
+Type: Package
+Package: multiCSN
+Title: Inferring Cell-Specific Gene Regulatory Network
+Version: 0.0.1
+Date: 2026-09-06
+Authors@R: 
+    person("Meng", "Xu", email = "mengxu98@qq.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-8300-1054"))
+Maintainer: Meng Xu <mengxu98@qq.com>
+Description: Inferring cell-specific gene regulatory networks from single-cell multiome data.
+License: MIT + file LICENSE
+URL: https://mengxu98.github.io/multiCSN/
+BugReports: https://github.com/mengxu98/multiCSN/issues
+Depends:
+    R (>= 4.1.0)
+Imports:
+    GenomicRanges,
+    inferCSN (>= 1.2.5),
+    IRanges,
+    S4Vectors,
+    Matrix,
+    methods,
+    purrr,
+    Rcpp,
+    scop,
+    Signac,
+    Seurat,
+    SeuratObject,
+    sparseMatrixStats,
+    stats,
+    susieR,
+    thisutils (>= 0.5.2),
+    tidygraph,
+    utils,
+    patchwork,
+    ggplot2,
+    ggraph,
+    ggnetwork,
+    rlang
+LinkingTo:
+    Rcpp
+Suggests:
+    motifmatchr,
+    testthat (>= 3.0.0),
+    ComplexHeatmap,
+    thisplot (>= 0.4.6),
+    circlize,
+    chromVAR,
+    cli,
+    dplyr,
+    FNN,
+    gatepoints,
+    GenomeInfoDb,
+    gganimate,
+    gtools,
+    grDevices,
+    network,
+    igraph,
+    plotly,
+    precrec,
+    pROC,
+    progress,
+    scales,
+    slingshot,
+    bayestestR,
+    cowplot,
+    glmnetUtils,
+    gmodels,
+    gridExtra,
+    irlba,
+    pbapply,
+    plyr,
+    reshape2,
+    viridis,
+    xgboost,
+    pheatmap,
+    tidyselect,
+    uwot,
+    RColorBrewer,
+    Rtsne,
+    ggpointdensity,
+    pals,
+    tibble,
+    tidyr,
+    stringi,
+    stringr,
+    fields,
+    ggExtra,
+    ggpubr,
+    modeltools,
+    topicmodels,
+    proxy,
+    RANN
+Remotes:
+    mengxu98/inferCSN,
+    mengxu98/scop,
+    mengxu98/thisplot,
+    mengxu98/thisutils
+Config/Needs/website: mengxu98/thistemplate
+Config/testthat/edition: 3
+Encoding: UTF-8
+LazyData: true
+LazyDataCompression: gzip
+Language: en-US
+Collate:
+    'RcppExports.R'
+    'setClass.R'
+    'SetNetwork.R'
+    'setGenerics.R'
+    'calculate_gene_rank.R'
+    'data.R'
+    'density_intersection.R'
+    'dynamic_genes.R'
+    'dynamic_network.R'
+    'extract_genes.R'
+    'factorized_network.R'
+    'utils_object.R'
+    'find_modules.R'
+    'find_motifs.R'
+    'find_peaks_near_genes.R'
+    'fit_models.R'
+    'generics.R'
+    'get_attribute.R'
+    'get_celltype_specific_genes.R'
+    'get_pseudotime.R'
+    'inferCSN.R'
+    'inferCSN-methods.R'
+    'initiate_object.R'
+    'input_adapters.R'
+    'locus_plots.R'
+    'meta_cells.R'
+    'methods_doc.R'
+    'models.R'
+    'multiCSN-package.R'
+    'network_analysis.R'
+    'network_comparison.R'
+    'network_evaluation.R'
+    'network_heatmap.R'
+    'network_perturbation.R'
+    'network_visualization.R'
+    'plot_network_heatmap.R'
+    'plotting_functions.R'
+    'reexports.R'
+    'setMethod.R'
+    'simulate_data.R'
+    'state_analysis.R'
+    'state_inference.R'
+    'subsampling.R'
+    'utils_2.R'
+    'utils_network.R'
+    'utils_plots.R'
+    'utils_state.R'
+Config/roxygen2/version: 8.1.0

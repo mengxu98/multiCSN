@@ -1,0 +1,279 @@
+destination: docs
+
+toc:
+  depth: 3
+
+url: https://mengxu98.github.io/multiCSN/
+
+template:
+  bootstrap: 5
+  light-switch: true
+  package: thistemplate
+
+navbar:
+  structure:
+    left:  [articles, vignettes, reference, news]
+    right: [search, github, mengxu, lightswitch]
+
+  components:
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/mengxu98/multiCSN
+      title: GitHub
+      aria-label: GitHub repository
+
+    mengxu:
+      icon: fas fa-home fa-lg
+      href: https://github.com/mengxu98
+      title: MengXu
+      aria-label: MengXu's GitHub profile
+
+    reference:
+      text: Reference
+      href: reference/index.html
+
+reference:
+
+
+- subtitle: "Package overview"
+- contents:
+  - multiCSN-package
+  - multicsn_logo
+  - inferCSN
+
+- subtitle: "Object of cell type-specific gene regulatory network"
+- contents:
+  - initiate_object
+  - CSNObject-class
+  - Modules-class
+  - Network-class
+  - Regions-class
+
+- subtitle: "Network visualization"
+- contents:
+  - plot_dynamic_networks
+  - plot_static_networks
+  - plot_contrast_networks
+  - plot_network_heatmap
+  - plot_detail_network
+  - plot_diffnet_detail
+  - plot_dyn_diffnet
+  - plot_dynamic_network
+  - plot_gof
+  - plot_heatmap_by_treatment
+  - plot_module_metrics
+  - plot_network_graph
+  - plot_targets_and_regulators
+  - plot_targets_with_top_regulators_detail
+  - plot_tf_network
+  - plot_top_features
+  - heatmap_by_treatment_group
+  - hm_dyn
+  - hm_dyn_clust
+  - hm_dyn_epoch
+
+- subtitle: "Plotting functions"
+- contents:
+  - plot_coefficient
+  - plot_coefficients
+  - plot_edges_comparison
+
+- subtitle: "Network evaluation"
+- contents:
+  - calculate_metrics
+  - calculate_accuracy
+  - calculate_auc
+  - calculate_auroc
+  - calculate_auprc
+  - calculate_precision
+  - calculate_recall
+  - calculate_f1
+  - calculate_si
+  - calculate_ji
+  - calculate_epr
+  - calculate_signed_epr
+  - calculate_motif_ratios
+  - calculate_path_stats
+  - calculate_stability_jaccard
+  - calculate_stability_spearman
+  - calculate_degree_distribution
+  - JI_across_topregs
+
+- subtitle: "Sparse regression model"
+- contents:
+  - fit_cvglmnet
+  - fit_glm
+  - fit_glmnet
+  - fit_srm2
+  - fit_xgb
+  - fit_model
+  - fit_models
+  - fit_susie
+  - format_coefs
+
+- subtitle: "RNA data processing"
+- contents:
+  - aggregate_assay
+  - meta_cells
+  - subsampling
+  - expression_ksmooth
+
+- subtitle: "Peak data processing"
+- contents:
+  - find_peaks_near_genes
+
+- subtitle: "Dynamic object"
+- contents:
+  - get_pseudotime
+  - compileDynGenes
+
+- subtitle: "Network processing"
+- contents:
+  - export_csn
+  - get_attribute
+  - metrics
+  - print.Network
+  - add_interaction_type
+  - add_type
+  - DefaultNetwork
+  - GetAssaySummary
+  - GetNetwork
+  - NetworkGraph
+  - NetworkModules
+  - NetworkParams
+  - NetworkRegions
+  - NetworkTFs
+  - Params
+  - define_epochs
+  - define_epochs_new
+  - density_points
+  - diffnet_community_detection
+  - dynamic_windowing
+  - dynamic_difference_network
+  - dynamic_shortest_path
+  - dynamic_shortest_path_multiple
+  - edge_uniqueness
+  - epochGRN
+  - compile_epochs
+  - get_network_graph
+  - get_tf_network
+  - assign_epochs_simple
+  - assign_epochs
+  - assign_epochs_new1
+  - assign_network
+  - subnets
+  - split_epochs_by_group
+  - split_epochs_by_pseudotime
+  - biglist_compute_betweenness_degree
+  - compute_JI_topregs
+  - compute_betweenness_degree
+  - compute_frobenius_distance
+  - cor_and_add_action
+  - find_communities
+  - find_cuts_by_clustering
+  - find_cuts_by_similarity
+  - find_modules
+  - find_motifs
+  - find_targets
+  - static_shortest_path
+
+- subtitle: "Calculate gene rank"
+- contents:
+  - calculate_gene_rank
+  - compute_pagerank
+  - calculate_page_rank
+  - plot_gene_rank
+
+- subtitle: "Network perturbation"
+- contents:
+  - Perturbation-class
+  - SetNetwork
+  - calculate_trajectory
+  - embedPerturbation
+  - plotPerturbation
+  - plotPerturbationTrajectory
+  - predictPerturbation
+
+- subtitle: "Utils functions"
+- contents:
+  - coef.Network
+  - coef.CSNObject
+  - get_umap
+  - mean_module_expression
+  - mean_subnetwork_expression
+  - order_genes
+  - pre_pseudotime_matrix
+  - rough_hierarchy
+  - score_targets
+  - SetNetwork
+
+- subtitle: "Example data and datasets"
+- contents:
+  - simulate_csn_data
+  - create_seurat_object
+  - EnsDb.Hsapiens.v93.annot.UCSC.hg38
+  - SCREEN.ccRE.UCSC.hg38
+  - phastConsElements20Mammals.UCSC.hg38
+  - motif2tf
+  - motifs
+
+- subtitle: "Cell-type rewiring and state analysis"
+- contents:
+  - compare_celltype_rewiring
+  - compare_state_rewiring
+  - state_dynamic
+  - extract_genes_transition
+  - summarize_networks
+  - summarize_state_networks
+  - summarize_transition_analysis
+  - strongest_mediated_projection
+  - prioritize_features
+  - rank_features
+  - select_key_targets
+  - select_key_tfs
+
+- subtitle: "Rewiring and state plots"
+- contents:
+  - plot_states
+  - plot_state_overview_figure
+  - plot_state_network_summary
+  - plot_state_rewiring
+  - plot_rewiring
+  - plot_rewiring_overview_figure
+  - plot_network_summary
+  - plot_features
+  - plot_celltype_specificity_heatmap
+
+- subtitle: "Multiome locus and motif plots"
+- contents:
+  - plot_key_target_multiome
+  - plot_key_tf_multiome
+  - plot_key_tf_summary_figure
+  - plot_target_locus_signac
+  - plot_tf_case_study
+  - plot_tf_peak_overlap_scenic_style
+
+- subtitle: "Peak annotation and internal helpers"
+- contents:
+  - collapse_peak_gene_domains
+  - factorized_chain_support
+  - get_layer_data
+  - get_peak_annotation
+  - map_peak_ranges_to_genome
+  - network_ordinal_weight
+  - normalize_chromatin_assay
+  - parse_peak_ranges
+  - parse_regulators_targets
+
+- subtitle: "Classes and methods"
+- contents:
+  - CSNObject
+  - EdgeUniqueness
+  - ExtractGenesTransition
+  - GeneRanks
+  - ShortestPaths
+  - print.CSNObject
+  - print.Modules
+  - print.Network
+  - print.Regions
+  - print.multicsn_logo

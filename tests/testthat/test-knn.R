@@ -1,0 +1,10 @@
+test_that("build_nn2 uses thisutils KNN and returns neighbor indices", {
+  skip_if_not_installed("BiocNeighbors")
+  set.seed(1)
+  coords <- matrix(rnorm(40), ncol = 2)
+  knn <- multiCSN:::build_nn2(coords, k = 3)
+  expect_true(igraph::is_igraph(knn$graph_knn))
+  expect_equal(dim(knn$idx), c(nrow(coords), 3L))
+  expect_equal(dim(knn$dist), c(nrow(coords), 3L))
+  expect_false(any(knn$idx == row(knn$idx), na.rm = TRUE))
+})

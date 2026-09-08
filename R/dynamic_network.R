@@ -1,0 +1,598 @@
+#' Define epochs
+#'
+#' @param dynamic_object results of running findDynGenes, or a list of results of running findDynGenes per path. If list, names should match names of matrix.
+#' @param matrix genes-by-cells expression matrix, or a list of expression matrices per path. If list, names should match names of dynamic_object.
+#' @param method method to define epochs. Either "pseudotime", "cell_order", "group", "con_similarity", "kmeans", "hierarchical"
+#' @param num_epochs number of epochs to define. Ignored if epoch_transitions, pseudotime_cuts, or group_assignments are provided.
+#' @param pseudotime_cuts vector of pseudotime cutoffs. If NULL, cuts are set to max(pseudotime)/num_epochs.
+#' @param group_assignments a list of vectors where names(assignment) are epoch names, and vectors contain groups belonging to corresponding epoch
+#' @param p_value p_value
+#' @param winSize winSize
+#'
+#' @return updated list of dynamic_object with epoch column included in dynamic_object$cells
+#' @export
+define_epochs <- function(
+  dynamic_object,
+  matrix,
+  method = "pseudotime",
+  num_epochs = 2,
+  pseudotime_cuts = NULL,
+  group_assignments = NULL,
+  p_value = 0.05,
+  winSize = 2
+) {
+  if (!is.list(dynamic_object[[1]])) {
+    dynamic_object <- list(dynamic_object)
+    matrix <- list(matrix)
+  }
+
+  new_dynRes <- list()
+  for (path in 1:length(dynamic_object)) {
+    if (!is.null(names(dynamic_object))) {
+      path <- names(dynamic_object)[path]
+    }
+    path_dyn <- dynamic_object[[path]]
+    path_dyn$cells$epoch <- NA
+
+
+    if (method == "pseudotime") {
+      if (is.null(pseudotime_cuts)) {
+        pseudotime_cuts <- seq(
+          min(path_dyn$cells$pseudotime),
+          max(path_dyn$cells$pseudotime),
+          (max(path_dyn$cells$pseudotime) - min(path_dyn$cells$pseudotime)) / num_epochs
+        )
+        pseudotime_cuts <- pseudotime_cuts[-length(pseudotime_cuts)]
+        pseudotime_cuts <- pseudotime_cuts[-1]
+      }
+
+      path_dyn <- split_epochs_by_pseudotime(path_dyn, pseudotime_cuts)
+    }
+
+
+    if (method == "cell_order") {
+      t1 <- path_dyn$cells$pseudotime
+      names(t1) <- as.vector(path_dyn$cells$cell_name)
+
+      chunk_size <- floor(length(t1) / num_epochs)
+
+      for (i in 1:num_epochs) {
+        if (i == num_epochs) {
+          cells_in_epoch <- names(t1)[(1 + ((i - 1) * chunk_size)):length(t1)]
+        } else {
+          cells_in_epoch <- names(t1)[(1 + ((i - 1) * chunk_size)):(i * chunk_size)]
+        }
+        path_dyn$cells$epoch[path_dyn$cells$cell_name %in% cells_in_epoch] <- paste0("epoch", i)
+      }
+    }
+
+
+    if (method == "group") {
+      if (is.null(group_assignments)) {
+        stop("Must provide group_assignments for group method.")
+      }
+
+      path_dyn <- split_epochs_by_group(path_dyn, group_assignments)
+    }
+
+
+    if (method == "con_similarity") {
+      cuts <- find_cuts_by_similarity(matrix[[path]], path_dyn, winSize = winSize, p_value = p_value)
+      path_dyn <- split_epochs_by_pseudotime(path_dyn, cuts)
+    }
+
+
+    if (method == "kmeans") {
+      cuts <- find_cuts_by_clustering(
+        matrix[[path]],
+        path_dyn,
+        num_epochs = num_epochs,
+        method = "kmeans",
+        p_value = p_value
+      )
+      path_dyn <- split_epochs_by_pseudotime(path_dyn, cuts)
+    }
+
+
+    if (method == "hierarchical") {
+      cuts <- find_cuts_by_clustering(matrix[[path]], path_dyn, num_epochs = num_epochs, method = "hierarchical", p_value = p_value)
+      path_dyn <- split_epochs_by_pseudotime(path_dyn, cuts)
+    }
+
+
+    new_dynRes[[path]] <- path_dyn
+  }
+
+  if (length(new_dynRes) == 1) {
+    new_dynRes <- new_dynRes[[1]]
+  }
+  new_dynRes
+}
+
+#' Splits data into epochs
+#'
+#' Splits data into epochs by assigning cells to epochs
+#'
+#' @param dynamic_object result of running findDynGenes or compileDynGenes
+#' @param cuts vector of pseudotime cutoffs
+#' @param epoch_names names of resulting epochs, must have length of length(cuts)+1
+#'
+#' @return updated dynamic_object with epoch column included in dynamic_object$cells
+#' @export
+split_epochs_by_pseudotime <- function(dynamic_object, cuts, epoch_names = NULL) {
+  sampTab <- dynamic_object$cells
+
+  if (max(cuts) > max(sampTab$pseudotime)) {
+    stop("Cuts must be within pseudotime.")
+  }
+
+  if (!is.null(epoch_names) & (length(epoch_names) != length(cuts) + 1)) {
+    stop("Length of epoch_names must be equal to 1+length(cuts).")
+  }
+
+  if (is.null(epoch_names)) {
+    epoch_names <- paste0("epoch", (1:(length(cuts) + 1)))
+  }
+
+  cuts <- c(-0.1, cuts, max(sampTab$pseudotime))
+  sampTab$epoch <- NA
+  for (i in 2:length(cuts)) {
+    sampTab$epoch[(cuts[i - 1] < sampTab$pseudotime) & (sampTab$pseudotime <= cuts[i])] <- epoch_names[i - 1]
+  }
+
+  dynamic_object$cells <- sampTab
+  dynamic_object
+}
+
+#' Splits data into epochs manually
+#'
+#' Splits data into epochs given group assignment
+#'
+#' @param dynamic_object result of running findDynGenes or compileDynGenes
+#' @param assignment a list of vectors where names(assignment) are epoch names, and vectors contain groups belonging to corresponding epoch
+#'
+#' @return updated dynamic_object with epoch column included in dynamic_object$cells
+#' @export
+split_epochs_by_group <- function(dynamic_object, assignment) {
+  sampTab <- dynamic_object$cells
+  sampTab$epoch <- NA
+
+  for (e in names(assignment)) {
+    sampTab$epoch[sampTab$group %in% assignment[[e]]] <- e
+  }
+
+  dynamic_object$cells <- sampTab
+  dynamic_object
+}
+
+#' @title find_cuts_by_similarity
+#'
+#' @description
+#'  Returns cuts to define epochs via sliding window comparison
+#'
+#' @param matrix genes-by-cells expression matrix
+#' @param dynamic_object result of running findDynGenes or define_epochs
+#' @param winSize number of cells to each side to compare each cell to
+#' @param limit_to vector of genes on which to base epoch cuts, for example, limiting to TFs
+#' @param p_value pval threshold if gene is dynamically expressed
+#'
+#' @return vector of  pseudotimes at which to cut data into epochs
+#' @export
+find_cuts_by_similarity <- function(
+  matrix,
+  dynamic_object,
+  winSize = 2,
+  limit_to = NULL,
+  p_value = 0.05
+) {
+  matrix <- matrix[names(dynamic_object$genes[dynamic_object$genes < p_value]), ]
+
+  if (!is.null(limit_to)) {
+    limit_to <- intersect(limit_to, rownames(matrix))
+    matrix <- matrix[limit_to, ]
+  }
+
+
+  xcorr <- stats::cor(matrix[, rownames(dynamic_object$cells)])
+  pShift <- rep(0, nrow(xcorr) - 1)
+  end <- nrow(xcorr)
+
+  for (i in 2:end - 1) {
+    past <- seq(i - 1:max(1, i - winSize))
+    pastandfuture <- seq(i + 1:min(end, i + winSize))
+    closer_to <- which.max(c(mean(xcorr[i, past]), mean(xcorr[i, pastandfuture])))
+    pShift[i] <- c(0, 1)[closer_to]
+  }
+
+  consecutive_diffs <- diff(pShift)
+  cuts_index <- which(consecutive_diffs == 1)
+
+
+  cat("Cut points: ", dynamic_object$cells[cuts_index, ]$pseudotime, "\n")
+
+
+  dynamic_object$cells[cuts_index, ]$pseudotime
+}
+
+
+#' Returns cuts to define epochs
+#'
+#' Returns cuts to define epochs via clustering
+#'
+#' @param matrix genes-by-cells expression matrix
+#' @param dynamic_object result of running findDynGenes or define_epochs
+#' @param num_epochs the number of epochs
+#' @param limit_to vector of genes on which to base epoch cuts, for example, limiting to TFs
+#' @param method what clustering method to use, either 'kmeans' or 'hierarchical'
+#' @param p_value pval threshold if gene is dynamically expressed
+#'
+#' @return vector of  pseudotimes at which to cut data into epochs
+#' @export
+find_cuts_by_clustering <- function(
+  matrix,
+  dynamic_object,
+  num_epochs,
+  limit_to = NULL,
+  method = "kmeans",
+  p_value = 0.05
+) {
+  matrix <- matrix[names(dynamic_object$genes[dynamic_object$genes < p_value]), ]
+
+
+  if (!is.null(limit_to)) {
+    limit_to <- intersect(limit_to, rownames(matrix))
+    matrix <- matrix[limit_to, ]
+  }
+
+  if (method == "kmeans") {
+    clustering <- stats::kmeans(t(matrix), num_epochs, iter.max = 100)$cluster
+
+    cuts <- c()
+    for (cluster in unique(clustering)) {
+      cells <- names(clustering)[clustering == cluster]
+      cuts <- c(cuts, max(dynamic_object$cells$pseudotime[rownames(dynamic_object$cells) %in% cells]))
+    }
+    cuts <- sort(cuts)
+    cuts <- cuts[1:length(cuts) - 1]
+  } else if (method == "hierarchical") {
+    clustering <- stats::hclust(stats::dist(t(matrix)), method = "centroid")
+    clusterCut <- stats::cutree(clustering, 3)
+    cuts <- c()
+    for (cluster in unique(clusterCut)) {
+      cells <- names(clusterCut)[clusterCut == cluster]
+      cuts <- c(cuts, max(dynamic_object$cells$pseudotime[rownames(dynamic_object$cells) %in% cells]))
+    }
+    cuts <- sort(cuts)
+    cuts <- cuts[1:length(cuts) - 1]
+  } else {
+    stop("method must be either 'kmeans' or 'hierarchical'.")
+  }
+
+  cat("Cut points: ", cuts, "\n")
+  cuts
+}
+
+#' Assigns genes to epochs
+#'
+#' @param matrix genes-by-cells expression matrix
+#' @param dynamic_object individual path result of running define_epochs
+#' @param method method of assigning epoch genes, either "active_expression" (looks for active expression in epoch) or "DE" (looks for differentially expressed genes per epoch)
+#' @param p_value pval threshold if gene is dynamically expressed
+#' @param pThresh_DE pval if gene is differentially expressed. Ignored if method is active_expression.
+#' @param active_thresh value between 0 and 1. Percent threshold to define activity
+#' @param toScale whether or not to scale the data
+#' @param forceGenes whether or not to rescue orphan dyanmic genes, forcing assignment into epoch with max expression.
+#'
+#' @return epochs a list detailing genes active in each epoch
+#' @export
+#'
+assign_epochs <- function(
+  matrix,
+  dynamic_object,
+  method = "active_expression",
+  p_value = 0.05,
+  pThresh_DE = 0.05,
+  active_thresh = 0.33,
+  toScale = FALSE,
+  forceGenes = TRUE
+) {
+  if (active_thresh < 0 | active_thresh > 1) {
+    stop("active_thresh must be between 0 and 1.")
+  }
+
+
+  exp <- Matrix::as.matrix(
+    matrix[intersect(rownames(matrix), names(dynamic_object$genes[dynamic_object$genes < p_value])), ]
+  )
+
+  if (toScale) {
+    if (class(exp)[1] != "matrix") {
+      exp <- t(scale(Matrix::t(exp)))
+    } else {
+      exp <- t(scale(t(exp)))
+    }
+  }
+
+
+  epoch_names <- unique(dynamic_object$cells$epoch)
+  epochs <- vector("list", length(epoch_names))
+  names(epochs) <- epoch_names
+
+  navg <- ceiling(ncol(exp) * 0.05)
+
+
+  thresholds <- data.frame(
+    gene = rownames(exp),
+    thresh = rep(0, length(rownames(exp)))
+  )
+  rownames(thresholds) <- thresholds$gene
+  for (gene in rownames(exp)) {
+    profile <- exp[gene, ][order(exp[gene, ], decreasing = FALSE)]
+    bottom <- mean(profile[1:navg])
+    top <- mean(profile[(length(profile) - navg):length(profile)])
+
+    thresh <- ((top - bottom) * active_thresh) + bottom
+    thresholds[gene, "thresh"] <- thresh
+  }
+
+  mean_expression <- data.frame(
+    gene = character(),
+    epoch = numeric(),
+    mean_expression = numeric()
+  )
+  if (method == "active_expression") {
+    for (epoch in names(epochs)) {
+      chunk_cells <- dynamic_object$cells[dynamic_object$cells$epoch == epoch, "cells"]
+      chunk <- exp[, chunk_cells]
+
+      chunk_df <- data.frame(means = rowMeans(chunk))
+      chunk_df <- cbind(chunk_df, thresholds)
+      chunk_df$active <- (chunk_df$means >= chunk_df$thresh)
+
+      epochs[[epoch]] <- rownames(chunk_df[chunk_df$active, ])
+
+      mean_expression <- rbind(
+        mean_expression,
+        data.frame(
+          gene = rownames(chunk),
+          epoch = rep(epoch, length(rownames(chunk))),
+          mean_expression = rowMeans(chunk)
+        )
+      )
+    }
+  } else {
+    for (epoch in names(epochs)) {
+      chunk_cells <- dynamic_object$cells[dynamic_object$cells$epoch == epoch, "cells"]
+      chunk <- exp[, chunk_cells]
+
+      background <- exp[, !(colnames(exp) %in% chunk_cells)]
+
+      diffres <- data.frame(gene = character(), mean_diff = double(), pval = double())
+      for (gene in rownames(exp)) {
+        t <- stats::t.test(chunk[gene, ], background[gene, ])
+        ans <- data.frame(gene = gene, mean_diff = (t$coefficient[1] - t$coefficient[2]), pval = t$p.value)
+        diffres <- rbind(diffres, ans)
+      }
+
+      diffres$padj <- stats::p.adjust(diffres$pval, method = "BH")
+      diffres <- diffres[diffres$mean_diff > 0, ]
+
+      epochs[[epoch]] <- diffres$gene[diffres$padj < pThresh_DE]
+
+
+      chunk_df <- data.frame(means = rowMeans(chunk))
+      chunk_df <- cbind(chunk_df, thresholds)
+      chunk_df$active <- (chunk_df$means >= chunk_df$thresh)
+
+      epochs[[epoch]] <- intersect(epochs[[epoch]], rownames(chunk_df[chunk_df$active, ]))
+
+      mean_expression <- rbind(
+        mean_expression,
+        data.frame(
+          gene = rownames(chunk),
+          epoch = rep(epoch, length(rownames(chunk))),
+          mean_expression = rowMeans(chunk)
+        )
+      )
+    }
+  }
+
+
+  if (forceGenes) {
+    assignedGenes <- unique(unlist(epochs))
+    orphanGenes <- setdiff(rownames(exp), assignedGenes)
+    message("There are ", length(orphanGenes), " orphan genes\n")
+    for (oGene in orphanGenes) {
+      xdat <- mean_expression[mean_expression$gene == oGene, ]
+      ep <- xdat[which.max(xdat$mean_expression), ]$epoch
+      epochs[[ep]] <- append(epochs[[ep]], oGene)
+    }
+  }
+
+  epochs$mean_expression <- mean_expression
+
+  epochs
+}
+
+#' Divides grnDF into epochs, filters interactions between genes not in same or consecutive epochs
+#'
+#' @param grnDF result of GRN reconstruction
+#' @param epochs result of running assign_epochs
+#' @param epoch_network dataframe outlining higher level epoch connectivity (i.e. epoch transition network).
+#' If NULL, will assume epochs is ordered linear trajectory
+#'
+#' @return list of GRNs across epochs and transitions
+#' @export
+epochGRN <- function(
+  grnDF,
+  epochs,
+  epoch_network = NULL
+) {
+  epochs$mean_expression <- NULL
+  all_dyngenes <- unique(unlist(epochs, use.names = FALSE))
+
+
+  if (is.null(epoch_network)) {
+    epoch_network <- data.frame(from = character(), to = character())
+    for (i in 1:(length(names(epochs)) - 1)) {
+      df <- data.frame(from = c(names(epochs)[i]), to = c(names(epochs)[i + 1]))
+      epoch_network <- rbind(epoch_network, df)
+    }
+  }
+
+
+  epoch_network <- rbind(
+    epoch_network,
+    data.frame(from = names(epochs), to = names(epochs))
+  )
+
+
+  epoch_network$name <- paste(epoch_network[, 1], epoch_network[, 2], sep = "..")
+  GRN <- vector("list", nrow(epoch_network))
+  names(GRN) <- epoch_network$name
+
+  print(epoch_network)
+
+  for (t in 1:nrow(epoch_network)) {
+    from <- as.character(epoch_network[t, 1])
+    to <- as.character(epoch_network[t, 2])
+
+
+    temp <- grnDF[grnDF$regulator %in% epochs[[from]], ]
+
+
+    if (from != to) {
+      remove_tgs_in_both <- intersect(epochs[[to]], epochs[[from]])
+      remove_tgs_in_neither <- intersect(setdiff(all_dyngenes, epochs[[from]]), setdiff(all_dyngenes, epochs[[to]]))
+
+      temp <- temp[!(temp$TG %in% remove_tgs_in_both), ]
+      temp <- temp[!(temp$TG %in% remove_tgs_in_neither), ]
+    }
+
+
+    GRN[[epoch_network[t, "name"]]] <- temp
+  }
+
+  GRN
+}
+
+
+#' Assigns genes to epochs just based on which mean is maximal
+#'
+#' @param matrix expression matrix
+#' @param dynamic_object result of running findDynGenes
+#' @param num_epochs num_epochs
+#' @param pThresh pThresh
+#' @param toScale toScale
+#' @param key_word key_word
+#'
+#' @return data.frame of dynamically expressed genes, cluster, peakTime, ordered by peaktime
+#' @export
+assign_epochs_simple <- function(
+  matrix,
+  dynamic_object,
+  num_epochs = 3,
+  pThresh = 0.01,
+  toScale = FALSE,
+  key_word = "epoch"
+) {
+  exp <- matrix[names(dynamic_object$genes[dynamic_object$genes < pThresh]), ]
+
+  if (toScale) {
+    if (class(exp)[1] != "matrix") {
+      exp <- t(scale(Matrix::t(exp)))
+    } else {
+      exp <- t(scale(t(exp)))
+    }
+  }
+
+  navg <- ceiling(ncol(exp) * 0.05)
+
+
+  thresholds <- data.frame(gene = rownames(exp), thresh = rep(0, length(rownames(exp))))
+  rownames(thresholds) <- thresholds$gene
+  for (gene in rownames(exp)) {
+    profile <- exp[gene, ][order(exp[gene, ], decreasing = FALSE)]
+    bottom <- mean(profile[1:navg])
+    top <- mean(profile[(length(profile) - navg):length(profile)])
+
+    thresh <- ((top - bottom) * 0.33) + bottom
+    thresholds[gene, "thresh"] <- thresh
+  }
+
+
+  t1 <- dynamic_object$cells$pseudotime
+  names(t1) <- as.vector(dynamic_object$cells$cell_name)
+  sort(t1, decreasing = FALSE)
+  exp <- exp[, names(t1)]
+
+  mean_expression <- data.frame(gene = character(), epoch = numeric(), mean_expression = numeric())
+
+
+  epoch_names <- paste0(rep(key_word, num_epochs), seq(1:num_epochs))
+  epochs <- vector("list", length(epoch_names))
+  names(epochs) <- epoch_names
+
+
+  ptmax <- max(dynamic_object$cells$pseudotime)
+  ptmin <- min(dynamic_object$cells$pseudotime)
+  chunk_size <- (ptmax - ptmin) / num_epochs
+
+  cellsEps <- rep("", length(names(t1)))
+  names(cellsEps) <- names(t1)
+
+  for (i in 1:length(epochs)) {
+    lower_bound <- ptmin + ((i - 1) * chunk_size)
+    upper_bound <- ptmin + (i * chunk_size)
+    chunk_cells <- rownames(dynamic_object$cells[dynamic_object$cells$pseudotime >= lower_bound & dynamic_object$cells$pseudotime <= upper_bound, ])
+    chunk <- exp[, chunk_cells]
+
+    chunk_df <- data.frame(means = rowMeans(chunk))
+    chunk_df <- cbind(chunk_df, thresholds)
+    chunk_df$active <- (chunk_df$means >= chunk_df$thresh)
+
+    epochs[[i]] <- rownames(chunk_df[chunk_df$active, ])
+    genesPeakTimes <- apply(chunk, 1, which.max)
+    gpt <- as.vector(dynamic_object$cells[chunk_cells, ][genesPeakTimes, ]$pseudotime)
+
+    mean_expression <- rbind(
+      mean_expression,
+      data.frame(
+        gene = rownames(chunk),
+        epoch = rep(i, length(rownames(chunk))), mean_expression = rowMeans(chunk),
+        peakTime = gpt
+      )
+    )
+    cellsEps[chunk_cells] <- epoch_names[i]
+  }
+
+
+  genes <- unique(as.vector(mean_expression$gene))
+  cat("n genes: ", length(genes), "\n")
+  eps <- rep("", length(genes))
+  geneEpPT <- rep(0, length(genes))
+  epMean <- rep(0, length(genes))
+
+  names(eps) <- genes
+  names(geneEpPT) <- genes
+  names(epMean) <- genes
+  for (gene in genes) {
+    x <- mean_expression[mean_expression$gene == gene, ]
+    xi <- which.max(x$mean_expression)
+    eps[[gene]] <- as.vector(x[xi, ]$epoch)
+    geneEpPT[[gene]] <- as.vector(x[xi, ]$peakTime)
+    epMean[[gene]] <- max(x$mean_expression)
+  }
+
+  geneDF <- data.frame(
+    gene = genes,
+    epoch = eps,
+    peakTime = geneEpPT,
+    epMean = epMean,
+    pval = dynamic_object$genes[genes]
+  )
+  cells2 <- dynamic_object$cells[names(t1), ]
+  cells2 <- cbind(cells2, epoch = cellsEps)
+
+  list(genes = geneDF, cells = cells2)
+}

@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_图层_1" data-name="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" version="1.1" viewBox="0 0 1111.8 1229.67">
+  <!-- Generator: Adobe Illustrator 30.5.1, SVG Export Plug-In . SVG Version: 2.1.4 Build 3)  -->
+  <defs>
+    <style>
+      .st0 {
+        stroke-width: 5.4px;
+      }
+
+      .st0, .st1, .st2, .st3, .st4, .st5, .st6, .st7, .st8, .st9, .st10, .st11, .st12, .st13, .st14, .st15, .st16 {
+        stroke-linecap: round;
+      }
+
+      .st0, .st1, .st2, .st3, .st4, .st5, .st6, .st7, .st8, .st9, .st10, .st11, .st12, .st13, .st14, .st15, .st16, .st17, .st18, .st19, .st20 {
+        fill: none;
+      }
+
+      .st0, .st1, .st21, .st22, .st23, .st24, .st25 {
+        stroke: #fff;
+      }
+
+      .st1 {
+        stroke-width: 5.2px;
+      }
+
+      .st26 {
+        fill: url(#_未命名的渐变_25);
+        stroke: #88d8ff;
+        stroke-opacity: .6;
+      }
+
+      .st27 {
+        stroke: #8bd7ff;
+      }
+
+      .st27, .st28 {
+        stroke-width: .7px;
+      }
+
+      .st27, .st28, .st29, .st30, .st31, .st32, .st33, .st34, .st35, .st36, .st37, .st38, .st39, .st40, .st41, .st42, .st43 {
+        stroke-opacity: .4;
+      }
+
+      .st27, .st44 {
+        fill: #64c2fa;
+      }
+
+      .st28 {
+        stroke: #95e58e;
+      }
+
+      .st28, .st45 {
+        fill: #73d376;
+      }
+
+      .st46 {
+        fill: #00ace2;
+      }
+
+      .st47 {
+        font-family: TimesNewRomanPS-BoldItalicMT, 'Times New Roman';
+        font-size: 225px;
+        font-style: italic;
+        font-weight: 700;
+        isolation: isolate;
+      }
+
+      .st2 {
+        stroke-width: 4.04px;
+      }
+
+      .st2, .st3, .st4, .st5, .st6, .st7, .st8, .st9, .st10, .st11, .st12, .st13, .st14, .st15, .st16 {
+        stroke: #052c52;
+      }
+
+      .st3 {
+        stroke-width: 4.18px;
+      }
+
+      .st4 {
+        stroke-width: 4.18px;
+      }
+
+      .st5 {
+        stroke-width: 3.97px;
+      }
+
+      .st6 {
+        stroke-width: 3.97px;
+      }
+
+      .st7 {
+        stroke-width: 4.05px;
+      }
+
+      .st8 {
+        stroke-width: 4.22px;
+      }
+
+      .st9 {
+        stroke-width: 4.25px;
+      }
+
+      .st10 {
+        stroke-width: 4.26px;
+      }
+
+      .st11 {
+        stroke-width: 4.08px;
+      }
+
+      .st12 {
+        stroke-width: 4.08px;
+      }
+
+      .st13 {
+        stroke-width: 4px;
+      }
+
+      .st14 {
+        stroke-width: 4.15px;
+      }
+
+      .st15 {
+        stroke-width: 4.15px;
+      }
+
+      .st16 {
+        stroke-width: 4.17px;
+      }
+
+      .st48 {
+        fill: #022c59;
+      }
+
+      .st49 {
+        fill: #012b57;
+      }
+
+      .st50 {
+        fill: #022a55;
+      }
+
+      .st51 {
+        fill: #00e253;
+      }
+
+      .st17 {
+        stroke-width: 1.05px;
+      }
+
+      .st17, .st18, .st19, .st29, .st30, .st31, .st32, .st33, .st34, .st35, .st36, .st37, .st38, .st39, .st40, .st41, .st42, .st43, .st52, .st53 {
+        stroke: #000;
+      }
+
+      .st17, .st29, .st30, .st31, .st32, .st33, .st34, .st35, .st36, .st37, .st38, .st39, .st40, .st41, .st42, .st43, .st53 {
+        stroke-linejoin: round;
+      }
+
+      .st54 {
+        fill: #022d59;
+      }
+
+      .st21 {
+        fill: url(#_未命名的渐变_6);
+      }
+
+      .st21, .st22, .st23, .st24, .st25, .st19 {
+        stroke-miterlimit: 10;
+      }
+
+      .st22 {
+        fill: url(#_未命名的渐变_2);
+      }
+
+      .st23 {
+        fill: url(#_未命名的渐变_5);
+      }
+
+      .st24 {
+        fill: url(#_未命名的渐变_4);
+      }
+
+      .st25 {
+        fill: url(#_未命名的渐变_3);
+      }
+
+      .st18 {
+        stroke-opacity: .2;
+        stroke-width: .9px;
+      }
+
+      .st55 {
+        fill: #012d59;
+      }
+
+      .st56 {
+        fill: #012b56;
+      }
+
+      .st57 {
+        fill: #012e5b;
+      }
+
+      .st58 {
+        fill: #fefefe;
+      }
+
+      .st29 {
+        fill: url(#_未命名的渐变_22);
+      }
+
+      .st29, .st30, .st31, .st32, .st33, .st34, .st35, .st36, .st37, .st38, .st39, .st40, .st41, .st42, .st43 {
+        stroke-width: .8px;
+      }
+
+      .st30 {
+        fill: url(#_未命名的渐变_20);
+      }
+
+      .st31 {
+        fill: url(#_未命名的渐变_21);
+      }
+
+      .st32 {
+        fill: url(#_未命名的渐变_18);
+      }
+
+      .st33 {
+        fill: url(#_未命名的渐变_17);
+      }
+
+      .st34 {
+        fill: url(#_未命名的渐变_11);
+      }
+
+      .st35 {
+        fill: url(#_未命名的渐变_15);
+      }
+
+      .st36 {
+        fill: url(#_未命名的渐变_10);
+      }
+
+      .st37 {
+        fill: url(#_未命名的渐变_14);
+      }
+
+      .st38 {
+        fill: url(#_未命名的渐变_13);
+      }
+
+      .st39 {
+        fill: url(#_未命名的渐变_19);
+      }
+
+      .st40 {
+        fill: url(#_未命名的渐变_12);
+      }
+
+      .st41 {
+        fill: url(#_未命名的渐变_16);
+      }
+
+      .st59 {
+        fill: #e24c00;
+      }
+
+      .st60 {
+        fill: url(#_未命名的渐变_27);
+      }
+
+      .st61 {
+        fill: url(#_未命名的渐变_26);
+      }
+
+      .st62 {
+        fill: url(#_未命名的渐变_24);
+      }
+
+      .st63 {
+        fill: url(#_未命名的渐变_32);
+      }
+
+      .st64 {
+        fill: url(#_未命名的渐变_31);
+      }
+
+      .st65 {
+        fill: url(#_未命名的渐变_33);
+      }
+
+      .st66 {
+        fill: #012c59;
+      }
+
+      .st42 {
+        fill: url(#_未命名的渐变_9);
+      }
+
+      .st43 {
+        fill: url(#_未命名的渐变_8);
+      }
+
+      .st67 {
+        fill: #012c57;
+      }
+
+      .st53 {
+        stroke-width: 1.1px;
+      }
+
+      .st20 {
+        stroke: url(#_未命名的渐变_23);
+        stroke-width: 8.7px;
+      }
+
+      .st68 {
+        fill: #012c58;
+      }
+
+      .st69 {
+        fill: #012a54;
+      }
+    </style>
+    <linearGradient id="_未命名的渐变_2" data-name="未命名的渐变 2" x1="425.76" y1="1024.61" x2="425.76" y2="972.41" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#045d60"/>
+      <stop offset=".25" stop-color="#007771"/>
+      <stop offset="1" stop-color="#027b72"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_3" data-name="未命名的渐变 3" x1="457.42" y1="998.48" x2="457.42" y2="960.95" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#04786f"/>
+      <stop offset="1" stop-color="#028478"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_4" data-name="未命名的渐变 4" x1="586.82" y1="986.27" x2="586.82" y2="936.49" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#046b6c"/>
+      <stop offset=".28" stop-color="#007b74"/>
+      <stop offset="1" stop-color="#037f76"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_5" data-name="未命名的渐变 5" x1="678.41" y1="1009.93" x2="678.41" y2="964.24" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#03736e"/>
+      <stop offset="1" stop-color="#01867c"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_6" data-name="未命名的渐变 6" x1="711.94" y1="1003.4" x2="711.94" y2="965.05" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#036e69"/>
+      <stop offset=".55" stop-color="#028279"/>
+      <stop offset="1" stop-color="#027e74"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_8" data-name="未命名的渐变 8" x1="570.66" y1="1146.65" x2="540.64" y2="1114.06" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2090fd"/>
+      <stop offset="1" stop-color="#3d9efd"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_9" data-name="未命名的渐变 9" x1="565.79" y1="1118.35" x2="543.51" y2="1082.98" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#48a5fe"/>
+      <stop offset="1" stop-color="#006ffb"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_10" data-name="未命名的渐变 10" x1="484.54" y1="1113.68" x2="471.61" y2="1085.6" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#acddfd"/>
+      <stop offset="1" stop-color="#7ecafe"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_11" data-name="未命名的渐变 11" x1="447.75" y1="1071.55" x2="435.14" y2="1097.38" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0157dd"/>
+      <stop offset="1" stop-color="#0054de"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_12" data-name="未命名的渐变 12" x1="411.73" y1="1058.51" x2="405.2" y2="1083.61" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#44aafd"/>
+      <stop offset="1" stop-color="#40a8fd"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_13" data-name="未命名的渐变 13" x1="488.27" y1="1053.36" x2="469.95" y2="1084.98" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#97d6fd"/>
+      <stop offset="1" stop-color="#a0d8fd"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_14" data-name="未命名的渐变 14" x1="458.21" y1="1038.63" x2="434.64" y2="1072.63" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#89cffd"/>
+      <stop offset="1" stop-color="#92d2fe"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_15" data-name="未命名的渐变 15" x1="520.17" y1="1041.73" x2="510.9" y2="1065.23" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fe7a69"/>
+      <stop offset="1" stop-color="#fd786b"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_16" data-name="未命名的渐变 16" x1="493.54" y1="1055.09" x2="474.02" y2="1025.87" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fd4b47"/>
+      <stop offset="1" stop-color="#fe695c"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_17" data-name="未命名的渐变 17" x1="635.54" y1="1090.04" x2="615.56" y2="1056.46" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fe9a8a"/>
+      <stop offset="1" stop-color="#fe453c"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_18" data-name="未命名的渐变 18" x1="702.11" y1="1088.49" x2="695.39" y2="1060.14" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#005ee3"/>
+      <stop offset="1" stop-color="#015be0"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_19" data-name="未命名的渐变 19" x1="675.36" y1="1075.9" x2="646.85" y2="1039.84" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7ec9fd"/>
+      <stop offset="1" stop-color="#5fbbfe"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_20" data-name="未命名的渐变 20" x1="631.89" y1="1060.55" x2="609.95" y2="1025.61" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#97d4fd"/>
+      <stop offset="1" stop-color="#8acffe"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_21" data-name="未命名的渐变 21" x1="605.64" y1="1042.07" x2="558.05" y2="1010.69" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0053dd"/>
+      <stop offset="1" stop-color="#015fec"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_22" data-name="未命名的渐变 22" x1="559.85" y1="1028.06" x2="540.9" y2="998.78" gradientTransform="translate(0 1233.3637) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2891fd"/>
+      <stop offset="1" stop-color="#389bfe"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_23" data-name="未命名的渐变 23" x1="-381.7" y1="1160.22" x2="-381.7" y2="1159.22" gradientTransform="translate(143664.5624 50313.8901) scale(375 -42.962)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#74ceff"/>
+      <stop offset="1" stop-color="#60c1fc"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_24" data-name="未命名的渐变 24" x1="-371.58" y1="1162.53" x2="-371.58" y2="1161.25" gradientTransform="translate(13191.5548 33120.5847) scale(33.4 -28.1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#74ceff"/>
+      <stop offset="1" stop-color="#60c1fc"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_25" data-name="未命名的渐变 25" x1="-379.97" y1="1158.98" x2="-378.69" y2="1157.71" gradientTransform="translate(31196.4677 93425.0394) scale(81.5 -80.3)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66c5fc"/>
+      <stop offset="1" stop-color="#5abef7"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_26" data-name="未命名的渐变 26" x1="-379.65" y1="1158.72" x2="-378.38" y2="1157.44" gradientTransform="translate(35241.6892 106030.0823) scale(91.5 -91.2)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#78d773"/>
+      <stop offset="1" stop-color="#70d170"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_27" data-name="未命名的渐变 27" x1="-378.43" y1="1156.57" x2="-377.16" y2="1155.29" gradientTransform="translate(34160.6853 100282.6253) scale(88.2 -86.4)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff7c29"/>
+      <stop offset="1" stop-color="#fe7423"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_31" data-name="未命名的渐变 31" x1="-381.46" y1="1156.78" x2="-380.46" y2="1155.78" gradientTransform="translate(85393.0155 255111.2444) scale(223.316 -219.86)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#86eccf"/>
+      <stop offset="1" stop-color="#83ecce"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_32" data-name="未命名的渐变 32" x1="-381.56" y1="1156.21" x2="-380.56" y2="1155.21" gradientTransform="translate(87561.4346 259387.6814) scale(228.282 -223.612)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7bcbfd"/>
+      <stop offset="1" stop-color="#76c9fd"/>
+    </linearGradient>
+    <linearGradient id="_未命名的渐变_33" data-name="未命名的渐变 33" x1="-381.58" y1="1156.05" x2="-380.58" y2="1155.05" gradientTransform="translate(85713.0264 250473.9002) scale(222.752 -215.986)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d29efc"/>
+      <stop offset="1" stop-color="#d09cfc"/>
+    </linearGradient>
+  </defs>
+  <path id="badge-azure-rim" d="M548.28.53c-18.13,2.41-34.37,13.05-50.67,22.64-15.71,9.24-31.48,17.49-47.28,25.93-31.72,16.94-63.54,34.59-95.29,52.12-63.11,34.86-125.93,69.28-188.78,103.74-31.37,17.2-62.76,34.41-93.96,51.95-7.74,4.35-15.47,8.72-23.24,13.11-7.76,4.38-15.56,8.79-22.53,14.4-7.09,5.71-13.32,12.67-17.36,20.6-4.26,8.35-6.1,17.77-7.27,27.23-2.97,24.16-1.51,48.55-1.01,72.91.51,24.36.06,48.71-.14,73.03-.4,48.32.17,96.58.17,144.95,0,48.7-.58,97.52-.13,146,.22,24.24.71,48.41-.09,73.02-.74,22.88-2.58,46.14,5.85,66.85,3.35,8.23,8.32,16.06,14.69,22.33,6.14,6.04,13.57,10.65,21,15.19,15.35,9.39,30.68,18.5,46.03,27.54,30.89,18.21,61.89,36.15,93,53.95,62.05,35.5,124.5,70.4,186.97,105.9,31,17.62,62,35.38,93.01,52.65,15.76,8.78,31.53,17.44,47.17,26.73,7.79,4.62,15.54,9.41,23.98,12.45,10.16,3.66,21.31,4.8,31.81,3.19,17.97-2.76,34.03-13.6,50.15-23.23,15.59-9.31,31.24-17.49,46.92-26.06,15.72-8.58,31.47-17.55,47.2-26.46,15.92-9.01,31.83-17.95,47.73-26.88,62.23-34.98,124.3-69.91,186.07-105.19,31.09-17.76,62.11-35.61,92.93-54,7.66-4.57,15.31-9.17,23.07-13.63,7.49-4.3,15.09-8.46,22.11-13.5,7.29-5.24,13.96-11.42,18.98-18.75,5.11-7.47,8.52-16.14,10.29-25.07,2.33-11.75,1.83-23.94,1.62-36.04-.21-12.06-.14-24.02-.11-35.99.08-24.28.02-48.63,0-72.97-.03-48.35.09-96.7.06-145.01-.03-48.65-.2-97.28.06-146.03.07-12.35.17-24.72-.02-36.99-.18-11.95-.63-23.81-.42-35.85.41-23.88,3.39-48.43-3.84-71.03-2.71-8.48-6.86-16.68-12.65-23.32-5.64-6.47-12.83-11.46-20.18-16.15-15.2-9.7-31.06-18.1-46.85-26.57-31.39-16.83-62.5-33.91-93.65-51.03-62.68-34.45-125.51-69.03-188.35-104.01-31.21-17.37-62.43-34.85-93.6-51.99-16.16-8.89-32.3-17.69-48.33-27.03-7.56-4.41-15.1-8.93-23.28-11.93-10.16-3.73-21.31-5.11-31.83-3.71Z"/>
+  <path id="badge-navy-interior" class="st57" d="M551.85,29.58c-8.34,1.19-16.86,5.42-24.84,9.69-8,4.28-15.45,8.59-23.02,12.88-14.63,8.28-29.68,16.43-44.68,24.6-29.8,16.24-59.4,32.57-89.01,48.89-59.76,32.94-119.58,65.85-179.4,98.51-29.89,16.32-59.79,32.58-89.78,49.15-7.65,4.22-15.3,8.47-22.81,12.57-7.25,3.96-14.37,7.8-21.83,12.1-3.95,2.28-8,4.69-11.76,7.55-3.41,2.58-6.59,5.52-8.88,8.78-5.62,7.99-5.87,17.9-6.09,27.81-2.02,92.54-.75,184.76-.76,277.08,0,46.33-.32,92.67-.26,139.04.03,23.02.15,46.04.22,68.93.03,11.61.05,23.19-.23,35.03-.27,10.91-.79,22.04,2.52,32.05,2.62,7.9,7.63,15.09,13.93,20.72,6.21,5.56,13.67,9.6,21.03,13.71,14.84,8.3,29.28,16.93,43.79,25.49,28.91,17.06,58.13,33.87,87.32,50.54,59.01,33.68,117.94,66.77,177.02,100.53,29.68,16.96,59.4,34.09,88.95,50.59,14.59,8.15,29.14,16.14,43.9,25.19,16,9.8,32.26,20.84,49.66,19.43,8.74-.71,17.77-4.56,26.09-8.91,7.82-4.09,15.01-8.62,22.37-13,14.32-8.52,29.27-16.45,44.04-24.55,15.1-8.28,30.01-16.74,44.95-25.19,14.64-8.28,29.31-16.56,43.97-24.83,60.1-33.88,120.06-67.5,179.98-101.66,29.61-16.88,59.22-33.9,88.6-51.07,14.45-8.45,28.85-16.93,43.56-25.39,7.44-4.28,14.97-8.54,20.67-14.66,2.73-2.93,5.04-6.27,6.79-9.91,1.96-4.08,3.22-8.53,4.02-13.03,1.99-11.18,1.16-22.65.83-34.04-.34-11.71-.13-23.34-.02-34.99.22-22.96.09-45.98.04-68.99-.09-46.02.14-92.01.14-138,0-46.33-.26-92.67-.11-139,.07-23,.25-46-.02-68.99-.14-11.66-.39-23.32-.03-34.99.35-11.34,1.29-22.7-.44-33.99-1.36-8.88-4.36-17.73-9.9-24.37-5.2-6.22-12.63-10.5-20-14.69-15.08-8.56-29.94-16.75-44.84-24.93-29.78-16.35-59.76-32.72-89.67-49.06-60.62-33.14-120.92-66.19-181.42-99.97-29.98-16.74-60.01-33.65-89.83-49.88-14.68-7.99-29.31-15.82-44.23-24.65-16.33-9.68-33.02-20.57-50.54-18.06Z"/>
+  <g id="omics-atac-layer" inkscape:groupmode="layer" inkscape:label="ATAC plane, five peaks and four baselines">
+    <path id="omics-atac-plane" class="st52" d="M316.84,244.65l243.55-106.56,234.58,106.56c-78.9,33.86-157.47,60.87-236.62,90.73-80.53-30.52-160.98-58.09-241.51-90.73Z"/>
+    <g id="omics-atac-track-1">
+      <path id="omics-atac-peak-1" class="st22" d="M404.95,260.15c1.63,0,3.26-.33,4.49-2.74.82-.86,1.63-3.63,2.45-6.94.54-2.21,1.09-4.66,1.63-7.18,1.36-6.31,2.72-13.07,4.08-18.94,1.36-5.87,2.72-10.86,4.08-13.66,1.36-2.8,2.72-3.41,4.08-2.01.82.84,1.63,2.4,2.45,4.88.54,1.65,1.09,3.72,1.63,5.95,1.36,5.59,2.72,12.28,4.08,18.73s2.72,12.67,4.08,16.12c1.36,3.44,2.72,4.1,4.08,3.98,1.22,1.41,2.86,1.82,4.49,1.82h-41.61Z"/>
+      <path id="omics-atac-baseline-1" class="st1" d="M385.45,260.32h60.79"/>
+    </g>
+    <g id="omics-atac-track-2">
+      <path id="omics-atac-peak-2" class="st25" d="M439.55,271.74c3.75-.57,5.3-6.28,7.42-14.71,2.18-7.81,4.35-15.98,6.53-19.77,1.9-3.32,3.81-3.29,5.71.96,2.18,4.86,4.35,15.24,6.53,22.4,1.09,3.58,2.18,6.34,3.26,7.65.82.98,1.63,1.14,2.45,1.16,2.04,2.16,2.86,2.24,3.83,2.24l-35.74.08Z"/>
+      <path id="omics-atac-baseline-2" class="st1" d="M439.39,271.98h73.35"/>
+    </g>
+    <g id="omics-atac-track-3">
+      <path id="omics-atac-peak-3" class="st24" d="M562.26,296.62c1.88,0,3.83-.57,5.47-2.66.82.12,1.63-.34,2.45-1.71s1.63-3.67,2.45-6.49c.82-2.82,1.63-6.16,2.45-9.38.82-3.23,1.63-6.34,2.45-9.42,1.63-6.16,3.26-12.16,4.9-15.89,1.63-3.73,3.26-5.17,4.9-3.58,1.63,1.59,3.26,6.23,4.9,12.09,1.63,5.87,3.26,12.96,4.9,19.71.82,3.37,1.63,6.66,2.45,9.07.82,2.41,1.63,3.94,2.45,4.83,1.36,1.48,2.72,1.17,4.08,1.41,1.63,1.86,3.26,2.02,5.3,2.02h-49.12Z"/>
+      <path id="omics-atac-baseline-3" class="st0" d="M509.07,296.71h117.9"/>
+    </g>
+    <g id="omics-atac-track-4">
+      <path id="omics-atac-peak-4" class="st23" d="M657.32,269.13c1.55,0,3.18-.82,5.06-2.67.82-.31,1.63-.51,2.45-1.74.82-1.23,1.63-3.48,2.45-6.07,1.36-4.32,2.72-9.59,4.08-14.59,2.72-10,5.44-18.95,8.16-20.57,2.72-1.62,5.44,4.08,8.16,14.31,1.36,5.12,2.72,11.36,4.08,16.61,1.36,5.24,2.72,9.49,4.08,10.77,1.31,2.72,2.04,3.95,3.67,3.95h-42.18Z"/>
+      <path id="omics-atac-peak-5" class="st21" d="M694.2,269.05c2.04-2.61,3.67-6.94,5.71-12.45,2.18-9.51,4.35-21.65,6.53-25.58,1.9-3.44,3.81-.59,5.71,6.07,1.9,6.66,3.81,17.13,5.71,22.31,1.9,5.18,3.81,5.07,5.71,5.24,2.04,1.88,4.08,1.96,6.12,1.96l-.65,1.8-34.84.65Z"/>
+      <path id="omics-atac-baseline-4" class="st1" d="M624.19,269.05h69.6c13.6-.11,25.4-.87,35.41-2.28"/>
+    </g>
+  </g>
+  <g id="omics-rna-layer" inkscape:groupmode="layer" inkscape:label="RNA plane and fifteen heatmap tiles">
+    <polygon id="omics-rna-plane" class="st53" points="332.3 165.41 557.08 79.08 779.5 166.87 556.43 253.2 332.3 165.41"/>
+    <g id="omics-heatmap-grid">
+      <path id="omics-grid-diagonal-a1" class="st18" d="M523.87,103.23l175.91,71.96"/>
+      <path id="omics-grid-diagonal-a2" class="st18" d="M479.9,120.29l184.15,70.98"/>
+      <path id="omics-grid-diagonal-a3" class="st18" d="M441.79,136.6l180.15,70.33"/>
+      <path id="omics-grid-diagonal-a4" class="st18" d="M408.83,150.31l175.01,70.98"/>
+      <path id="omics-grid-diagonal-b1" class="st18" d="M587.68,102.34l-174.85,74.41"/>
+      <path id="omics-grid-diagonal-b2" class="st18" d="M623.33,116.86l-172.32,76.12"/>
+      <path id="omics-grid-diagonal-b3" class="st18" d="M659.64,131.71l-174.28,75.15"/>
+      <path id="omics-grid-diagonal-b4" class="st18" d="M696.2,143.05l-179.58,76.86"/>
+    </g>
+    <g id="omics-heatmap-tiles">
+      <polygon id="omics-rna-tile-01" class="st43" points="523.71 103.71 557.74 90.32 587.58 102.3 554.73 115.38 523.71 103.71"/>
+      <polygon id="omics-rna-tile-02" class="st42" points="518.39 134.56 558.12 118.21 590.91 130.84 552.08 147.63 518.39 134.56"/>
+      <polygon id="omics-rna-tile-03" class="st36" points="443.62 134.87 481.41 120.09 512.53 132.57 474.36 148.05 443.62 134.87"/>
+      <polygon id="omics-rna-tile-04" class="st34" points="409.55 148.48 441.1 136.24 473.35 149.32 441.93 162.06 409.55 148.48"/>
+      <polygon id="omics-rna-tile-05" class="st40" points="375.67 162.08 408.34 148.94 441.21 162.32 409.35 175.47 375.67 162.08"/>
+      <polygon id="omics-rna-tile-06" class="st38" points="444.9 162.89 475.83 150.53 513.32 165.5 482.27 178.6 444.9 162.89"/>
+      <polygon id="omics-rna-tile-07" class="st37" points="411.87 176.53 443.16 163.78 480.98 178.94 449.87 192.01 411.87 176.53"/>
+      <polygon id="omics-rna-tile-08" class="st35" points="483.45 179.39 514.96 166.54 547.36 179.73 516.25 193.19 483.45 179.39"/>
+      <polygon id="omics-rna-tile-09" class="st41" points="451.68 192.58 482.83 179.62 515.88 193.2 485.5 206.42 451.68 192.58"/>
+      <polygon id="omics-rna-tile-10" class="st33" points="591.47 162.57 629.56 146.21 659.63 157.65 621.06 174.19 591.47 162.57"/>
+      <polygon id="omics-rna-tile-11" class="st32" points="660.29 157.96 695.14 143.22 737.11 160.54 702.1 174.81 660.29 157.96"/>
+      <polygon id="omics-rna-tile-12" class="st39" points="622.78 174.5 657.86 159.68 699.43 176.49 664.29 191.06 622.78 174.5"/>
+      <polygon id="omics-rna-tile-13" class="st30" points="582.28 190.38 620.46 174.94 659.57 190.19 622.09 206.2 582.28 190.38"/>
+      <polygon id="omics-rna-tile-14" class="st31" points="546.83 205.65 578.05 192.3 616.86 208.32 585.22 220.88 546.83 205.65"/>
+      <polygon id="omics-rna-tile-15" class="st29" points="516.32 218.68 545.44 206.09 584.43 221.21 553.45 233.94 516.32 218.68"/>
+    </g>
+    <path id="omics-rna-front-rim" class="st19" d="M332.46,165.65l223.97,87.55,223.07-86.32"/>
+    <path id="omics-rna-back-rim" class="st17" d="M332.46,165.24l224.62-86.16,222.42,87.55"/>
+  </g>
+  <g id="regulatory-motif" inkscape:groupmode="layer" inkscape:label="TFregiongene motif and direct link">
+    <g id="tf-gene-direct-link" inkscape:label="TF to gene direct arrow">
+      <path id="tf-gene-curve" class="st20" d="M305.46,457c5.21,7.25,15.9,13.35,29.25,17.73,26.07,11.31,52.15,17.79,78.22,22.87,27.56,5.38,55.12,8.99,82.67,11.32,29.68,2.51,59.36,3.38,89.03,2.19,29.68-1.19,59.36-4.4,89.03-10.04,28.62-5.44,57.24-12.93,85.85-24.6l22.89-11.59"/>
+      <path id="tf-gene-arrowhead" class="st62" d="M759.65,455.22l42.48-1.65-26.46,35.74-5.72-20.86-10.3-13.23Z"/>
+    </g>
+    <rect id="tf-square" class="st26" x="229.27" y="359.06" width="103.66" height="102.13" rx="1.2" ry="1.2"/>
+    <g id="tf-region-link" inkscape:label="TF to region arrow">
+      <rect id="tf-region-shaft" class="st44" x="346.79" y="406.38" width="110.66" height="10.43"/>
+      <path id="tf-region-arrowhead" class="st27" d="M454.9,390.1l38.79,21.62-38.79,21.88v-43.5Z"/>
+    </g>
+    <path id="region-diamond" class="st61" d="M562.25,355.5l57.24,57.74-58.13,58.25-58.25-58.63,59.14-57.36Z"/>
+    <g id="region-gene-link" inkscape:label="Region to gene arrow">
+      <rect id="region-gene-shaft" class="st45" x="628.01" y="406.38" width="107.35" height="11.07"/>
+      <path id="region-gene-arrowhead" class="st28" d="M734.47,390.22l37.9,21.5-37.9,21.75v-43.24Z"/>
+    </g>
+    <ellipse id="gene-circle" class="st60" cx="839.4" cy="410.19" rx="56.09" ry="54.95" transform="translate(-94.47 437.2) rotate(-27.7)"/>
+  </g>
+  <text id="wordmark-m" class="st47" transform="translate(83.97 729.29)"><tspan class="st58" x="0" y="0">multi</tspan><tspan class="st46" x="487.68" y="0">C</tspan><tspan class="st51" x="637.76" y="0">S</tspan><tspan class="st59" x="762.89" y="0">N</tspan></text>
+  <g id="cell-type-networks" inkscape:groupmode="layer" inkscape:label="Three cell-specific networks">
+    <g id="network-mint" inkscape:label="Mint cell-specific network">
+      <ellipse id="network-mint-plate" class="st64" cx="318.98" cy="892.33" rx="111.66" ry="109.93" inkscape:label="Mint background plate" transform="translate(-167.46 79.08) rotate(-11.22)"/>
+      <g id="network-mint-edges" inkscape:label="Five individual network edges">
+        <line id="network-mint-edge-1" class="st14" x1="321.87" y1="831.98" x2="266.66" y2="890.07" inkscape:label="Edge 1 to 2"/>
+        <line id="network-mint-edge-2" class="st4" x1="267.11" y1="889.91" x2="297.54" y2="942.56" inkscape:label="Edge 2 to 3"/>
+        <line id="network-mint-edge-3" class="st3" x1="266.76" y1="890.01" x2="353.29" y2="917.24" inkscape:label="Edge 2 to 5"/>
+        <line id="network-mint-edge-4" class="st7" x1="375.9" y1="867.11" x2="353.32" y2="917.4" inkscape:label="Edge 4 to 5"/>
+        <line id="network-mint-edge-5" class="st13" x1="353.25" y1="917.37" x2="371.86" y2="948.38" inkscape:label="Edge 5 to 6"/>
+      </g>
+      <g id="network-mint-nodes" inkscape:label="Six individual network nodes">
+        <ellipse id="network-mint-node-1" class="st69" cx="321.94" cy="832.04" rx="19.36" ry="19" inkscape:label="Node 1" transform="translate(-380.1 281.51) rotate(-30.74)"/>
+        <ellipse id="network-mint-node-2" class="st56" cx="266.72" cy="890.13" rx="19.48" ry="19.19" inkscape:label="Node 2" transform="translate(-282.67 140.7) rotate(-19.56)"/>
+        <ellipse id="network-mint-node-3" class="st49" cx="297.16" cy="942.78" rx="19.19" ry="18.83" inkscape:label="Node 3" transform="translate(-660.9 699.35) rotate(-58.25)"/>
+        <ellipse id="network-mint-node-4" class="st50" cx="375.83" cy="867.07" rx="19.24" ry="18.92" inkscape:label="Node 4" transform="translate(-507.64 531.58) rotate(-45.77)"/>
+        <ellipse id="network-mint-node-5" class="st56" cx="353.25" cy="917.37" rx="14.92" ry="14.73" inkscape:label="Node 5" transform="translate(-321.16 202.16) rotate(-22.26)"/>
+        <ellipse id="network-mint-node-6" class="st49" cx="371.86" cy="948.38" rx="19.05" ry="18.7" inkscape:label="Node 6" transform="translate(-586.82 603.95) rotate(-48.83)"/>
+      </g>
+    </g>
+    <g id="network-blue" inkscape:label="Blue cell-specific network">
+      <ellipse id="network-blue-plate" class="st63" cx="571.74" cy="957.7" rx="114.14" ry="111.81" inkscape:label="Blue background plate" transform="translate(-426.8 460.71) rotate(-32.7)"/>
+      <g id="network-blue-edges" inkscape:label="Five individual network edges">
+        <line id="network-blue-edge-1" class="st8" x1="534.93" y1="920.17" x2="575.34" y2="963.38" inkscape:label="Edge 1 to 3"/>
+        <line id="network-blue-edge-2" class="st15" x1="605.47" y1="897.34" x2="575.59" y2="963.51" inkscape:label="Edge 2 to 3"/>
+        <line id="network-blue-edge-3" class="st2" x1="575.37" y1="963.49" x2="513.93" y2="986.26" inkscape:label="Edge 3 to 4"/>
+        <line id="network-blue-edge-4" class="st11" x1="575.87" y1="963.49" x2="564.84" y2="1024.24" inkscape:label="Edge 3 to 5"/>
+        <line id="network-blue-edge-5" class="st12" x1="575.46" y1="963.13" x2="631.62" y2="990.27" inkscape:label="Edge 3 to 6"/>
+      </g>
+      <g id="network-blue-nodes" inkscape:label="Six individual network nodes">
+        <ellipse id="network-blue-node-1" class="st66" cx="534.92" cy="920.18" rx="18.71" ry="18.57" inkscape:label="Node 1" transform="translate(-523.6 808.82) rotate(-53.82)"/>
+        <ellipse id="network-blue-node-2" class="st54" cx="605.21" cy="897.22" rx="18.85" ry="18.4" inkscape:label="Node 2" transform="translate(-472.46 797.58) rotate(-50.72)"/>
+        <ellipse id="network-blue-node-3" class="st68" cx="575.33" cy="963.39" rx="18.94" ry="18.59" inkscape:label="Node 3" transform="translate(-545.14 902.72) rotate(-56.06)"/>
+        <ellipse id="network-blue-node-4" class="st48" cx="513.89" cy="986.16" rx="18.74" ry="18.43" inkscape:label="Node 4" transform="translate(-528.44 598.69) rotate(-42.08)"/>
+        <ellipse id="network-blue-node-5" class="st67" cx="564.3" cy="1024.14" rx="18.69" ry="18.13" inkscape:label="Node 5" transform="translate(-593.72 862.03) rotate(-53.18)"/>
+        <ellipse id="network-blue-node-6" class="st48" cx="631.49" cy="990.53" rx="18.65" ry="18.35" inkscape:label="Node 6" transform="translate(-518.48 750.76) rotate(-45.7)"/>
+      </g>
+    </g>
+    <g id="network-violet" inkscape:label="Violet cell-specific network">
+      <ellipse id="network-violet-plate" class="st65" cx="826.95" cy="891.52" rx="111.38" ry="107.99" inkscape:label="Violet background plate" transform="translate(-374.1 701.4) rotate(-38.16)"/>
+      <g id="network-violet-edges" inkscape:label="Five individual network edges">
+        <line id="network-violet-edge-1" class="st6" x1="842.04" y1="832.27" x2="814.85" y2="899.32" inkscape:label="Edge 1 to 3"/>
+        <line id="network-violet-edge-2" class="st10" x1="772.06" y1="867.31" x2="815.19" y2="899.18" inkscape:label="Edge 2 to 3"/>
+        <line id="network-violet-edge-3" class="st9" x1="815.03" y1="899.39" x2="882.05" y2="888.84" inkscape:label="Edge 3 to 4"/>
+        <line id="network-violet-edge-4" class="st16" x1="814.7" y1="899.12" x2="776.16" y2="945.51" inkscape:label="Edge 3 to 5"/>
+        <line id="network-violet-edge-5" class="st5" x1="814.78" y1="899.59" x2="853.12" y2="947.78" inkscape:label="Edge 3 to 6"/>
+      </g>
+      <g id="network-violet-nodes" inkscape:label="Six individual network nodes">
+        <ellipse id="network-violet-node-1" class="st67" cx="842.22" cy="832.35" rx="18.84" ry="18.57" inkscape:label="Node 1" transform="translate(-307.6943 1114.8929) rotate(-58.467)"/>
+        <ellipse id="network-violet-node-2" class="st49" cx="771.9" cy="867.52" rx="18.74" ry="18.42" inkscape:label="Node 2" transform="translate(-386.02 780.11) rotate(-44.02)"/>
+        <ellipse id="network-violet-node-3" class="st68" cx="815.03" cy="899.39" rx="18.78" ry="18.36" inkscape:label="Node 3" transform="translate(-304.1273 1369.1499) rotate(-70.587)"/>
+        <ellipse id="network-violet-node-4" class="st55" cx="882.05" cy="888.84" rx="18.65" ry="18.49" inkscape:label="Node 4" transform="translate(-329.56 572.53) rotate(-30.59)"/>
+        <ellipse id="network-violet-node-5" class="st68" cx="776.48" cy="945.78" rx="18.6" ry="18.25" inkscape:label="Node 5" transform="translate(-433.8067 1126.3952) rotate(-59.102)"/>
+        <ellipse id="network-violet-node-6" class="st49" cx="853.37" cy="947.58" rx="18.58" ry="18.32" inkscape:label="Node 6" transform="translate(-411.0014 1113.4446) rotate(-55.468)"/>
+      </g>
+    </g>
+  </g>
+</svg>
