@@ -92,13 +92,13 @@ test_data <- rbind(
   data.frame(cluster = "cluster3", pseudotime = rnorm(500, mean = 3, sd = 1))
 )
 density_points(test_data, pseudotime_column = "pseudotime", group_column = "cluster")
-#> ℹ [2026-09-11 10:31:12] Dynamic state skeleton groups (ordered by median pseudotime): "cluster1", "cluster2", and "cluster3"
-#> ℹ [2026-09-11 10:31:12] Dynamic states: 3 stable, 2 transition states
-#> ℹ [2026-09-11 10:31:12]   state_1 (stable): cells=93, pseudotime=[-1.94, 0.077]
-#> ℹ [2026-09-11 10:31:12]   state_1_2 (transition): cells=520, pseudotime=[0.077, 1.9]
-#> ℹ [2026-09-11 10:31:12]   state_2 (stable): cells=0, pseudotime=[1.9, 1.9]
-#> ℹ [2026-09-11 10:31:12]   state_2_3 (transition): cells=572, pseudotime=[1.9, 3.76]
-#> ℹ [2026-09-11 10:31:12]   state_3 (stable): cells=105, pseudotime=[3.76, 6.11]
+#> ℹ [2026-09-11 12:06:54] Dynamic state skeleton groups (ordered by median pseudotime): "cluster1", "cluster2", and "cluster3"
+#> ℹ [2026-09-11 12:06:54] Dynamic states: 3 stable, 2 transition states
+#> ℹ [2026-09-11 12:06:54]   state_1 (stable): cells=93, pseudotime=[-1.94, 0.077]
+#> ℹ [2026-09-11 12:06:54]   state_1_2 (transition): cells=520, pseudotime=[0.077, 1.9]
+#> ℹ [2026-09-11 12:06:54]   state_2 (stable): cells=0, pseudotime=[1.9, 1.9]
+#> ℹ [2026-09-11 12:06:54]   state_2_3 (transition): cells=572, pseudotime=[1.9, 3.76]
+#> ℹ [2026-09-11 12:06:55]   state_3 (stable): cells=105, pseudotime=[3.76, 6.11]
 #> $params
 #> $params$pseudotime_column
 #> [1] "pseudotime"

@@ -38,7 +38,7 @@ fit_glmnet(formula, data, family = gaussian, alpha = 0.5, ...)
 - ...:
 
   Additional parameters passed to
-  *[`glmnet::glmnet`](https://rdrr.io/pkg/glmnet/man/glmnet.html)*.
+  *[`glmnet::glmnet`](https://glmnet.stanford.edu/reference/glmnet.html)*.
 
 ## Value
 
