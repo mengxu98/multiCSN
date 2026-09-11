@@ -207,7 +207,7 @@ inferCSN(
 - alpha:
 
   Elastic-net mixing parameter. See
-  [`glmnet`](https://glmnet.stanford.edu/reference/glmnet.html).
+  [`glmnet`](https://rdrr.io/pkg/glmnet/man/glmnet.html).
 
 - family:
 
@@ -254,10 +254,10 @@ data("example_matrix", package = "inferCSN")
 network_table_1 <- inferCSN(
   example_matrix
 )
-#> ℹ [2026-09-11 09:40:16] Inferring network for <matrix/array>...
-#> ◌ [2026-09-11 09:40:16] Checking parameters...
-#> ✔ [2026-09-11 09:40:16] Inferring network done
-#> ℹ [2026-09-11 09:40:16] Network information:
+#> ℹ [2026-09-11 10:31:22] Inferring network for <matrix/array>...
+#> ◌ [2026-09-11 10:31:22] Checking parameters...
+#> ✔ [2026-09-11 10:31:22] Inferring network done
+#> ℹ [2026-09-11 10:31:22] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -265,10 +265,10 @@ network_table_2 <- inferCSN(
   example_matrix,
   cores = 2
 )
-#> ℹ [2026-09-11 09:40:16] Inferring network for <matrix/array>...
-#> ◌ [2026-09-11 09:40:16] Checking parameters...
-#> ✔ [2026-09-11 09:40:16] Inferring network done
-#> ℹ [2026-09-11 09:40:16] Network information:
+#> ℹ [2026-09-11 10:31:22] Inferring network for <matrix/array>...
+#> ◌ [2026-09-11 10:31:22] Checking parameters...
+#> ✔ [2026-09-11 10:31:22] Inferring network done
+#> ℹ [2026-09-11 10:31:22] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -292,10 +292,10 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g4")
 )
-#> ℹ [2026-09-11 09:40:16] Inferring network for <matrix/array>...
-#> ◌ [2026-09-11 09:40:16] Checking parameters...
-#> ✔ [2026-09-11 09:40:16] Inferring network done
-#> ℹ [2026-09-11 09:40:16] Network information:
+#> ℹ [2026-09-11 10:31:22] Inferring network for <matrix/array>...
+#> ◌ [2026-09-11 10:31:22] Checking parameters...
+#> ✔ [2026-09-11 10:31:22] Inferring network done
+#> ℹ [2026-09-11 10:31:22] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     4          2       2
 #>   regulator target weight
@@ -308,11 +308,11 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g0")
 )
-#> ℹ [2026-09-11 09:40:16] Inferring network for <matrix/array>...
-#> ◌ [2026-09-11 09:40:16] Checking parameters...
+#> ℹ [2026-09-11 10:31:22] Inferring network for <matrix/array>...
+#> ◌ [2026-09-11 10:31:22] Checking parameters...
 #> Warning: Ignoring 1 requested targets absent from `object`: g0
-#> ✔ [2026-09-11 09:40:16] Inferring network done
-#> ℹ [2026-09-11 09:40:16] Network information:
+#> ✔ [2026-09-11 10:31:22] Inferring network done
+#> ℹ [2026-09-11 10:31:22] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     2          2       1
 #>   regulator target weight
