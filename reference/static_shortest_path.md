@@ -47,10 +47,10 @@ shortest path, distance, normalized distance, and action
 ``` r
 data("example_matrix", package = "inferCSN")
 network_table <- inferCSN::inferCSN(example_matrix)
-#> ℹ [2026-09-11 12:07:26] Inferring network for <matrix/array>...
-#> ◌ [2026-09-11 12:07:26] Checking parameters...
-#> ✔ [2026-09-11 12:07:26] Inferring network done
-#> ℹ [2026-09-11 12:07:26] Network information:
+#> ℹ [2026-09-11 13:23:15] Inferring network for <matrix/array>...
+#> ◌ [2026-09-11 13:23:15] Checking parameters...
+#> ✔ [2026-09-11 13:23:15] Inferring network done
+#> ℹ [2026-09-11 13:23:15] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 static_shortest_path(

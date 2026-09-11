@@ -1,10 +1,10 @@
-# ***multiCSN***
+# **multiCSN**
 
 ## **Introduction**
 
-[*`multiCSN`*](https://mengxu98.github.io/multiCSN/) is an R package for
-***infer***ring ***C***ell-***S***pecific gene regulatory ***N***etwork
-from single-cell omics data.
+[multiCSN](https://mengxu98.github.io/multiCSN/) is an R package for
+**infer**ring **C**ell-**S**pecific gene regulatory **N**etwork from
+single-cell omics data.
 
 ![multiCSN workflow
 diagram](https://raw.githubusercontent.com/mengxu98/figures/main/multiCSN/multiCSN.svg#gh-light-mode-only)
@@ -15,8 +15,8 @@ diagram](https://raw.githubusercontent.com/mengxu98/figures/main/multiCSN/multiC
 ## **Installation**
 
 Install the development version from
-[*`GitHub`*](https://github.com/mengxu98/multiCSN) use
-[*`pak`*](https://github.com/r-lib/pak):
+[GitHub](https://github.com/mengxu98/multiCSN) use
+[pak](https://github.com/r-lib/pak):
 
 ``` r
 
@@ -30,7 +30,7 @@ pak::pak("mengxu98/multiCSN")
 
 ### **Examples**
 
-#### For a `matrix` object.
+### **For a `matrix` object**
 
 ``` r
 
@@ -42,7 +42,7 @@ network <- inferCSN(
 )
 ```
 
-#### For a `matrix` object, initiate it to `Network` object.
+### **For a `matrix` object, initiate it to `Network` object**
 
 ``` r
 
@@ -64,8 +64,8 @@ head(network_table)
 ```
 
 More functions and usages about
-[*`multiCSN`*](https://mengxu98.github.io/multiCSN/)? Please reference
-[*`here`*](https://mengxu98.github.io/multiCSN/reference/index.html).
+[multiCSN](https://mengxu98.github.io/multiCSN/)? Please reference
+[here](https://mengxu98.github.io/multiCSN/reference/index.html).
 
 # Package index
 
