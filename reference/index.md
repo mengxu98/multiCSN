@@ -1,0 +1,452 @@
+# Package index
+
+### Package overview
+
+- [`multiCSN`](https://mengxu98.github.io/multiCSN/reference/multiCSN-package.md)
+  [`multiCSN-package`](https://mengxu98.github.io/multiCSN/reference/multiCSN-package.md)
+  : Inferring Cell-Specific Gene Regulatory Network
+- [`multicsn_logo()`](https://mengxu98.github.io/multiCSN/reference/multicsn_logo.md)
+  : The logo of multiCSN
+- [`inferCSN()`](https://mengxu98.github.io/multiCSN/reference/inferCSN.md)
+  : inferring cell-type specific gene regulatory network
+
+### Object of cell type-specific gene regulatory network
+
+- [`initiate_object()`](https://mengxu98.github.io/multiCSN/reference/initiate_object.md)
+  : Initiate object
+- [`CSNObject-class`](https://mengxu98.github.io/multiCSN/reference/CSNObject-class.md)
+  : The CSNObject class
+- [`Modules-class`](https://mengxu98.github.io/multiCSN/reference/Modules-class.md)
+  : The Modules class
+- [`Network-class`](https://mengxu98.github.io/multiCSN/reference/Network-class.md)
+  : The Network class
+- [`Regions-class`](https://mengxu98.github.io/multiCSN/reference/Regions-class.md)
+  : The Regions class
+
+### Network visualization
+
+- [`plot_dynamic_networks()`](https://mengxu98.github.io/multiCSN/reference/plot_dynamic_networks.md)
+  : Plot dynamic networks
+- [`plot_static_networks()`](https://mengxu98.github.io/multiCSN/reference/plot_static_networks.md)
+  : Plot dynamic networks
+- [`plot_contrast_networks()`](https://mengxu98.github.io/multiCSN/reference/plot_contrast_networks.md)
+  : Plot contrast networks
+- [`plot_network_heatmap()`](https://mengxu98.github.io/multiCSN/reference/plot_network_heatmap.md)
+  : Plot a network heatmap
+- [`plot_detail_network()`](https://mengxu98.github.io/multiCSN/reference/plot_detail_network.md)
+  : Plot the dynamic differential network but colored by communities and
+  optionally faded by igraph::betweenness
+- [`plot_diffnet_detail()`](https://mengxu98.github.io/multiCSN/reference/plot_diffnet_detail.md)
+  : Plot the dynamic differential network but colored by communities and
+  optionally faded by betweenness
+- [`plot_dyn_diffnet()`](https://mengxu98.github.io/multiCSN/reference/plot_dyn_diffnet.md)
+  : Plot the dynamic differential network
+- [`plot_dynamic_network()`](https://mengxu98.github.io/multiCSN/reference/plot_dynamic_network.md)
+  : quick plot of dynamic networks
+- [`plot_gof()`](https://mengxu98.github.io/multiCSN/reference/plot_gof.md)
+  : Plot goodness of fit
+- [`plot_heatmap_by_treatment()`](https://mengxu98.github.io/multiCSN/reference/plot_heatmap_by_treatment.md)
+  : Useful plotting function to plot heatmap with pre-split matrix
+- [`plot_module_metrics()`](https://mengxu98.github.io/multiCSN/reference/plot_module_metrics.md)
+  : Plot module metrics
+- [`plot_network_graph()`](https://mengxu98.github.io/multiCSN/reference/plot_network_graph.md)
+  : Plot network graph
+- [`plot_targets_and_regulators()`](https://mengxu98.github.io/multiCSN/reference/plot_targets_and_regulators.md)
+  : Updated plot of top regulators given targets in dynamic networks
+  based on a weight column. Top regulators computed for each epoch, but
+  maintained in plot across epochs if present in epoch subnetwork.
+- [`plot_targets_with_top_regulators_detail()`](https://mengxu98.github.io/multiCSN/reference/plot_targets_with_top_regulators_detail.md)
+  : quick plot of top regulators given targets in dynamic networks based
+  on reconstruction weight, colored by expression and interaction type
+- [`plot_tf_network()`](https://mengxu98.github.io/multiCSN/reference/plot_tf_network.md)
+  : Plot TF network
+- [`plot_top_features()`](https://mengxu98.github.io/multiCSN/reference/plot_top_features.md)
+  : quick plot of top regulators in dynamic networks
+- [`heatmap_by_treatment_group()`](https://mengxu98.github.io/multiCSN/reference/heatmap_by_treatment_group.md)
+  : Useful plotting function to plot heatmap of module expression across
+  time with pre-split matrix
+- [`hm_dyn()`](https://mengxu98.github.io/multiCSN/reference/hm_dyn.md)
+  : plots results of findDynGenes
+- [`hm_dyn_clust()`](https://mengxu98.github.io/multiCSN/reference/hm_dyn_clust.md)
+  : plots results of findDynGenes
+- [`hm_dyn_epoch()`](https://mengxu98.github.io/multiCSN/reference/hm_dyn_epoch.md)
+  : heatmap
+
+### Plotting functions
+
+- [`plot_coefficient()`](https://mengxu98.github.io/multiCSN/reference/plot_coefficient.md)
+  : Plot coefficients
+- [`plot_coefficients()`](https://mengxu98.github.io/multiCSN/reference/plot_coefficients.md)
+  : Plot coefficients for multiple targets
+- [`plot_edges_comparison()`](https://mengxu98.github.io/multiCSN/reference/plot_edges_comparison.md)
+  : Plot Edges Comparison
+
+### Network evaluation
+
+- [`calculate_metrics()`](https://mengxu98.github.io/multiCSN/reference/calculate_metrics.md)
+  : Calculate network metrics
+- [`calculate_accuracy()`](https://mengxu98.github.io/multiCSN/reference/calculate_accuracy.md)
+  : Calculate Accuracy
+- [`calculate_auc()`](https://mengxu98.github.io/multiCSN/reference/calculate_auc.md)
+  : Calculate AUC Metrics
+- [`calculate_auroc()`](https://mengxu98.github.io/multiCSN/reference/calculate_auroc.md)
+  : Calculate AUROC Metric
+- [`calculate_auprc()`](https://mengxu98.github.io/multiCSN/reference/calculate_auprc.md)
+  : Calculate AUPRC Metric
+- [`calculate_precision()`](https://mengxu98.github.io/multiCSN/reference/calculate_precision.md)
+  : Calculate Precision
+- [`calculate_recall()`](https://mengxu98.github.io/multiCSN/reference/calculate_recall.md)
+  : Calculate Recall
+- [`calculate_f1()`](https://mengxu98.github.io/multiCSN/reference/calculate_f1.md)
+  : Calculate F1 Score
+- [`calculate_si()`](https://mengxu98.github.io/multiCSN/reference/calculate_si.md)
+  : Calculate Set Intersection
+- [`calculate_ji()`](https://mengxu98.github.io/multiCSN/reference/calculate_ji.md)
+  : Calculate Jaccard Index
+- [`calculate_epr()`](https://mengxu98.github.io/multiCSN/reference/calculate_epr.md)
+  : Calculate Early Precision Ratio
+- [`calculate_signed_epr()`](https://mengxu98.github.io/multiCSN/reference/calculate_signed_epr.md)
+  : Calculate Signed Early Precision Ratio
+- [`calculate_motif_ratios()`](https://mengxu98.github.io/multiCSN/reference/calculate_motif_ratios.md)
+  : Calculate Motif Ratios
+- [`calculate_path_stats()`](https://mengxu98.github.io/multiCSN/reference/calculate_path_stats.md)
+  : Calculate Path Statistics
+- [`calculate_stability_jaccard()`](https://mengxu98.github.io/multiCSN/reference/calculate_stability_jaccard.md)
+  : Calculate Jaccard Stability Across Runs
+- [`calculate_stability_spearman()`](https://mengxu98.github.io/multiCSN/reference/calculate_stability_spearman.md)
+  : Calculate Spearman Stability Across Runs
+- [`calculate_degree_distribution()`](https://mengxu98.github.io/multiCSN/reference/calculate_degree_distribution.md)
+  : calculate_degree_distribution
+- [`JI_across_topregs()`](https://mengxu98.github.io/multiCSN/reference/JI_across_topregs.md)
+  : Computes Jaccard similarity between top regulators in two sets of
+  networks across a range of top X regulators
+
+### Sparse regression model
+
+- [`fit_cvglmnet()`](https://mengxu98.github.io/multiCSN/reference/fit_cvglmnet.md)
+  : Cross-validation for regularized generalized linear models
+- [`fit_glm()`](https://mengxu98.github.io/multiCSN/reference/fit_glm.md)
+  : Fit generalized linear model
+- [`fit_glmnet()`](https://mengxu98.github.io/multiCSN/reference/fit_glmnet.md)
+  : Fit regularized generalized linear model
+- [`fit_srm2()`](https://mengxu98.github.io/multiCSN/reference/fit_srm2.md)
+  : Fit a sparse regression model
+- [`fit_xgb()`](https://mengxu98.github.io/multiCSN/reference/fit_xgb.md)
+  : Fit a gradient boosting regression model with XGBoost
+- [`fit_model()`](https://mengxu98.github.io/multiCSN/reference/fit_model.md)
+  : Fit model
+- [`fit_models()`](https://mengxu98.github.io/multiCSN/reference/fit_models.md)
+  : Fit models for gene expression
+- [`fit_susie()`](https://mengxu98.github.io/multiCSN/reference/fit_susie.md)
+  : Fit a SuSiE regression model
+- [`format_coefs()`](https://mengxu98.github.io/multiCSN/reference/format_coefs.md)
+  : Format network coefficients
+
+### RNA data processing
+
+- [`aggregate_assay()`](https://mengxu98.github.io/multiCSN/reference/aggregate_assay.md)
+  : Aggregate Seurat assay over groups
+- [`meta_cells()`](https://mengxu98.github.io/multiCSN/reference/meta_cells.md)
+  : Build metacells
+- [`subsampling()`](https://mengxu98.github.io/multiCSN/reference/subsampling.md)
+  : Subsample an expression matrix
+- [`expression_ksmooth()`](https://mengxu98.github.io/multiCSN/reference/expression_ksmooth.md)
+  : expression_ksmooth
+
+### Peak data processing
+
+- [`find_peaks_near_genes()`](https://mengxu98.github.io/multiCSN/reference/find_peaks_near_genes.md)
+  : Find peaks or regions near gene body or TSS
+
+### Dynamic object
+
+- [`get_pseudotime()`](https://mengxu98.github.io/multiCSN/reference/get_pseudotime.md)
+  : Get pseudotime information
+- [`compileDynGenes()`](https://mengxu98.github.io/multiCSN/reference/compileDynGenes.md)
+  : compileDynGenes
+
+### Network processing
+
+- [`export_csn()`](https://mengxu98.github.io/multiCSN/reference/export_csn.md)
+  : Export CSN
+- [`get_attribute()`](https://mengxu98.github.io/multiCSN/reference/get_attribute.md)
+  : Get any attribute from a CSNObject object
+- [`metrics()`](https://mengxu98.github.io/multiCSN/reference/metrics.md)
+  : Metrics
+- [`print(`*`<Network>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.md)
+  [`print(`*`<Modules>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.md)
+  [`print(`*`<Regions>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.md)
+  [`print(`*`<CSNObject>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.md)
+  : Print Network objects
+- [`add_interaction_type()`](https://mengxu98.github.io/multiCSN/reference/add_interaction_type.md)
+  : add_interaction_type
+- [`add_type()`](https://mengxu98.github.io/multiCSN/reference/add_type.md)
+  : Adds interaction type to dynamic differential network
+- [`DefaultNetwork()`](https://mengxu98.github.io/multiCSN/reference/DefaultNetwork.md)
+  [`` `DefaultNetwork<-`() ``](https://mengxu98.github.io/multiCSN/reference/DefaultNetwork.md)
+  : Get active network
+- [`GetAssaySummary()`](https://mengxu98.github.io/multiCSN/reference/GetAssaySummary.md)
+  : Get summary of seurat assay
+- [`GetNetwork()`](https://mengxu98.github.io/multiCSN/reference/GetNetwork.md)
+  : Get network
+- [`NetworkGraph()`](https://mengxu98.github.io/multiCSN/reference/NetworkGraph.md)
+  : Get network graph
+- [`NetworkModules()`](https://mengxu98.github.io/multiCSN/reference/NetworkModules.md)
+  : Get network modules
+- [`NetworkParams()`](https://mengxu98.github.io/multiCSN/reference/NetworkParams.md)
+  : Get network parameters
+- [`NetworkRegions()`](https://mengxu98.github.io/multiCSN/reference/NetworkRegions.md)
+  : Get network regions
+- [`NetworkTFs()`](https://mengxu98.github.io/multiCSN/reference/NetworkTFs.md)
+  : Get network TFs
+- [`Params()`](https://mengxu98.github.io/multiCSN/reference/Params.md)
+  : Get parameters
+- [`define_epochs()`](https://mengxu98.github.io/multiCSN/reference/define_epochs.md)
+  : Define epochs
+- [`define_epochs_new()`](https://mengxu98.github.io/multiCSN/reference/define_epochs_new.md)
+  : Define epochs
+- [`density_points()`](https://mengxu98.github.io/multiCSN/reference/density_points.md)
+  : Partition pseudotime states by density intersections
+- [`diffnet_community_detection()`](https://mengxu98.github.io/multiCSN/reference/diffnet_community_detection.md)
+  : Perform community detection on a dynamic network
+- [`dynamic_windowing()`](https://mengxu98.github.io/multiCSN/reference/dynamic_windowing.md)
+  : Legacy dynamic windowing wrapper
+- [`dynamic_difference_network()`](https://mengxu98.github.io/multiCSN/reference/dynamic_difference_network.md)
+  : Compute a dynamic difference network
+- [`dynamic_shortest_path()`](https://mengxu98.github.io/multiCSN/reference/dynamic_shortest_path.md)
+  : Function to return shortest path from 1 regulator to 1 target in a
+  dynamic network
+- [`dynamic_shortest_path_multiple()`](https://mengxu98.github.io/multiCSN/reference/dynamic_shortest_path_multiple.md)
+  : Function to return shortest path from multiple TFs to multiple
+  targets in a dynamic network
+- [`edge_uniqueness()`](https://mengxu98.github.io/multiCSN/reference/edge_uniqueness.md)
+  : Edge uniqueness across multiple GRNs
+- [`epochGRN()`](https://mengxu98.github.io/multiCSN/reference/epochGRN.md)
+  : Divides grnDF into epochs, filters interactions between genes not in
+  same or consecutive epochs
+- [`compile_epochs()`](https://mengxu98.github.io/multiCSN/reference/compile_epochs.md)
+  : compile_epochs
+- [`get_network_graph()`](https://mengxu98.github.io/multiCSN/reference/get_network_graph.md)
+  : Get network graph
+- [`get_tf_network()`](https://mengxu98.github.io/multiCSN/reference/get_tf_network.md)
+  : Get TF network
+- [`assign_epochs_simple()`](https://mengxu98.github.io/multiCSN/reference/assign_epochs_simple.md)
+  : Assigns genes to epochs just based on which mean is maximal
+- [`assign_epochs()`](https://mengxu98.github.io/multiCSN/reference/assign_epochs.md)
+  : Assigns genes to epochs
+- [`assign_epochs_new1()`](https://mengxu98.github.io/multiCSN/reference/assign_epochs_new1.md)
+  : Assigns genes to epochs
+- [`assign_network()`](https://mengxu98.github.io/multiCSN/reference/assign_network.md)
+  : Assigns genes to epochs
+- [`subnets()`](https://mengxu98.github.io/multiCSN/reference/subnets.md)
+  : Function to assign nodes to communities via Louvain clustering
+- [`split_epochs_by_group()`](https://mengxu98.github.io/multiCSN/reference/split_epochs_by_group.md)
+  : Splits data into epochs manually
+- [`split_epochs_by_pseudotime()`](https://mengxu98.github.io/multiCSN/reference/split_epochs_by_pseudotime.md)
+  : Splits data into epochs
+- [`biglist_compute_betweenness_degree()`](https://mengxu98.github.io/multiCSN/reference/biglist_compute_betweenness_degree.md)
+  : Computes betweenness and degree of each regulator for each network
+  in a list of networks
+- [`compute_JI_topregs()`](https://mengxu98.github.io/multiCSN/reference/compute_JI_topregs.md)
+  : Computes Jaccard similarity between top regulators in two sets of
+  networks
+- [`compute_betweenness_degree()`](https://mengxu98.github.io/multiCSN/reference/compute_betweenness_degree.md)
+  : Function to compute betweenness and degree
+- [`compute_frobenius_distance()`](https://mengxu98.github.io/multiCSN/reference/compute_frobenius_distance.md)
+  : Computes frobenius distance in a pairwise manner between two sets of
+  networks
+- [`cor_and_add_action()`](https://mengxu98.github.io/multiCSN/reference/cor_and_add_action.md)
+  : Adds an extra column to the result of dynamic_shortest_path_multiple
+  that predicts overall action based on correlation between "from" and
+  "to"
+- [`find_communities()`](https://mengxu98.github.io/multiCSN/reference/find_communities.md)
+  : find_communities
+- [`find_cuts_by_clustering()`](https://mengxu98.github.io/multiCSN/reference/find_cuts_by_clustering.md)
+  : Returns cuts to define epochs
+- [`find_cuts_by_similarity()`](https://mengxu98.github.io/multiCSN/reference/find_cuts_by_similarity.md)
+  : find_cuts_by_similarity
+- [`find_modules()`](https://mengxu98.github.io/multiCSN/reference/find_modules.md)
+  : Find TF modules in regulatory network
+- [`find_motifs()`](https://mengxu98.github.io/multiCSN/reference/find_motifs.md)
+  : Scan for motifs in candidate regions
+- [`find_targets()`](https://mengxu98.github.io/multiCSN/reference/find_targets.md)
+  : Finds binding targets given list of dataframes containing binding
+  info for effectors
+- [`static_shortest_path()`](https://mengxu98.github.io/multiCSN/reference/static_shortest_path.md)
+  : Function to return shortest path from 1 regulator to 1 target in a
+  static network
+
+### Calculate gene rank
+
+- [`calculate_gene_rank()`](https://mengxu98.github.io/multiCSN/reference/calculate_gene_rank.md)
+  : Calculate gene rank
+- [`compute_pagerank()`](https://mengxu98.github.io/multiCSN/reference/compute_pagerank.md)
+  : Function to compute page rank of TF+target networks
+- [`calculate_page_rank()`](https://mengxu98.github.io/multiCSN/reference/calculate_page_rank.md)
+  : Calculate PageRank
+- [`plot_gene_rank()`](https://mengxu98.github.io/multiCSN/reference/plot_gene_rank.md)
+  : Plot gene ranks and network properties
+
+### Network perturbation
+
+- [`Perturbation-class`](https://mengxu98.github.io/multiCSN/reference/Perturbation-class.md)
+  : The Perturbation class
+- [`SetNetwork()`](https://mengxu98.github.io/multiCSN/reference/SetNetwork.md)
+  : Set Network object
+- [`calculate_trajectory()`](https://mengxu98.github.io/multiCSN/reference/calculate_trajectory.md)
+  : Calculate cell trajectory in embedding space
+- [`embedPerturbation()`](https://mengxu98.github.io/multiCSN/reference/embedPerturbation.md)
+  : Embed perturbation
+- [`plotPerturbation()`](https://mengxu98.github.io/multiCSN/reference/plotPerturbation.md)
+  : Plot perturbation
+- [`plotPerturbationTrajectory()`](https://mengxu98.github.io/multiCSN/reference/plotPerturbationTrajectory.md)
+  : Plot perturbation trajectory
+- [`predictPerturbation()`](https://mengxu98.github.io/multiCSN/reference/predictPerturbation.md)
+  : Predict perturbation
+
+### Utils functions
+
+- [`coef(`*`<Network>`*`)`](https://mengxu98.github.io/multiCSN/reference/coef.Network.md)
+  : Get fitted coefficients
+- [`coef(`*`<CSNObject>`*`)`](https://mengxu98.github.io/multiCSN/reference/coef.CSNObject.md)
+  : Get fitted coefficients
+- [`get_umap()`](https://mengxu98.github.io/multiCSN/reference/get_umap.md)
+  : Compute UMAP embedding
+- [`mean_module_expression()`](https://mengxu98.github.io/multiCSN/reference/mean_module_expression.md)
+  : Computes mean expression of groups of genes
+- [`mean_subnetwork_expression()`](https://mengxu98.github.io/multiCSN/reference/mean_subnetwork_expression.md)
+  : Computes mean expression of groups of genes in a dynamic network
+- [`order_genes()`](https://mengxu98.github.io/multiCSN/reference/order_genes.md)
+  : Function that orders genes based on peak expression
+- [`pre_pseudotime_matrix()`](https://mengxu98.github.io/multiCSN/reference/pre_pseudotime_matrix.md)
+  : pre_pseudotime_matrix
+- [`rough_hierarchy()`](https://mengxu98.github.io/multiCSN/reference/rough_hierarchy.md)
+  : rough_hierarchy
+- [`score_targets()`](https://mengxu98.github.io/multiCSN/reference/score_targets.md)
+  : Function to score targets of effectors
+- [`SetNetwork()`](https://mengxu98.github.io/multiCSN/reference/SetNetwork.md)
+  : Set Network object
+
+### Example data and datasets
+
+- [`simulate_csn_data()`](https://mengxu98.github.io/multiCSN/reference/simulate_csn_data.md)
+  : Simulate data for testing inferCSN
+- [`create_seurat_object()`](https://mengxu98.github.io/multiCSN/reference/create_seurat_object.md)
+  : Create a Seurat object from simulated data
+- [`EnsDb.Hsapiens.v93.annot.UCSC.hg38`](https://mengxu98.github.io/multiCSN/reference/EnsDb.Hsapiens.v93.annot.UCSC.hg38.md)
+  : EnsDb.Hsapiens.v93.annot.UCSC.hg38
+- [`SCREEN.ccRE.UCSC.hg38`](https://mengxu98.github.io/multiCSN/reference/SCREEN.ccRE.UCSC.hg38.md)
+  : SCREEN.ccRE.UCSC.hg38
+- [`phastConsElements20Mammals.UCSC.hg38`](https://mengxu98.github.io/multiCSN/reference/phastConsElements20Mammals.UCSC.hg38.md)
+  : phastConsElements20Mammals.UCSC.hg38
+- [`motif2tf`](https://mengxu98.github.io/multiCSN/reference/motif2tf.md)
+  : motif2tf
+- [`motifs`](https://mengxu98.github.io/multiCSN/reference/motifs.md) :
+  motifs
+
+### Cell-type rewiring and state analysis
+
+- [`compare_celltype_rewiring()`](https://mengxu98.github.io/multiCSN/reference/compare_celltype_rewiring.md)
+  : Compare rewiring between static cell type networks
+- [`compare_state_rewiring()`](https://mengxu98.github.io/multiCSN/reference/compare_state_rewiring.md)
+  : Compare adjacent state rewiring
+- [`state_dynamic()`](https://mengxu98.github.io/multiCSN/reference/state_dynamic.md)
+  : Infer dynamic state networks from density-partitioned pseudotime
+  states
+- [`extract_genes_transition()`](https://mengxu98.github.io/multiCSN/reference/extract_genes_transition.md)
+  : Extract transition-specific regulators and targets
+- [`summarize_networks()`](https://mengxu98.github.io/multiCSN/reference/summarize_networks.md)
+  : Summarize per-state network architecture
+- [`summarize_state_networks()`](https://mengxu98.github.io/multiCSN/reference/summarize_state_networks.md)
+  : Summarize per-state network architecture
+- [`summarize_transition_analysis()`](https://mengxu98.github.io/multiCSN/reference/summarize_transition_analysis.md)
+  : Summarize transition-specific TF rewiring and target gain/loss
+- [`strongest_mediated_projection()`](https://mengxu98.github.io/multiCSN/reference/strongest_mediated_projection.md)
+  : Project strongest sign-consistent mediated paths
+- [`prioritize_features()`](https://mengxu98.github.io/multiCSN/reference/prioritize_features.md)
+  : Prioritize network features using network or integrated evidence
+- [`rank_features()`](https://mengxu98.github.io/multiCSN/reference/rank_features.md)
+  : Rank network features across ordered states
+- [`select_key_targets()`](https://mengxu98.github.io/multiCSN/reference/select_key_targets.md)
+  : Select top prioritized targets for chosen TFs
+- [`select_key_tfs()`](https://mengxu98.github.io/multiCSN/reference/select_key_tfs.md)
+  : Select top prioritized TFs
+
+### Rewiring and state plots
+
+- [`plot_states()`](https://mengxu98.github.io/multiCSN/reference/plot_states.md)
+  : Plot pseudotime states
+- [`plot_state_overview_figure()`](https://mengxu98.github.io/multiCSN/reference/plot_state_overview_figure.md)
+  : Plot paper-style ordered-state overview
+- [`plot_state_network_summary()`](https://mengxu98.github.io/multiCSN/reference/plot_state_network_summary.md)
+  : Plot state-level network summary metrics
+- [`plot_state_rewiring()`](https://mengxu98.github.io/multiCSN/reference/plot_state_rewiring.md)
+  : Plot adjacent-state TF rewiring heatmap
+- [`plot_rewiring()`](https://mengxu98.github.io/multiCSN/reference/plot_rewiring.md)
+  : Plot adjacent-state TF rewiring heatmap
+- [`plot_rewiring_overview_figure()`](https://mengxu98.github.io/multiCSN/reference/plot_rewiring_overview_figure.md)
+  : Plot manuscript Figure 2 rewiring overview
+- [`plot_network_summary()`](https://mengxu98.github.io/multiCSN/reference/plot_network_summary.md)
+  : Plot state-level network summary metrics
+- [`plot_features()`](https://mengxu98.github.io/multiCSN/reference/plot_features.md)
+  : Plot top network features per state
+- [`plot_celltype_specificity_heatmap()`](https://mengxu98.github.io/multiCSN/reference/plot_celltype_specificity_heatmap.md)
+  : Plot cell type rewiring heatmap
+
+### Multiome locus and motif plots
+
+- [`plot_key_target_multiome()`](https://mengxu98.github.io/multiCSN/reference/plot_key_target_multiome.md)
+  : Plot integrated key-target ranking with ATAC support
+- [`plot_key_tf_multiome()`](https://mengxu98.github.io/multiCSN/reference/plot_key_tf_multiome.md)
+  : Plot integrated multiome key-TF scores
+- [`plot_key_tf_summary_figure()`](https://mengxu98.github.io/multiCSN/reference/plot_key_tf_summary_figure.md)
+  : Plot manuscript Figure 3 key-TF summary
+- [`plot_target_locus_signac()`](https://mengxu98.github.io/multiCSN/reference/plot_target_locus_signac.md)
+  : Plot a target-gene locus using Signac when available, with robust
+  fallbacks
+- [`plot_tf_case_study()`](https://mengxu98.github.io/multiCSN/reference/plot_tf_case_study.md)
+  : Plot single-TF case study across ordered states
+- [`plot_tf_peak_overlap_scenic_style()`](https://mengxu98.github.io/multiCSN/reference/plot_tf_peak_overlap_scenic_style.md)
+  : Plot TF-supported peak overlap across ordered states
+
+### Peak annotation and internal helpers
+
+- [`collapse_peak_gene_domains()`](https://mengxu98.github.io/multiCSN/reference/collapse_peak_gene_domains.md)
+  : Collapse repeated gene annotations into peak-gene domains
+- [`factorized_chain_support()`](https://mengxu98.github.io/multiCSN/reference/factorized_chain_support.md)
+  : Assemble factorized TF-region-target support
+- [`get_layer_data()`](https://mengxu98.github.io/multiCSN/reference/get_layer_data.md)
+  : Read assay layer data
+- [`get_peak_annotation()`](https://mengxu98.github.io/multiCSN/reference/get_peak_annotation.md)
+  : Read peak assay annotations
+- [`map_peak_ranges_to_genome()`](https://mengxu98.github.io/multiCSN/reference/map_peak_ranges_to_genome.md)
+  : Map peak sequence names to a genome
+- [`network_ordinal_weight()`](https://mengxu98.github.io/multiCSN/reference/network_ordinal_weight.md)
+  : Rank signed network edges by deletion evidence
+- [`normalize_chromatin_assay()`](https://mengxu98.github.io/multiCSN/reference/normalize_chromatin_assay.md)
+  : Normalize an ATAC assay to a Signac ChromatinAssay
+- [`parse_peak_ranges()`](https://mengxu98.github.io/multiCSN/reference/parse_peak_ranges.md)
+  : Parse peak identifiers
+- [`parse_regulators_targets()`](https://mengxu98.github.io/multiCSN/reference/parse_regulators_targets.md)
+  : Internal helper to normalize regulators/targets specification into a
+  per-celltype named list.
+
+### Classes and methods
+
+- [`CSNObject()`](https://mengxu98.github.io/multiCSN/reference/CSNObject.md)
+  : Show a compact summary of CSNObject state stored in a Seurat object
+- [`EdgeUniqueness()`](https://mengxu98.github.io/multiCSN/reference/EdgeUniqueness.md)
+  : Get stored edge_uniqueness results from CSNObject
+- [`ExtractGenesTransition()`](https://mengxu98.github.io/multiCSN/reference/ExtractGenesTransition.md)
+  : Get stored extract_genes_transition results from CSNObject
+- [`GeneRanks()`](https://mengxu98.github.io/multiCSN/reference/GeneRanks.md)
+  : Get gene ranks from Network/CSNObject
+- [`ShortestPaths()`](https://mengxu98.github.io/multiCSN/reference/ShortestPaths.md)
+  : Get stored shortest-path results from Network/CSNObject
+- [`print(`*`<Network>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.md)
+  [`print(`*`<Modules>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.md)
+  [`print(`*`<Regions>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.md)
+  [`print(`*`<CSNObject>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.md)
+  : Print Network objects
+- [`print(`*`<multicsn_logo>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.multicsn_logo.md)
+  : Print logo
