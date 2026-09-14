@@ -42,7 +42,8 @@ plot_network_heatmap(
     "horizon"),
   column_anno_type = c("boxplot", "barplot", "histogram", "density", "lines", "points"),
   legend_name = NULL,
-  row_title = "Regulators"
+  row_title = "Regulators",
+  heatmap_title_color = NULL
 )
 }
 \arguments{
@@ -59,6 +60,10 @@ plot_network_heatmap(
 \item{heatmap_size, heatmap_height, heatmap_width}{Heatmap dimensions.}
 
 \item{heatmap_title}{Heatmap title.}
+
+\item{heatmap_title_color}{Optional title colors. Default \code{NULL} preserves
+the default text color. Otherwise, supply one color per input network,
+in input order (including a ground-truth network, if present).}
 
 \item{ncol, nrow}{Layout dimensions for multiple heatmaps.}
 

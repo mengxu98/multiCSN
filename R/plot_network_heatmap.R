@@ -6,6 +6,9 @@
 #' @param show_names_position Name placement for multiple heatmaps.
 #' @param heatmap_size,heatmap_height,heatmap_width Heatmap dimensions.
 #' @param heatmap_title Heatmap title.
+#' @param heatmap_title_color Optional title colors. Default `NULL` preserves
+#'   the default text color. Otherwise, supply one color per input network,
+#'   in input order (including a ground-truth network, if present).
 #' @param ncol,nrow Layout dimensions for multiple heatmaps.
 #' @param performance_metrics Metrics appended to titles.
 #' @param performance_ground_truth Ground-truth network for metrics.
@@ -111,7 +114,8 @@ plot_network_heatmap <- function(
     "points"
   ),
   legend_name = NULL,
-  row_title = "Regulators"
+  row_title = "Regulators",
+  heatmap_title_color = NULL
 ) {
   show_names_position <- match.arg(show_names_position)
   if (is.null(heatmap_palcolor)) {
@@ -120,6 +124,12 @@ plot_network_heatmap <- function(
   is_network_list <- is.list(network_table) &&
     !is.data.frame(network_table) &&
     !is.matrix(network_table)
+  n_heatmaps <- if (is_network_list) length(network_table) else 1L
+  if (!is.null(heatmap_title_color) &&
+      length(heatmap_title_color) != n_heatmaps) {
+    stop("heatmap_title_color must contain one color per input network (",
+         n_heatmaps, "), including ground truth if present.")
+  }
   if (is.null(row_anno)) {
     row_anno <- !is_network_list
   }
@@ -273,7 +283,10 @@ plot_network_heatmap <- function(
         column_anno_type = column_anno_type,
         heatmap_name = heatmap_names[[i]],
         legend_name = legend_names[[i]],
-        row_title = row_title
+        row_title = row_title,
+        heatmap_title_color = if (!is.null(heatmap_title_color)) {
+          heatmap_title_color[[i]]
+        }
       )
     })
 
@@ -410,7 +423,8 @@ plot_network_heatmap <- function(
     column_anno_type = column_anno_type,
     heatmap_name = legend_name,
     legend_name = legend_name,
-    row_title = row_title
+    row_title = row_title,
+    heatmap_title_color = heatmap_title_color
   )
 
   truth_legend <- network_heatmap_truth_cell_legend(
@@ -1156,7 +1170,8 @@ build_network_heatmap <- function(
   ),
   heatmap_name = legend_name,
   legend_name = NULL,
-  row_title = "Regulators"
+  row_title = "Regulators",
+  heatmap_title_color = NULL
 ) {
   unique_regulators <- rownames(weight_matrix)
   unique_targets <- colnames(weight_matrix)
@@ -1335,7 +1350,7 @@ build_network_heatmap <- function(
     ),
     column_title = heatmap_title,
     row_title = row_title,
-    column_title_gp = grid::gpar(fontsize = 11),
+    column_title_gp = grid::gpar(fontsize = 11, col = heatmap_title_color),
     row_title_gp = grid::gpar(fontsize = 11),
     cluster_rows = FALSE,
     cluster_columns = FALSE,
