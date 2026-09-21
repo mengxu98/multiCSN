@@ -40,10 +40,10 @@ A ggplot2 object.
 ``` r
 data(example_matrix, package = "inferCSN")
 network_table <- inferCSN::inferCSN(example_matrix)
-#> ℹ [2026-09-14 16:05:24] Inferring network for <matrix/array>...
-#> ◌ [2026-09-14 16:05:24] Checking parameters...
-#> ✔ [2026-09-14 16:05:24] Inferring network done
-#> ℹ [2026-09-14 16:05:24] Network information:
+#> ℹ [2026-09-21 18:40:44] Inferring network for <matrix/array>...
+#> ◌ [2026-09-21 18:40:44] Checking parameters...
+#> ✔ [2026-09-21 18:40:44] Inferring network done
+#> ℹ [2026-09-21 18:40:44] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 plot_contrast_networks(network_table[1:50, ])

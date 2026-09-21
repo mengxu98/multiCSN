@@ -57,6 +57,7 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/calculate_stability_jaccard.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/calculate_stability_spearman.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/calculate_trajectory.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/classify_edge_transitions.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/coef.CSNObject.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/coef.Network.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/collapse_peak_gene_domains.html</loc></url>
@@ -68,6 +69,7 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/compute_betweenness_degree.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/compute_frobenius_distance.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/compute_pagerank.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/consensus_peak_set.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/cor_and_add_action.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/create_seurat_object.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/define_epochs.html</loc></url>
@@ -95,8 +97,10 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/fit_cvglmnet.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/fit_glm.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/fit_glmnet.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/fit_layered_network.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/fit_model.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/fit_models.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/fit_perturbation_effects.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/fit_srm2.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/fit_susie.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/fit_xgb.html</loc></url>
@@ -116,6 +120,7 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/inferCSN.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/initiate_object.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/map_peak_ranges_to_genome.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/map_peaks_to_consensus.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/mean_module_expression.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/mean_subnetwork_expression.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/meta_cells.html</loc></url>
@@ -124,6 +129,7 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/motifs.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/multiCSN-package.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/multicsn_logo.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/network_endpoints.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/network_ordinal_weight.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/normalize_chromatin_assay.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/order_genes.html</loc></url>
@@ -172,7 +178,10 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/print.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/print.multicsn_logo.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/prioritize_features.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/project_counts_to_consensus.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/pseudobulk_perturbation.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/rank_features.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/read_network_endpoints.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/rough_hierarchy.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/score_targets.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/select_key_targets.html</loc></url>

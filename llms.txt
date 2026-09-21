@@ -190,6 +190,30 @@ More functions and usages about
   : Computes Jaccard similarity between top regulators in two sets of
   networks across a range of top X regulators
 
+### Layered multi-omic network inference
+
+- [`fit_layered_network()`](https://mengxu98.github.io/multiCSN/reference/fit_layered_network.md)
+  : Fit a layered multi-omic gene regulatory network
+- [`network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/network_endpoints.md)
+  : Endpoint tables of a layered multi-omic network
+- [`read_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/read_network_endpoints.md)
+  : Read layered network endpoints from a result directory
+- [`classify_edge_transitions()`](https://mengxu98.github.io/multiCSN/reference/classify_edge_transitions.md)
+  : Classify edges between two network states
+
+### Consensus peaks and perturbation truth
+
+- [`consensus_peak_set()`](https://mengxu98.github.io/multiCSN/reference/consensus_peak_set.md)
+  : Build a consensus peak set across samples
+- [`map_peaks_to_consensus()`](https://mengxu98.github.io/multiCSN/reference/map_peaks_to_consensus.md)
+  : Map sample peaks into a consensus peak set
+- [`project_counts_to_consensus()`](https://mengxu98.github.io/multiCSN/reference/project_counts_to_consensus.md)
+  : Project a peak count matrix onto consensus regions
+- [`pseudobulk_perturbation()`](https://mengxu98.github.io/multiCSN/reference/pseudobulk_perturbation.md)
+  : Pseudobulk a perturbation screen into a paired design
+- [`fit_perturbation_effects()`](https://mengxu98.github.io/multiCSN/reference/fit_perturbation_effects.md)
+  : Fit paired perturbation effects on pseudobulk counts
+
 ### Sparse regression model
 
 - [`fit_cvglmnet()`](https://mengxu98.github.io/multiCSN/reference/fit_cvglmnet.md)
