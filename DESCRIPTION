@@ -117,6 +117,8 @@ Collate:
     'find_modules.R'
     'find_motifs.R'
     'find_peaks_near_genes.R'
+    'utils_sparse_blocks.R'
+    'fit_layered_network.R'
     'fit_models.R'
     'generics.R'
     'get_attribute.R'
