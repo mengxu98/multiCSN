@@ -35,6 +35,31 @@ test_that("parse_peak_ranges validates coordinates and reports bad identifiers",
   expect_identical(length(empty), 0L)
 })
 
+test_that("the split fast path and the pattern fallback agree", {
+  # coordinates beyond the integer range keep the coordinate error, not the
+  # "could not parse" error
+  expect_error(parse_peak_ranges("chr1:21474836470-21474836480"), "finite positive")
+  # forms that only look like an identifier must reach the same error
+  expect_error(parse_peak_ranges(c("chr1:1-2", "chr1:5_8")), "Could not parse")
+  expect_error(parse_peak_ranges(c("chr1-5_2", "scaffold-7:0:0")), "Could not parse")
+  # several delimiters in one sequence name resolve to the last delimiter
+  ranges <- parse_peak_ranges(c(
+    "chr1_KI270706v1_random:125391-126274", "chrUn-1_2-3-4", "GL000191-1-1000"
+  ))
+  expect_identical(
+    as.character(GenomeInfoDb::seqnames(ranges)),
+    c("chr1_KI270706v1_random", "chrUn-1_2", "GL000191")
+  )
+  expect_identical(as.integer(IRanges::start(ranges)), c(125391L, 3L, 1L))
+  expect_identical(as.integer(IRanges::end(ranges)), c(126274L, 4L, 1000L))
+  # a large mixed batch stays consistent with the per-item results
+  batch <- c("chr1:1-2", "chr2_3_4", "chr3-5-6", "chr4:7:8-9")
+  expect_identical(
+    as.character(GenomeInfoDb::seqnames(parse_peak_ranges(batch))),
+    c("chr1", "chr2", "chr3", "chr4:7")
+  )
+})
+
 test_that("parse_peak_ranges is vectorised across many peaks", {
   set.seed(3)
   starts <- sample(1:1e6, 5000L, TRUE)
