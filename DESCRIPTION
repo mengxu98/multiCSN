@@ -39,6 +39,7 @@ Imports:
 LinkingTo:
     Rcpp
 Suggests:
+    edgeR,
     motifmatchr,
     testthat (>= 3.0.0),
     ComplexHeatmap,
@@ -107,6 +108,7 @@ Collate:
     'SetNetwork.R'
     'setGenerics.R'
     'calculate_gene_rank.R'
+    'consensus_peaks.R'
     'data.R'
     'density_intersection.R'
     'dynamic_genes.R'
@@ -139,6 +141,7 @@ Collate:
     'network_heatmap.R'
     'network_perturbation.R'
     'network_visualization.R'
+    'perturbation_truth.R'
     'plot_network_heatmap.R'
     'plotting_functions.R'
     'reexports.R'
