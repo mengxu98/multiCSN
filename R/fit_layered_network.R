@@ -615,7 +615,7 @@ NULL
 #' @param renormalize Re-normalize RNA counts and re-run TF-IDF on the selected
 #'   cells before fitting.
 #' @param response_chunk Number of targets fitted per chunk.
-#' @param max_support_size,max_improvement Greedy-l0 stopping rules forwarded to
+#' @param max_support_size,min_improvement Greedy-l0 stopping rules forwarded to
 #'   \code{inferCSN::fit_greedy_l0_batch()}.
 #' @param sort_regulators Sort the transcription factors before fitting.
 #' @param cores Number of forked workers used per chunk (ignored on Windows).

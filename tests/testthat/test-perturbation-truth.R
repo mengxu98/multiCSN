@@ -124,7 +124,11 @@ test_that("paired effect fitting recovers the spiked perturbation effect", {
   expect_identical(unique(fitted$summary$perturbation_cells), 120L)
   files <- list.files(output, pattern = "[.]tsv[.]gz$", recursive = TRUE)
   expect_identical(length(files), 2L)
-  effect <- data.table::fread(file.path(output, "RNA", "day_7__A.tsv.gz"))
+  # base R gz reading keeps the test independent of the optional R.utils package
+  effect <- data.table::as.data.table(utils::read.delim(
+    gzfile(file.path(output, "RNA", "day_7__A.tsv.gz")),
+    sep = "\t", check.names = FALSE, stringsAsFactors = FALSE
+  ))
   expect_identical(names(effect)[1], "feature")
   expect_identical(unique(effect$target), "A")
   expect_identical(unique(effect$effect_definition), "heldout_perturbed_minus_NT_control")

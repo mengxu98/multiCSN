@@ -21,6 +21,7 @@ Imports:
     methods,
     purrr,
     Rcpp,
+    data.table,
     scop,
     Signac,
     Seurat,

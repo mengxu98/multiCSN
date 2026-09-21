@@ -62,7 +62,7 @@ cells before fitting.}
 
 \item{response_chunk}{Number of targets fitted per chunk.}
 
-\item{max_support_size, max_improvement}{Greedy-l0 stopping rules forwarded to
+\item{max_support_size, min_improvement}{Greedy-l0 stopping rules forwarded to
 \code{inferCSN::fit_greedy_l0_batch()}.}
 
 \item{sort_regulators}{Sort the transcription factors before fitting.}
