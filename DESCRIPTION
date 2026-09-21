@@ -21,6 +21,7 @@ Imports:
     methods,
     purrr,
     Rcpp,
+    data.table,
     scop,
     Signac,
     Seurat,
@@ -39,6 +40,7 @@ Imports:
 LinkingTo:
     Rcpp
 Suggests:
+    edgeR,
     motifmatchr,
     testthat (>= 3.0.0),
     ComplexHeatmap,
@@ -107,6 +109,7 @@ Collate:
     'SetNetwork.R'
     'setGenerics.R'
     'calculate_gene_rank.R'
+    'consensus_peaks.R'
     'data.R'
     'density_intersection.R'
     'dynamic_genes.R'
@@ -135,10 +138,13 @@ Collate:
     'multiCSN-package.R'
     'network_analysis.R'
     'network_comparison.R'
+    'network_endpoints.R'
     'network_evaluation.R'
     'network_heatmap.R'
     'network_perturbation.R'
+    'network_transitions.R'
     'network_visualization.R'
+    'perturbation_truth.R'
     'plot_network_heatmap.R'
     'plotting_functions.R'
     'reexports.R'
