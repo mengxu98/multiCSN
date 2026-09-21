@@ -99,6 +99,21 @@ reference:
   - calculate_degree_distribution
   - JI_across_topregs
 
+- subtitle: "Layered multi-omic network inference"
+- contents:
+  - fit_layered_network
+  - network_endpoints
+  - read_network_endpoints
+  - classify_edge_transitions
+
+- subtitle: "Consensus peaks and perturbation truth"
+- contents:
+  - consensus_peak_set
+  - map_peaks_to_consensus
+  - project_counts_to_consensus
+  - pseudobulk_perturbation
+  - fit_perturbation_effects
+
 - subtitle: "Sparse regression model"
 - contents:
   - fit_cvglmnet
