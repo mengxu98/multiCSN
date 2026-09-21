@@ -159,27 +159,37 @@ strongest_mediated_projection <-
         stringsAsFactors = FALSE
       ))
     }
-    groups <- split(seq_len(nrow(chains)), interaction(chains$regulator, chains$target,
-      drop = TRUE,
-      lex.order = TRUE
-    ))
-    rows <- lapply(groups, function(index) {
-      group <- chains[index, , drop = FALSE]
-      best <- max(group$chain_delta_bic)
-      tied <- group[abs(group$chain_delta_bic - best) <= 1e-12 * (1 + abs(best)), , drop = FALSE]
-      directions <- unique(sign(tied$weight))
-      chosen <- tied[order(tied$region), , drop = FALSE][1L, , drop = FALSE]
-      data.frame(
-        regulator = chosen$regulator, target = chosen$target, region = chosen$region, chain_delta_bic = best,
-        chain_direction = if (length(directions) == 1L) {
-          directions
-        } else {
-          NA_real_
-        }, strongest_path_ties = nrow(tied), strongest_path_sign_consistent = length(directions) ==
-          1L, stringsAsFactors = FALSE
-      )
-    })
-    projection <- do.call(rbind, rows)
+    # Grouped reduction instead of split()/lapply()/rbind(): the earlier version
+    # was quadratic in the number of regulator-target pairs (181 s for the
+    # GSE274113 day-11 chain table). Rows are pre-sorted with base order() so the
+    # representative region and tie counts are unchanged.
+    table_chains <- as.data.frame(chains, stringsAsFactors = FALSE)[
+      order(chains$regulator, chains$target, chains$region),
+      c("regulator", "target", "region", "chain_delta_bic", "weight"),
+      drop = FALSE
+    ]
+    rownames(table_chains) <- NULL
+    group_key <- paste(table_chains$regulator, table_chains$target, sep = "\r")
+    best <- as.numeric(tapply(table_chains$chain_delta_bic, group_key, max)[group_key])
+    tied <- abs(table_chains$chain_delta_bic - best) <= 1e-12 * (1 + abs(best))
+    tied_chains <- table_chains[tied, , drop = FALSE]
+    tied_key <- group_key[tied]
+    keep <- !duplicated(tied_key)
+    tied_variants <- tapply(sign(tied_chains$weight), tied_key, function(x) length(unique(x)))
+    tied_counts <- table(tied_key)
+    projection <- data.frame(
+      regulator = tied_chains$regulator[keep],
+      target = tied_chains$target[keep],
+      region = tied_chains$region[keep],
+      chain_delta_bic = best[tied][keep],
+      chain_direction = ifelse(
+        as.numeric(tied_variants[tied_key[keep]]) == 1L,
+        sign(tied_chains$weight[keep]), NA_real_
+      ),
+      strongest_path_ties = as.integer(tied_counts[tied_key[keep]]),
+      strongest_path_sign_consistent = as.numeric(tied_variants[tied_key[keep]]) == 1L,
+      stringsAsFactors = FALSE
+    )
     projection <- projection[projection$strongest_path_sign_consistent, , drop = FALSE]
     projection$weight <- .signed_ordinal_from_evidence(projection$chain_direction, projection$chain_delta_bic)
     projection$chain_direction <- NULL
