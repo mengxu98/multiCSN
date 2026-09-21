@@ -13,6 +13,7 @@ fit_perturbation_effects(
   effect_definition = "heldout_perturbed_minus_NT_control",
   min_replicates = 3L,
   output_dir = NULL,
+  output_subdirs = NULL,
   verbose = TRUE
 )
 }
@@ -34,6 +35,9 @@ timepoint present.}
 
 \item{output_dir}{Optional directory receiving one \code{<timepoint>__<target>.tsv.gz}
 table per contrast; when \code{NULL} the tables are returned in memory.}
+
+\item{output_subdirs}{Optional named vector mapping modality names to the
+subdirectory created below \code{output_dir} (defaults to the modality name).}
 
 \item{verbose}{Print progress messages.}
 }
