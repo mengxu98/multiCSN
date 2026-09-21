@@ -46,31 +46,37 @@ parse_peak_ranges <-
     if (length(peaks) == 0) {
       return(GenomicRanges::GRanges())
     }
+    # The three accepted forms are matched vectorised instead of per peak: the
+    # per-peak loop costs ~190 us/peak, which is 42 s for the 226k peaks of a
+    # real multiome object.
     patterns <- c("^(.+):([0-9]+)-([0-9]+)$", "^(.+)-([0-9]+)-([0-9]+)$", "^(.+)_([0-9]+)_([0-9]+)$")
-    parse_one <- function(peak) {
-      for (pattern in patterns) {
-        match <- regmatches(peak, regexec(pattern, peak, perl = TRUE))[[1]]
-        if (length(match) == 4L) {
-          return(match[2:4])
-        }
+    chromosomes <- rep(NA_character_, length(peaks))
+    starts <- rep(NA_integer_, length(peaks))
+    ends <- rep(NA_integer_, length(peaks))
+    pending <- seq_along(peaks)
+    for (pattern in patterns) {
+      if (!length(pending)) break
+      matches <- regmatches(peaks[pending], regexec(pattern, peaks[pending], perl = TRUE))
+      hit <- lengths(matches) == 4L
+      if (any(hit)) {
+        index <- pending[hit]
+        chromosomes[index] <- vapply(matches[hit], `[[`, character(1), 2L)
+        starts[index] <- suppressWarnings(as.integer(vapply(matches[hit], `[[`, character(1), 3L)))
+        ends[index] <- suppressWarnings(as.integer(vapply(matches[hit], `[[`, character(1), 4L)))
+        pending <- pending[!hit]
       }
-      character(0)
     }
-    parsed <- lapply(peaks, parse_one)
-    invalid <- which(lengths(parsed) != 3L)
+    invalid <- pending
     if (length(invalid)) {
       examples <- paste(utils::head(peaks[invalid], 3L), collapse = ", ")
       stop("Could not parse peak identifier(s) as chromosome/start/end: ", examples, call. = FALSE)
     }
-    parsed <- do.call(rbind, parsed)
-    starts <- suppressWarnings(as.integer(parsed[, 2]))
-    ends <- suppressWarnings(as.integer(parsed[, 3]))
     invalid_coordinates <- !is.finite(starts) | !is.finite(ends) | starts < 1L | ends < starts
     if (any(invalid_coordinates)) {
       examples <- paste(utils::head(peaks[invalid_coordinates], 3L), collapse = ", ")
       stop("Peak coordinates must be finite positive integers with end >= start: ", examples, call. = FALSE)
     }
-    ranges <- GenomicRanges::GRanges(seqnames = parsed[, 1], ranges = IRanges::IRanges(
+    ranges <- GenomicRanges::GRanges(seqnames = chromosomes, ranges = IRanges::IRanges(
       start = starts,
       end = ends
     ))
