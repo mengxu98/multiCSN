@@ -94,10 +94,15 @@ NULL
   thisutils::parallelize_fun(
     x, fun,
     cores = cores,
-    # "auto" lets thisutils choose; on Unix the forked backend avoids copying
-    # the input matrices to every worker, so callers can force it with
-    # options(multicsn.parallel_backend = "fork").
-    backend = getOption("multicsn.parallel_backend", "auto"),
+    # Fork on Unix, PSOCK on Windows. `backend = "auto"` can resolve to PSOCK on
+    # Unix, and shipping the peak x motif / peak x cell matrices to every worker
+    # then costs far more than the fit itself (measured: a 103 s job did not
+    # finish in 5 min). Callers can still override via
+    # options(multicsn.parallel_backend = "auto"|"fork"|"psock").
+    backend = getOption(
+      "multicsn.parallel_backend",
+      if (.Platform$OS.type == "windows") "psock" else "fork"
+    ),
     throw_error = FALSE,
     verbose = FALSE,
     progress = FALSE
