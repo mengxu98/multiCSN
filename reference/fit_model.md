@@ -40,7 +40,7 @@ fit_model(
     *[`stats::glm`](https://rdrr.io/r/stats/glm.html)*
 
   - *`glmnet`*, *`cv.glmnet`* - Regularized GLM using
-    *[`glmnet::glmnet`](https://rdrr.io/pkg/glmnet/man/glmnet.html)*
+    *[`glmnet::glmnet`](https://glmnet.stanford.edu/reference/glmnet.html)*
 
   - *`xgb`* - Gradient Boosting using *`xgboost`*
 
@@ -54,8 +54,8 @@ fit_model(
 - alpha:
 
   The elasticnet mixing parameter, between 0 and 1. See
-  *[`glmnet::glmnet`](https://rdrr.io/pkg/glmnet/man/glmnet.html)* for
-  details.
+  *[`glmnet::glmnet`](https://glmnet.stanford.edu/reference/glmnet.html)*
+  for details.
 
 - max_support_size:
 
