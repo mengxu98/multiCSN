@@ -94,10 +94,15 @@ NULL
   thisutils::parallelize_fun(
     x, fun,
     cores = cores,
-    # "auto" lets thisutils choose; on Unix the forked backend avoids copying
-    # the input matrices to every worker, so callers can force it with
-    # options(multicsn.parallel_backend = "fork").
-    backend = getOption("multicsn.parallel_backend", "auto"),
+    # Fork on Unix, PSOCK on Windows. `backend = "auto"` can resolve to PSOCK on
+    # Unix, and shipping the peak x motif / peak x cell matrices to every worker
+    # then costs far more than the fit itself (measured: a 103 s job did not
+    # finish in 5 min). Callers can still override via
+    # options(multicsn.parallel_backend = "auto"|"fork"|"psock").
+    backend = getOption(
+      "multicsn.parallel_backend",
+      if (.Platform$OS.type == "windows") "psock" else "fork"
+    ),
     throw_error = FALSE,
     verbose = FALSE,
     progress = FALSE
@@ -261,7 +266,7 @@ NULL
   domain_to_peak_row <- match(colnames(peaks2gene), rownames(peak_by_cell))
   genes_to_domain_row <- match(features, rownames(peaks2gene))
   genes_to_gene_row <- match(features, rownames(gene_by_cell))
-  results <- .layered_lapply(seq_along(features), function(target_index) {
+  fit_one <- function(target_index) {
     target <- features[[target_index]]
     cache_path <- .layered_checkpoint(
       checkpoint_root, "region_gene_parts", sprintf("target_%06d.rds", target_index)
@@ -348,9 +353,26 @@ NULL
       saveRDS(result, cache_path)
     }
     result
+  }
+  # Forking once per target costs more than the work itself on real data
+  # (16k+ targets). Group targets into chunks so every worker amortises its
+  # fork over many fits; the per-target order is preserved, so the assembled
+  # tables are byte-identical.
+  target_chunk <- if (is.null(settings$target_chunk)) 256L else as.integer(settings$target_chunk)
+  target_chunk <- max(1L, min(length(features), target_chunk))
+  task_starts <- seq.int(1L, length(features), by = target_chunk)
+  chunked <- .layered_lapply(seq_along(task_starts), function(task_index) {
+    first <- task_starts[[task_index]]
+    last <- min(length(features), first + target_chunk - 1L)
+    lapply(first:last, fit_one)
   }, cores = settings$cores)
+  chunk_failures <- vapply(chunked, function(x) inherits(x, "try-error"), logical(1))
+  if (any(chunk_failures)) {
+    stop("Layered region-gene fit failed for ", sum(chunk_failures), " chunk(s).", call. = FALSE)
+  }
+  results <- unlist(chunked, recursive = FALSE)
   failures <- vapply(
-    results, function(x) inherits(x, "try-error") || is.null(x$accounting), logical(1)
+    results, function(x) is.null(x) || is.null(x$accounting), logical(1)
   )
   if (any(failures)) {
     stop("Layered region-gene fit failed for ", sum(failures), " target(s).", call. = FALSE)
@@ -628,7 +650,9 @@ NULL
 #'   with the response is an affine alias (|r| >= 1 - 1e-10).
 #' @param renormalize Re-normalize RNA counts and re-run TF-IDF on the selected
 #'   cells before fitting.
-#' @param response_chunk Number of targets fitted per chunk.
+#' @param response_chunk Number of responses fitted per task in the shared-design layers.
+#' @param target_chunk Number of region-gene targets fitted per task; larger values
+#'   amortise the fork cost of the parallel backend.
 #' @param max_support_size,min_improvement Greedy-l0 stopping rules forwarded to
 #'   \code{inferCSN::fit_greedy_l0_batch()}.
 #' @param sort_regulators Sort the transcription factors before fitting.
@@ -656,6 +680,7 @@ fit_layered_network <- function(object,
                                 exclude_response_alias = FALSE,
                                 renormalize = FALSE,
                                 response_chunk = 1024L,
+                                target_chunk = 256L,
                                 max_support_size = NULL,
                                 min_improvement = 1e-10,
                                 sort_regulators = FALSE,
@@ -687,6 +712,7 @@ fit_layered_network <- function(object,
     tf_region_scope = tf_region_scope,
     exclude_response_alias = isTRUE(exclude_response_alias),
     renormalize = isTRUE(renormalize), response_chunk = response_chunk,
+    target_chunk = as.integer(target_chunk),
     max_support_size = max_support_size, min_improvement = min_improvement,
     sort_regulators = isTRUE(sort_regulators), cores = cores,
     checkpoint_dir = checkpoint_dir, verbose = isTRUE(verbose)
