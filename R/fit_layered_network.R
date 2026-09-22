@@ -84,10 +84,24 @@ NULL
 
 .layered_lapply <- function(x, fun, cores = 1L) {
   cores <- as.integer(cores)
-  if (cores > 1L && .Platform$OS.type != "windows") {
-    return(parallel::mclapply(x, fun, mc.cores = cores, mc.preschedule = FALSE))
+  if (cores <= 1L || length(x) <= 1L) {
+    return(lapply(x, fun))
   }
-  lapply(x, fun)
+  # Use the package-wide parallel framework instead of raw mclapply: it picks
+  # fork or PSOCK automatically (so Windows gets real parallelism too), honours
+  # nested workers, and returns try-error objects when throw_error is FALSE,
+  # which is what the chunk/target failure accounting below expects.
+  thisutils::parallelize_fun(
+    x, fun,
+    cores = cores,
+    # "auto" lets thisutils choose; on Unix the forked backend avoids copying
+    # the input matrices to every worker, so callers can force it with
+    # options(multicsn.parallel_backend = "fork").
+    backend = getOption("multicsn.parallel_backend", "auto"),
+    throw_error = FALSE,
+    verbose = FALSE,
+    progress = FALSE
+  )
 }
 
 .layered_checkpoint <- function(root, name, ...) {
