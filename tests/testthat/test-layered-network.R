@@ -200,6 +200,57 @@ test_that("checkpoints round-trip without changing the layered fit", {
   expect_identical(first$accounting, second$accounting)
 })
 
+test_that("checkpoint identity rejects changed inputs and legacy parts", {
+  root <- tempfile("layered-identity-")
+  on.exit(unlink(root, recursive = TRUE), add = TRUE)
+  inputs <- list(
+    cells = "c1", features = "g1", regulators = "tf1",
+    tf_region_names = "p1", gene_by_cell = matrix(1, 1, 1),
+    all_peak_by_cell = matrix(1, 1, 1),
+    peaks2gene = matrix(1, 1, 1), peak_tf_gate = matrix(1, 1, 1)
+  )
+  settings <- list(min_detected = 0L, cores = 1L, checkpoint_dir = root)
+  multiCSN:::.layered_prepare_checkpoint(root, inputs, settings)
+  expect_silent(multiCSN:::.layered_prepare_checkpoint(root, inputs, settings))
+  parallel_settings <- settings
+  parallel_settings$cores <- 2L
+  expect_silent(multiCSN:::.layered_prepare_checkpoint(root, inputs, parallel_settings))
+  changed <- inputs
+  changed$gene_by_cell[1, 1] <- 2
+  expect_error(
+    multiCSN:::.layered_prepare_checkpoint(root, changed, settings),
+    "different input"
+  )
+  changed_settings <- settings
+  changed_settings$min_detected <- 20L
+  expect_error(
+    multiCSN:::.layered_prepare_checkpoint(root, inputs, changed_settings),
+    "different input"
+  )
+  unlink(file.path(root, "layered_checkpoint_identity.rds"))
+  dir.create(file.path(root, "tf_gene_parts"))
+  saveRDS(list(edges = data.frame()), file.path(root, "tf_gene_parts", "chunk_000001_000001.rds"))
+  expect_error(
+    multiCSN:::.layered_prepare_checkpoint(root, inputs, settings),
+    "no identity"
+  )
+})
+
+test_that("parallel worker errors retain the original message", {
+  expect_error(
+    multiCSN:::.layered_lapply(1:2, function(i) stop("target failed"), cores = 2L),
+    "target failed"
+  )
+})
+
+test_that("PSOCK workers return ordered results", {
+  previous <- getOption("multicsn.parallel_backend")
+  on.exit(options(multicsn.parallel_backend = previous), add = TRUE)
+  options(multicsn.parallel_backend = "psock")
+  observed <- multiCSN:::.layered_lapply(1:3, function(i) i * i, cores = 2L)
+  expect_identical(unname(observed), list(1L, 4L, 9L))
+})
+
 test_that("fit_layered_network validates its inputs", {
   x <- Matrix::Matrix(matrix(1:12, 3, 4, dimnames = list(paste0("g", 1:3), paste0("c", 1:4))),
                       sparse = TRUE)
@@ -215,5 +266,9 @@ test_that("fit_layered_network validates its inputs", {
   expect_error(
     fit_layered_network(object, response_chunk = 0L, verbose = FALSE),
     "positive integer"
+  )
+  expect_error(
+    fit_layered_network(object, target_chunk = NA_integer_, verbose = FALSE),
+    "target_chunk.*positive integer"
   )
 })

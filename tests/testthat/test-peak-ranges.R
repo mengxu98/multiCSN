@@ -72,3 +72,36 @@ test_that("parse_peak_ranges is vectorised across many peaks", {
   expect_identical(as.character(GenomeInfoDb::seqnames(ranges)), sub(":.*$", "", peaks))
   expect_true(all(as.integer(IRanges::end(ranges)) >= as.integer(IRanges::start(ranges))))
 })
+
+test_that("one unusually delimited peak does not disable the fast path", {
+  ordinary <- paste0("chr1:", seq_len(100L), "-", seq_len(100L) + 1L)
+  mixed <- c(ordinary, "chr1:extra:101-102")
+  parsed <- multiCSN:::.split_peak_identifiers(mixed)
+  expect_false(anyNA(parsed$chromosome))
+  expect_identical(parsed$chromosome, c(rep("chr1", 100L), "chr1:extra"))
+  expect_identical(as.integer(IRanges::start(parse_peak_ranges(mixed))),
+                   c(seq_len(100L), 101L))
+})
+
+test_that("mixed delimiter batches match the original peak grammar", {
+  set.seed(7)
+  chromosomes <- sample(c("chr1", "chrUn-1", "chrA_2", "chrB:3"), 400L, TRUE)
+  starts <- sample.int(100000L, 400L)
+  ends <- starts + sample.int(1000L, 400L, TRUE)
+  separators <- sample(c(":", "-", "_"), 400L, TRUE)
+  peaks <- ifelse(
+    separators == ":", paste0(chromosomes, ":", starts, "-", ends),
+    paste0(chromosomes, separators, starts, separators, ends)
+  )
+  reference <- t(vapply(peaks, function(peak) {
+    for (pattern in multiCSN:::.peak_identifier_patterns) {
+      matched <- regmatches(peak, regexec(pattern, peak, perl = TRUE))[[1L]]
+      if (length(matched) == 4L) return(matched[2:4])
+    }
+    stop("The fixture contains an invalid peak identifier")
+  }, character(3)))
+  parsed <- parse_peak_ranges(peaks)
+  expect_identical(as.character(GenomeInfoDb::seqnames(parsed)), unname(reference[, 1L]))
+  expect_identical(as.integer(IRanges::start(parsed)), as.integer(reference[, 2L]))
+  expect_identical(as.integer(IRanges::end(parsed)), as.integer(reference[, 3L]))
+})

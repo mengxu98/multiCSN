@@ -89,9 +89,8 @@ NULL
   }
   # Use the package-wide parallel framework instead of raw mclapply: it picks
   # fork or PSOCK automatically (so Windows gets real parallelism too), honours
-  # nested workers, and returns try-error objects when throw_error is FALSE,
-  # which is what the chunk/target failure accounting below expects.
-  thisutils::parallelize_fun(
+  # nested workers. Convert its error objects to a useful error at this seam.
+  result <- thisutils::parallelize_fun(
     x, fun,
     cores = cores,
     # Fork on Unix, PSOCK on Windows. `backend = "auto"` can resolve to PSOCK on
@@ -107,6 +106,16 @@ NULL
     verbose = FALSE,
     progress = FALSE
   )
+  failed <- which(vapply(result, inherits, logical(1), "parallelize_error"))
+  if (length(failed)) {
+    first <- result[[failed[[1L]]]]
+    stop(
+      "Layered parallel task ", first$index, " failed: ", first$error,
+      if (length(failed) > 1L) paste0(" (", length(failed), " tasks failed)") else "",
+      call. = FALSE
+    )
+  }
+  result
 }
 
 .layered_checkpoint <- function(root, name, ...) {
@@ -114,6 +123,50 @@ NULL
     return(NULL)
   }
   file.path(root, name, ...)
+}
+
+.layered_prepare_checkpoint <- function(root, inputs, settings) {
+  if (is.null(root)) return(invisible(NULL))
+  dir.create(root, recursive = TRUE, showWarnings = FALSE)
+  manifest <- file.path(root, "layered_checkpoint_identity.rds")
+  if (!file.exists(manifest)) {
+    parts <- file.path(root, c("tf_gene_parts", "tf_region_parts", "region_gene_parts"))
+    has_parts <- any(vapply(parts, function(path) {
+      dir.exists(path) && length(list.files(path, recursive = TRUE)) > 0L
+    }, logical(1)))
+    if (has_parts) {
+      stop("Layered checkpoints have no identity; use a new checkpoint directory.", call. = FALSE)
+    }
+  }
+  fitting_settings <- settings[setdiff(
+    names(settings), c("cores", "checkpoint_dir", "verbose", "response_chunk", "target_chunk")
+  )]
+  package_info <- lapply(c("multiCSN", "inferCSN"), function(pkg) {
+    description <- utils::packageDescription(pkg)
+    c(version = description$Version, remote_sha = description$RemoteSha)
+  })
+  identity <- digest::digest(list(
+    packages = package_info, settings = fitting_settings,
+    cells = inputs$cells, features = inputs$features,
+    regulators = inputs$regulators, tf_region_names = inputs$tf_region_names,
+    gene_by_cell = inputs$gene_by_cell,
+    all_peak_by_cell = inputs$all_peak_by_cell,
+    peaks2gene = inputs$peaks2gene, peak_tf_gate = inputs$peak_tf_gate
+  ), algo = "sha256")
+  if (file.exists(manifest)) {
+    previous <- tryCatch(readRDS(manifest), error = function(e) NULL)
+    if (!is.list(previous) || !identical(previous$sha256, identity)) {
+      stop("Layered checkpoints belong to a different input or fit configuration; use a new checkpoint directory.", call. = FALSE)
+    }
+  } else {
+    temporary <- tempfile("layered-identity-", tmpdir = root)
+    on.exit(unlink(temporary), add = TRUE)
+    saveRDS(list(sha256 = identity), temporary)
+    if (!file.rename(temporary, manifest)) {
+      stop("Could not write layered checkpoint identity.", call. = FALSE)
+    }
+  }
+  invisible(identity)
 }
 
 # ---- candidate builders ----------------------------------------------------
@@ -656,9 +709,11 @@ NULL
 #' @param max_support_size,min_improvement Greedy-l0 stopping rules forwarded to
 #'   \code{inferCSN::fit_greedy_l0_batch()}.
 #' @param sort_regulators Sort the transcription factors before fitting.
-#' @param cores Number of forked workers used per chunk (ignored on Windows).
+#' @param cores Number of workers used per chunk (fork on Unix, PSOCK on Windows).
 #' @param checkpoint_dir Optional directory storing per-chunk checkpoints so an
-#'   interrupted fit can resume; \code{NULL} keeps everything in memory.
+#'   interrupted fit can resume. Existing checkpoints are reused only when the
+#'   selected inputs and fitting settings match. A SHA-256 identity is computed
+#'   when checkpointing is enabled; \code{NULL} keeps everything in memory.
 #' @param store Store the three layers as \code{Network} entries in the returned
 #'   object.
 #' @param network_name Name of the stored network entries.
@@ -693,6 +748,7 @@ fit_layered_network <- function(object,
   min_detected <- as.integer(min_detected)
   min_peak_cells <- as.integer(min_peak_cells)
   response_chunk <- as.integer(response_chunk)
+  target_chunk <- as.integer(target_chunk)
   cores <- as.integer(cores)
   if (is.na(min_detected) || min_detected < 0L) {
     stop("`min_detected` must be a non-negative integer.", call. = FALSE)
@@ -703,6 +759,9 @@ fit_layered_network <- function(object,
   if (is.na(response_chunk) || response_chunk < 1L) {
     stop("`response_chunk` must be a positive integer.", call. = FALSE)
   }
+  if (length(target_chunk) != 1L || is.na(target_chunk) || target_chunk < 1L) {
+    stop("`target_chunk` must be a positive integer.", call. = FALSE)
+  }
   if (is.na(cores) || cores < 1L) {
     stop("`cores` must be a positive integer.", call. = FALSE)
   }
@@ -712,7 +771,7 @@ fit_layered_network <- function(object,
     tf_region_scope = tf_region_scope,
     exclude_response_alias = isTRUE(exclude_response_alias),
     renormalize = isTRUE(renormalize), response_chunk = response_chunk,
-    target_chunk = as.integer(target_chunk),
+    target_chunk = target_chunk,
     max_support_size = max_support_size, min_improvement = min_improvement,
     sort_regulators = isTRUE(sort_regulators), cores = cores,
     checkpoint_dir = checkpoint_dir, verbose = isTRUE(verbose)
@@ -723,6 +782,7 @@ fit_layered_network <- function(object,
     upstream = upstream, downstream = downstream, tf_region_scope = tf_region_scope,
     renormalize = renormalize, sort_regulators = sort_regulators, verbose = verbose
   )
+  .layered_prepare_checkpoint(checkpoint_dir, inputs, settings)
   fit <- .fit_layered_core(inputs, settings)
   result <- c(
     fit,
