@@ -28,13 +28,13 @@ fit_cvglmnet(formula, data, family = gaussian, alpha = 0.5, ...)
 - alpha:
 
   The elasticnet mixing parameter, between 0 and 1. See
-  *[`glmnet::glmnet`](https://glmnet.stanford.edu/reference/glmnet.html)*
-  for details.
+  *[`glmnet::glmnet`](https://rdrr.io/pkg/glmnet/man/glmnet.html)* for
+  details.
 
 - ...:
 
   Additional parameters passed to
-  *[`glmnet::cv.glmnet`](https://glmnet.stanford.edu/reference/cv.glmnet.html)*.
+  *[`glmnet::cv.glmnet`](https://rdrr.io/pkg/glmnet/man/cv.glmnet.html)*.
 
 ## Value
 

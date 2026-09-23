@@ -24,6 +24,7 @@ fit_layered_network(
   exclude_response_alias = FALSE,
   renormalize = FALSE,
   response_chunk = 1024L,
+  target_chunk = 256L,
   max_support_size = NULL,
   min_improvement = 1e-10,
   sort_regulators = FALSE,
@@ -90,7 +91,12 @@ fit_layered_network(
 
 - response_chunk:
 
-  Number of targets fitted per chunk.
+  Number of responses fitted per task in the shared-design layers.
+
+- target_chunk:
+
+  Number of region-gene targets fitted per task; larger values amortise
+  the fork cost of the parallel backend.
 
 - max_support_size, min_improvement:
 
@@ -103,12 +109,14 @@ fit_layered_network(
 
 - cores:
 
-  Number of forked workers used per chunk (ignored on Windows).
+  Number of workers used per chunk (fork on Unix, PSOCK on Windows).
 
 - checkpoint_dir:
 
   Optional directory storing per-chunk checkpoints so an interrupted fit
-  can resume; `NULL` keeps everything in memory.
+  can resume. Existing checkpoints are reused only when the selected
+  inputs and fitting settings match. A SHA-256 identity is computed when
+  checkpointing is enabled; `NULL` keeps everything in memory.
 
 - store:
 

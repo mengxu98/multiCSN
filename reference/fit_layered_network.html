@@ -74,6 +74,7 @@ stored in the object are taken as-is.</p>
 <span>  exclude_response_alias <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  renormalize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  response_chunk <span class="op">=</span> <span class="fl">1024L</span>,</span>
+<span>  target_chunk <span class="op">=</span> <span class="fl">256L</span>,</span>
 <span>  max_support_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  min_improvement <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  sort_regulators <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -141,7 +142,12 @@ cells before fitting.</p></dd>
 
 
 <dt id="arg-response-chunk">response_chunk<a class="anchor" aria-label="anchor" href="#arg-response-chunk"></a></dt>
-<dd><p>Number of targets fitted per chunk.</p></dd>
+<dd><p>Number of responses fitted per task in the shared-design layers.</p></dd>
+
+
+<dt id="arg-target-chunk">target_chunk<a class="anchor" aria-label="anchor" href="#arg-target-chunk"></a></dt>
+<dd><p>Number of region-gene targets fitted per task; larger values
+amortise the fork cost of the parallel backend.</p></dd>
 
 
 <dt id="arg-max-support-size-min-improvement">max_support_size, min_improvement<a class="anchor" aria-label="anchor" href="#arg-max-support-size-min-improvement"></a></dt>
@@ -154,12 +160,14 @@ cells before fitting.</p></dd>
 
 
 <dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
-<dd><p>Number of forked workers used per chunk (ignored on Windows).</p></dd>
+<dd><p>Number of workers used per chunk (fork on Unix, PSOCK on Windows).</p></dd>
 
 
 <dt id="arg-checkpoint-dir">checkpoint_dir<a class="anchor" aria-label="anchor" href="#arg-checkpoint-dir"></a></dt>
 <dd><p>Optional directory storing per-chunk checkpoints so an
-interrupted fit can resume; <code>NULL</code> keeps everything in memory.</p></dd>
+interrupted fit can resume. Existing checkpoints are reused only when the
+selected inputs and fitting settings match. A SHA-256 identity is computed
+when checkpointing is enabled; <code>NULL</code> keeps everything in memory.</p></dd>
 
 
 <dt id="arg-store">store<a class="anchor" aria-label="anchor" href="#arg-store"></a></dt>
