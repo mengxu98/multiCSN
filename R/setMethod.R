@@ -9,7 +9,7 @@ setMethod(
   f = "Params",
   signature = "Seurat",
   definition = function(object, ...) {
-    .multicsn_get(object, "params", default = list())
+    multicsn_get(object, "params", default = list())
   }
 )
 
@@ -32,7 +32,7 @@ setMethod(
                         network = DefaultNetwork(object),
                         celltypes = NULL,
                         ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -40,7 +40,7 @@ setMethod(
       verbose = FALSE,
       caller = "GetNetwork"
     )
-    nets <- .multicsn_get_networks(object, network = network)
+    nets <- multicsn_get_networks(object, network = network)
     if (is.null(nets)) {
       return(NULL)
     }
@@ -101,7 +101,7 @@ setMethod(
   f = "NetworkRegions",
   signature = "Seurat",
   definition = function(object, ...) {
-    .multicsn_get_regions(object)
+    multicsn_get_regions(object)
   }
 )
 
@@ -370,7 +370,7 @@ setMethod(
                         network = DefaultNetwork(object),
                         celltypes = NULL,
                         ...) {
-    state <- .read_multicsn_state(object)
+    state <- read_multicsn_state(object)
     res <- state$shortest_paths %ss% NULL
     if (is.null(res) || is.null(res[[network]])) {
       return(NULL)
@@ -421,7 +421,7 @@ setMethod(
   definition = function(object,
                         network = DefaultNetwork(object),
                         ...) {
-    state <- .read_multicsn_state(object)
+    state <- read_multicsn_state(object)
     res <- state$edge_uniqueness %ss% NULL
     if (is.null(res) || is.null(res[[network]])) {
       return(NULL)
@@ -454,7 +454,7 @@ setMethod(
   definition = function(object,
                         network = DefaultNetwork(object),
                         ...) {
-    state <- .read_multicsn_state(object)
+    state <- read_multicsn_state(object)
     res <- state$extract_genes_transition %ss% NULL
     if (is.null(res) || is.null(res[[network]])) {
       return(NULL)
@@ -483,7 +483,7 @@ setMethod(
   f = "DefaultNetwork",
   signature = "Seurat",
   definition = function(object, ...) {
-    .multicsn_get_active_network(object)
+    multicsn_get_active_network(object)
   }
 )
 
@@ -502,7 +502,7 @@ setReplaceMethod(
   f = "DefaultNetwork",
   signature = "Seurat",
   definition = function(object, value) {
-    .multicsn_set_active_network(object, value)
+    multicsn_set_active_network(object, value)
   }
 )
 
@@ -806,7 +806,7 @@ setMethod(
   definition = function(x, name) {
     name <- as.character(name)
     if (identical(name, "celltypes")) {
-      return(.csn_celltypes(x))
+      return(csn_celltypes(x))
     }
     if (identical(name, "metadata")) {
       return(x@metadata)
@@ -840,7 +840,7 @@ print.CSNObject <- function(x, ...) {
   active_assay <- tryCatch(seurat@active.assay, error = function(e) NA_character_)
   n_cells <- tryCatch(ncol(seurat), error = function(e) NA_integer_)
   n_features <- tryCatch(nrow(seurat[[active_assay]]), error = function(e) NA_integer_)
-  celltypes <- .csn_celltypes(x)
+  celltypes <- csn_celltypes(x)
 
   active_network <- DefaultNetwork(x)
   active_network <- active_network[1] %ss% ""
@@ -951,7 +951,7 @@ setMethod(
   }
 )
 
-.process_Network <- function(
+process_Network <- function(
   object,
   r_squared_threshold = 0
 ) {
@@ -1014,7 +1014,7 @@ setMethod(
   return(object)
 }
 
-.process_csn <- function(
+process_csn <- function(
   object,
   r_squared_threshold = 0
 ) {
@@ -1028,12 +1028,12 @@ setMethod(
   for (celltype in names(networks)) {
     network <- networks[[celltype]]
     if (!is.null(network) && methods::is(network, "Network")) {
-      network <- .process_Network(
+      network <- process_Network(
         network,
         r_squared_threshold = r_squared_threshold
       )
       if (methods::is(object, "Seurat")) {
-        object <- .multicsn_set_network_entry(object, active_network, celltype, network)
+        object <- multicsn_set_network_entry(object, active_network, celltype, network)
       } else {
         object@networks[[active_network]][[celltype]] <- network
       }

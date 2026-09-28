@@ -100,7 +100,7 @@ setMethod(
       as.matrix() |>
       Matrix::Matrix(sparse = TRUE)
 
-    assay_genes <- rownames(.csn_get_assay(object, params$rna_assay))
+    assay_genes <- rownames(csn_get_assay(object, params$rna_assay))
     if (!is.null(params$regulators)) {
       regulators_union <- unique(
         unlist(params$regulators, use.names = FALSE)
@@ -122,10 +122,10 @@ setMethod(
         "Consider providing a custom motif-to-TF map as 'motif_tfs'"
       )
     }
-    object <- .multicsn_set(object, "tfs", tfs_use)
-    regions <- .multicsn_get_regions(object)
+    object <- multicsn_set(object, "tfs", tfs_use)
+    regions <- multicsn_get_regions(object)
     regions@motifs2tfs <- motif2tf[, tfs_use]
-    object <- .multicsn_set_regions(object, regions)
+    object <- multicsn_set_regions(object, regions)
 
     celltypes <- get_attribute(
       object,
@@ -149,9 +149,9 @@ setMethod(
         verbose = verbose,
         message_type = "warning"
       )
-      regions <- .multicsn_get_regions(object)
+      regions <- multicsn_get_regions(object)
       regions@motifs <- NULL
-      object <- .multicsn_set_regions(object, regions)
+      object <- multicsn_set_regions(object, regions)
       return(object)
     }
 
@@ -163,7 +163,7 @@ setMethod(
       ),
       verbose = verbose
     )
-    result <- .process_peak_motifs(
+    result <- process_peak_motifs(
       peaks = peaks_use,
       label = "all selected peaks",
       genome = genome,
@@ -171,9 +171,9 @@ setMethod(
       backend = backend,
       verbose = verbose
     )
-    regions <- .multicsn_get_regions(object)
+    regions <- multicsn_get_regions(object)
     regions@motifs <- if (is.null(result)) NULL else result$motifs
-    object <- .multicsn_set_regions(object, regions)
+    object <- multicsn_set_regions(object, regions)
     log_message(
       "Motifs processed",
       message_type = "success",
@@ -190,11 +190,11 @@ setMethod(
   f = "find_motifs",
   signature = "CSNObject",
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
-.process_peak_motifs <- function(
+process_peak_motifs <- function(
   peaks,
   label,
   genome,
@@ -217,7 +217,7 @@ setMethod(
     return(NULL)
   }
 
-  .validate_genome_seqinfo(genome)
+  validate_genome_seqinfo(genome)
 
   peak_ranges <- Signac::StringToGRanges(peaks)
   motif_pos <- suppressWarnings(
@@ -229,7 +229,7 @@ setMethod(
         verbose = FALSE
       )
     } else {
-      .create_motif_object_motifmatchr(
+      create_motif_object_motifmatchr(
         features = peak_ranges,
         genome = genome,
         pfm = pfm
@@ -246,7 +246,7 @@ setMethod(
   )
 }
 
-.create_motif_object_motifmatchr <- function(features, genome, pfm) {
+create_motif_object_motifmatchr <- function(features, genome, pfm) {
   motif_ix <- motifmatchr::matchMotifs(
     pwms = pfm,
     subject = features,
@@ -280,7 +280,7 @@ setMethod(
   )
 }
 
-.validate_genome_seqinfo <- function(genome) {
+validate_genome_seqinfo <- function(genome) {
   seqinfo_ok <- tryCatch(
     {
       GenomeInfoDb::seqinfo(genome)

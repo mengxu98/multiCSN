@@ -36,13 +36,9 @@ test_that("parse_peak_ranges validates coordinates and reports bad identifiers",
 })
 
 test_that("the split fast path and the pattern fallback agree", {
-  # coordinates beyond the integer range keep the coordinate error, not the
-  # "could not parse" error
   expect_error(parse_peak_ranges("chr1:21474836470-21474836480"), "finite positive")
-  # forms that only look like an identifier must reach the same error
   expect_error(parse_peak_ranges(c("chr1:1-2", "chr1:5_8")), "Could not parse")
   expect_error(parse_peak_ranges(c("chr1-5_2", "scaffold-7:0:0")), "Could not parse")
-  # several delimiters in one sequence name resolve to the last delimiter
   ranges <- parse_peak_ranges(c(
     "chr1_KI270706v1_random:125391-126274", "chrUn-1_2-3-4", "GL000191-1-1000"
   ))
@@ -52,7 +48,6 @@ test_that("the split fast path and the pattern fallback agree", {
   )
   expect_identical(as.integer(IRanges::start(ranges)), c(125391L, 3L, 1L))
   expect_identical(as.integer(IRanges::end(ranges)), c(126274L, 4L, 1000L))
-  # a large mixed batch stays consistent with the per-item results
   batch <- c("chr1:1-2", "chr2_3_4", "chr3-5-6", "chr4:7:8-9")
   expect_identical(
     as.character(GenomeInfoDb::seqnames(parse_peak_ranges(batch))),
@@ -76,7 +71,7 @@ test_that("parse_peak_ranges is vectorised across many peaks", {
 test_that("one unusually delimited peak does not disable the fast path", {
   ordinary <- paste0("chr1:", seq_len(100L), "-", seq_len(100L) + 1L)
   mixed <- c(ordinary, "chr1:extra:101-102")
-  parsed <- multiCSN:::.split_peak_identifiers(mixed)
+  parsed <- multiCSN:::split_peak_identifiers(mixed)
   expect_false(anyNA(parsed$chromosome))
   expect_identical(parsed$chromosome, c(rep("chr1", 100L), "chr1:extra"))
   expect_identical(as.integer(IRanges::start(parse_peak_ranges(mixed))),

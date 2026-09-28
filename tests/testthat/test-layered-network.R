@@ -4,26 +4,46 @@ test_that("row-compressed blocks reproduce sparse row subsetting", {
   dimnames(x) <- list(paste0("r", seq_len(40)), paste0("c", seq_len(12)))
   x[3, ] <- 0
   x[5, 1] <- 0
-  row_compressed <- multiCSN:::.row_compressed_matrix(x)
+  row_compressed <- multiCSN:::row_compressed_matrix(x)
   rows <- c(2L, 3L, 5L, 17L)
   reference <- Matrix::t(x[rows, , drop = FALSE])
-  block <- multiCSN:::.row_compressed_block(row_compressed, rows)
+  block <- multiCSN:::row_compressed_block(row_compressed, rows)
   expect_identical(block@i, reference@i)
   expect_identical(block@p, reference@p)
   expect_identical(block@x, reference@x)
   expect_identical(block@Dim, reference@Dim)
   expect_identical(
-    multiCSN:::.row_compressed_nonzero(row_compressed, 3L), integer()
+    multiCSN:::row_compressed_nonzero(row_compressed, 3L), integer()
   )
   expect_identical(
-    multiCSN:::.row_compressed_nonzero(row_compressed, 5L),
+    multiCSN:::row_compressed_nonzero(row_compressed, 5L),
     as.integer(which(x[5, ] != 0))
   )
   expect_equal(
-    multiCSN:::.row_compressed_dense(row_compressed, 7L, ncol(x)),
+    multiCSN:::row_compressed_dense(row_compressed, 7L, ncol(x)),
     as.numeric(x[7, ])
   )
-  expect_equal(dim(multiCSN:::.row_compressed_block(row_compressed, integer())), c(12L, 0L))
+  expect_equal(dim(multiCSN:::row_compressed_block(row_compressed, integer())), c(12L, 0L))
+})
+
+test_that("column-compressed blocks reproduce sparse column subsetting", {
+  set.seed(13)
+  x <- Matrix::rsparsematrix(25, 18, density = 0.2)
+  dimnames(x) <- list(paste0("r", seq_len(25)), paste0("c", seq_len(18)))
+  x[, 3] <- 0
+  for (columns in list(integer(), 3L, 1:5, c(14L, 2L, 14L, 18L))) {
+    reference <- x[, columns, drop = FALSE]
+    block <- multiCSN:::column_compressed_block(x, columns)
+    expect_identical(block@i, reference@i)
+    expect_identical(block@p, reference@p)
+    expect_identical(block@x, reference@x)
+    expect_identical(block@Dim, reference@Dim)
+    design <- matrix(rnorm(25 * 4), nrow = 25)
+    expect_identical(
+      unname(as.matrix(Matrix::crossprod(design, block))),
+      unname(as.matrix(Matrix::crossprod(design, reference)))
+    )
+  }
 })
 
 test_that("layered candidate construction matches the reference selection", {
@@ -46,7 +66,7 @@ test_that("layered candidate construction matches the reference selection", {
            dimnames = list(genes, cells)),
     sparse = TRUE
   )
-  candidate <- multiCSN:::.layered_candidate_functions(
+  candidate <- multiCSN:::layered_candidate_functions(
     gene_by_cell = gene_by_cell, peaks2gene = peaks2gene,
     peak_tf_gate = peak_tf_gate, features = genes, regulators = colnames(peak_tf_gate),
     min_detected = 0L, endpoint = "tf_gene"
@@ -63,7 +83,7 @@ test_that("layered candidate construction matches the reference selection", {
     expected <- setdiff(expected, match(target, colnames(peak_tf_gate)))
     expect_identical(candidate(index), as.integer(expected))
   }
-  region_candidate <- multiCSN:::.layered_candidate_functions(
+  region_candidate <- multiCSN:::layered_candidate_functions(
     gene_by_cell = gene_by_cell, peaks2gene = peaks2gene,
     peak_tf_gate = peak_tf_gate, features = genes, regulators = colnames(peak_tf_gate),
     min_detected = 0L, endpoint = "tf_region"
@@ -101,7 +121,7 @@ test_that("region-gene layer matches the naive per-target reference", {
     response_chunk = 1024L, cores = 1L, max_support_size = NULL,
     min_improvement = 1e-10, verbose = FALSE
   )
-  fitted <- multiCSN:::.fit_layered_region_gene(
+  fitted <- multiCSN:::fit_layered_region_gene(
     peak_by_cell, gene_by_cell, genes, peaks2gene, settings
   )
   naive <- lapply(genes, function(target) {
@@ -189,11 +209,11 @@ test_that("checkpoints round-trip without changing the layered fit", {
   candidates <- function(index) seq_len(ncol(design))
   cache <- file.path(tempdir(), "layered-checkpoints")
   unlink(cache, recursive = TRUE)
-  first <- multiCSN:::.fit_layered_shared_design(
+  first <- multiCSN:::fit_layered_shared_design(
     design, Matrix::t(response), responses, candidates, "TF-gene", settings, cache
   )
   expect_true(length(list.files(cache, recursive = TRUE)) > 0L)
-  second <- multiCSN:::.fit_layered_shared_design(
+  second <- multiCSN:::fit_layered_shared_design(
     design, Matrix::t(response), responses, candidates, "TF-gene", settings, cache
   )
   expect_identical(first$edges, second$edges)
@@ -210,35 +230,35 @@ test_that("checkpoint identity rejects changed inputs and legacy parts", {
     peaks2gene = matrix(1, 1, 1), peak_tf_gate = matrix(1, 1, 1)
   )
   settings <- list(min_detected = 0L, cores = 1L, checkpoint_dir = root)
-  multiCSN:::.layered_prepare_checkpoint(root, inputs, settings)
-  expect_silent(multiCSN:::.layered_prepare_checkpoint(root, inputs, settings))
+  multiCSN:::layered_prepare_checkpoint(root, inputs, settings)
+  expect_silent(multiCSN:::layered_prepare_checkpoint(root, inputs, settings))
   parallel_settings <- settings
   parallel_settings$cores <- 2L
-  expect_silent(multiCSN:::.layered_prepare_checkpoint(root, inputs, parallel_settings))
+  expect_silent(multiCSN:::layered_prepare_checkpoint(root, inputs, parallel_settings))
   changed <- inputs
   changed$gene_by_cell[1, 1] <- 2
   expect_error(
-    multiCSN:::.layered_prepare_checkpoint(root, changed, settings),
+    multiCSN:::layered_prepare_checkpoint(root, changed, settings),
     "different input"
   )
   changed_settings <- settings
   changed_settings$min_detected <- 20L
   expect_error(
-    multiCSN:::.layered_prepare_checkpoint(root, inputs, changed_settings),
+    multiCSN:::layered_prepare_checkpoint(root, inputs, changed_settings),
     "different input"
   )
   unlink(file.path(root, "layered_checkpoint_identity.rds"))
   dir.create(file.path(root, "tf_gene_parts"))
   saveRDS(list(edges = data.frame()), file.path(root, "tf_gene_parts", "chunk_000001_000001.rds"))
   expect_error(
-    multiCSN:::.layered_prepare_checkpoint(root, inputs, settings),
+    multiCSN:::layered_prepare_checkpoint(root, inputs, settings),
     "no identity"
   )
 })
 
 test_that("parallel worker errors retain the original message", {
   expect_error(
-    multiCSN:::.layered_lapply(1:2, function(i) stop("target failed"), cores = 2L),
+    multiCSN:::layered_lapply(1:2, function(i) stop("target failed"), cores = 2L),
     "target failed"
   )
 })
@@ -247,7 +267,7 @@ test_that("PSOCK workers return ordered results", {
   previous <- getOption("multicsn.parallel_backend")
   on.exit(options(multicsn.parallel_backend = previous), add = TRUE)
   options(multicsn.parallel_backend = "psock")
-  observed <- multiCSN:::.layered_lapply(1:3, function(i) i * i, cores = 2L)
+  observed <- multiCSN:::layered_lapply(1:3, function(i) i * i, cores = 2L)
   expect_identical(unname(observed), list(1L, 4L, 9L))
 })
 

@@ -228,9 +228,9 @@ setMethod(
         function(ct) {
           feats <- targets_list[[ct]]
           if (is.null(feats) || length(feats) == 0) {
-            return(.create_empty_feature_df(is_peak = FALSE))
+            return(create_empty_feature_df(is_peak = FALSE))
           }
-          .create_feature_df(
+          create_feature_df(
             features = feats,
             celltype = ct,
             infinite_logfc = TRUE,
@@ -340,7 +340,7 @@ setMethod(
     thisutils::log_message("Summary of cell-type specific features:", verbose = verbose)
     thisutils::log_message(summary_df, verbose = verbose)
 
-    object <- .write_multicsn_state(
+    object <- write_multicsn_state(
       object,
       list(
         schema_version = .MULTICSN_SCHEMA_VERSION,
@@ -368,7 +368,7 @@ setMethod(
   f = "initiate_object",
   signature = "CSNObject",
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
@@ -526,7 +526,7 @@ process_celltype_specific_genes <- function(
   )
 
   if (length(gene_sets) == 0) {
-    return(.create_empty_feature_df(is_peak = FALSE))
+    return(create_empty_feature_df(is_peak = FALSE))
   }
 
   res <- purrr::map_dfr(
@@ -534,9 +534,9 @@ process_celltype_specific_genes <- function(
     function(x) {
       features <- gene_sets[[as.character(x)]]
       if (is.null(features) || length(features) == 0) {
-        return(.create_empty_feature_df(is_peak = FALSE))
+        return(create_empty_feature_df(is_peak = FALSE))
       }
-      .create_feature_df(features, x, is_peak = FALSE)
+      create_feature_df(features, x, is_peak = FALSE)
     }
   )
 
@@ -564,7 +564,7 @@ find_variable_features <- function(
   }
 }
 
-.create_feature_df <- function(
+create_feature_df <- function(
   features,
   celltype,
   infinite_logfc = TRUE,
@@ -586,7 +586,7 @@ find_variable_features <- function(
   return(df)
 }
 
-.create_empty_feature_df <- function(is_peak = FALSE) {
+create_empty_feature_df <- function(is_peak = FALSE) {
   df <- data.frame(
     avg_log2FC = numeric(0),
     p_val_adj = numeric(0),
@@ -613,7 +613,7 @@ create_feature_matrix <- function(
   }
   purrr::map_dfr(
     celltypes,
-    ~ .create_feature_df(features, .x, is_peak = is_peak)
+    ~ create_feature_df(features, .x, is_peak = is_peak)
   )
 }
 

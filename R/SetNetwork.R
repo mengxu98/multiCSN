@@ -12,7 +12,7 @@ SetNetwork <- function(object, network, name = NULL) {
     if (is.null(name) || !nzchar(name)) {
       stop("No active network specified")
     }
-    return(.multicsn_set_networks(object, name, network))
+    return(multicsn_set_networks(object, name, network))
   }
 
   if (is.null(name)) {

@@ -63,7 +63,7 @@ setMethod(
            directed = FALSE,
            method = c("page_rank", "degree_distribution"),
            ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -82,7 +82,7 @@ setMethod(
       net <- nets[[i]]
       if (is.null(net)) next
       net <- calculate_gene_rank(net, regulators = regulators, targets = targets, directed = directed, method = method, ...)
-      object <- .multicsn_set_network_entry(object, network, cell_names[i], net)
+      object <- multicsn_set_network_entry(object, network, cell_names[i], net)
     }
     return(object)
   }
@@ -94,7 +94,7 @@ setMethod(
   "calculate_gene_rank",
   signature(object = "CSNObject"),
   function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
@@ -166,7 +166,7 @@ setMethod(
            targets = NULL,
            directed = FALSE) {
     network_table <- as.data.frame(object@network)
-    .calculate_page_rank(network_table, directed)
+    page_rank_from_network(network_table, directed)
   }
 )
 
@@ -188,11 +188,11 @@ setMethod(
       targets,
       abs_weight = FALSE
     )
-    .calculate_page_rank(network_table, directed)
+    page_rank_from_network(network_table, directed)
   }
 )
 
-.calculate_page_rank <- function(network_table, directed) {
+page_rank_from_network <- function(network_table, directed) {
   network <- igraph::graph_from_data_frame(
     network_table,
     directed = directed
@@ -244,7 +244,7 @@ setMethod(
   function(object, regulators = NULL, targets = NULL, directed = TRUE, ...) {
     network_table <- as.data.frame(object@network)
 
-    .degree_distribution(network_table, directed)
+    degree_distribution(network_table, directed)
   }
 )
 
@@ -263,11 +263,11 @@ setMethod(
       targets,
       abs_weight = FALSE
     )
-    .degree_distribution(network_table, directed)
+    degree_distribution(network_table, directed)
   }
 )
 
-.calculate_power_fit <- function(deg) {
+calculate_power_fit <- function(deg) {
   degree_freq <- table(deg)
   k <- as.numeric(names(degree_freq))
   pk <- as.numeric(degree_freq) / sum(degree_freq)
@@ -279,7 +279,7 @@ setMethod(
   return(0)
 }
 
-.degree_distribution <- function(
+degree_distribution <- function(
   network_table, directed
 ) {
   network <- igraph::graph_from_data_frame(
@@ -301,8 +301,8 @@ setMethod(
     in_degrees <- igraph::degree(network, mode = "in")
     out_degrees <- igraph::degree(network, mode = "out")
 
-    in_power_law_score <- .calculate_power_fit(in_degrees)
-    out_power_law_score <- .calculate_power_fit(out_degrees)
+    in_power_law_score <- calculate_power_fit(in_degrees)
+    out_power_law_score <- calculate_power_fit(out_degrees)
 
     result$in_degree <- in_degrees[result$gene]
     result$out_degree <- out_degrees[result$gene]
@@ -311,7 +311,7 @@ setMethod(
     result$rank_value <- (result$in_degree * in_power_law_score +
       result$out_degree * out_power_law_score) / 2
   } else {
-    power_law_score <- .calculate_power_fit(total_degrees)
+    power_law_score <- calculate_power_fit(total_degrees)
     result$power_law_fit <- power_law_score
     result$rank_value <- result$degree * power_law_score
   }
@@ -540,7 +540,7 @@ setMethod(
            ncol = NULL,
            byrow = TRUE,
            ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -561,7 +561,7 @@ setMethod(
     for (i in seq_along(ranks_list)) {
       ranks <- ranks_list[[i]]
       if (is.null(ranks) || is.null(ranks$df) || nrow(ranks$df) == 0) next
-      p <- .plot_rank_centrality(ranks$df, ranks$method, top_n, title = cell_names[i])
+      p <- plot_rank_centrality(ranks$df, ranks$method, top_n, title = cell_names[i])
       plot_list[[cell_names[i]]] <- p
     }
     if (length(plot_list) == 0) stop("No gene ranks to plot.")
@@ -582,11 +582,11 @@ setMethod(
   "plot_gene_rank",
   signature(object = "CSNObject"),
   function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
-.plot_rank_centrality <- function(ranks_df, method, top_n = 30, title = NULL) {
+plot_rank_centrality <- function(ranks_df, method, top_n = 30, title = NULL) {
   rank_col <- if (method == "page_rank") "page_rank" else "rank_value"
   if (!rank_col %in% colnames(ranks_df)) rank_col <- colnames(ranks_df)[2]
   centrality_df <- ranks_df %>%
@@ -618,7 +618,7 @@ setMethod(
            top_n = 30) {
     if ("gene" %in% colnames(object) && ("page_rank" %in% colnames(object) || "rank_value" %in% colnames(object))) {
       method_used <- if ("page_rank" %in% colnames(object)) "page_rank" else "degree_distribution"
-      .plot_rank_centrality(object, method_used, top_n)
+      plot_rank_centrality(object, method_used, top_n)
     } else if ("regulator" %in% colnames(object) && "target" %in% colnames(object) && "weight" %in% colnames(object)) {
       network_obj <- new("Network", network = object)
       plot_gene_rank(network_obj, method, weight_cutoff, compare_random)

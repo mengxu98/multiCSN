@@ -13,24 +13,19 @@ fit_srm2(
 )
 }
 \arguments{
-\item{formula}{An object of class \emph{\code{formula}} with a symbolic description
-of the model to be fitted.}
+\item{formula}{An object of class `formula` describing the model.}
 
-\item{data}{A \emph{\code{data.frame}} containing the variables in the model.}
+\item{data}{A data frame containing the variables in the model.}
 
-\item{verbose}{If \code{TRUE}, show warning messages.}
+\item{verbose}{Whether to show warning messages.}
 
-\item{max_support_size, min_improvement}{See \link[inferCSN:fit_greedy_l0]{inferCSN::fit_greedy_l0}.}
+\item{max_support_size, min_improvement}{See [inferCSN::fit_greedy_l0()].}
 }
 \value{
-A list containing two data frames:
-\itemize{
-\item \emph{\code{metrics}} - Goodness of fit measures
-\item \emph{\code{coefficients}} - Fitted coefficients with sparse structure
-}
+A list containing model, fit metrics, and nonzero coefficients.
 }
 \description{
-Fits a sparse regression model using \code{\link[inferCSN:fit_greedy_l0]{inferCSN::fit_greedy_l0()}}.
+Fits a sparse regression model using [inferCSN::fit_greedy_l0()].
 }
 \examples{
 data("example_matrix", package = "inferCSN")

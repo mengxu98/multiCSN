@@ -207,8 +207,7 @@ groups_col <- function(meta) {
 #'
 #' @param object A \code{Seurat} object carrying CSNObject state.
 #' @param pseudotime_column Metadata column containing pseudotime values.
-#' @param method Network inference method.
-#' @param penalty Penalty passed to \code{inferCSN()} for \code{Network}.
+#' @param method The sole supported regression method, `"greedy_l0"`.
 #' @param r_squared_threshold R-squared threshold.
 #' @param regulators Optional regulator set.
 #' @param targets Optional target set.
@@ -233,8 +232,7 @@ groups_col <- function(meta) {
 state_dynamic <- function(
   object,
   pseudotime_column,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
-  penalty = "L0",
+  method = "greedy_l0",
   r_squared_threshold = 0,
   regulators = NULL,
   targets = NULL,
@@ -250,9 +248,9 @@ state_dynamic <- function(
   min_cells = NULL,
   ...
 ) {
-  method <- match.arg(method)
+  method <- match.arg(method, "greedy_l0")
 
-  seurat_obj <- .get_multicsn_seurat(object, require_state = TRUE)
+  seurat_obj <- get_multicsn_seurat(object, require_state = TRUE)
   meta <- seurat_obj@meta.data
   require_meta_column(meta, pseudotime_column, what = "pseudotime_column")
 
@@ -338,7 +336,7 @@ state_dynamic <- function(
 
   regulators_use <- regulators
   if (is.null(regulators_use)) {
-    regulators_use <- .multicsn_get_tfs(object)
+    regulators_use <- multicsn_get_tfs(object)
   }
   if (is.null(regulators_use)) {
     regulators_use <- character(0)
@@ -351,7 +349,7 @@ state_dynamic <- function(
   }
 
   networks <- list()
-  attrs <- .multicsn_get_attributes(object)
+  attrs <- multicsn_get_attributes(object)
 
   for (sid in sort_state_ids(windows_keep$state_id)) {
     cells <- intersect(density_result$cells[[sid]], colnames(expr))
@@ -374,7 +372,6 @@ state_dynamic <- function(
     )
     net <- inferCSN(
       net,
-      penalty = penalty,
       r_squared_threshold = r_squared_threshold,
       cores = cores,
       verbose = verbose,
@@ -410,12 +407,12 @@ state_dynamic <- function(
   }
 
   dyn_name <- paste0(method, "_network")
-  dyn_networks <- .multicsn_get_networks(object, network = dyn_name) %ss% list()
+  dyn_networks <- multicsn_get_networks(object, network = dyn_name) %ss% list()
   for (sid in names(networks)) {
     dyn_networks[[sid]] <- networks[[sid]]
   }
 
-  object <- .multicsn_set_networks(object, dyn_name, dyn_networks)
-  object <- .multicsn_set_attributes(object, attrs)
+  object <- multicsn_set_networks(object, dyn_name, dyn_networks)
+  object <- multicsn_set_attributes(object, attrs)
   object
 }

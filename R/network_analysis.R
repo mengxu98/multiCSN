@@ -488,7 +488,7 @@ setMethod(
            weight_column = "weight",
            weight_cutoff = NULL,
            corr_column = "mean_corr") {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -521,7 +521,7 @@ setMethod(
     names(net_list) <- celltypes[!sapply(net_list, is.null)]
 
     res <- dynamic_shortest_path_multiple(net_list, regulators = regulators, targets = targets, weight_column = weight_column)
-    state <- .read_multicsn_state(object, init = TRUE)
+    state <- read_multicsn_state(object, init = TRUE)
     shortest_paths <- state$shortest_paths %ss% list()
     shortest_paths[[network]] <- list(
       method = "dynamic_shortest_path_multiple",
@@ -533,7 +533,7 @@ setMethod(
       df = res
     )
     state$shortest_paths <- shortest_paths
-    .write_multicsn_state(object, state)
+    write_multicsn_state(object, state)
   }
 )
 
@@ -543,7 +543,7 @@ setMethod(
   "dynamic_shortest_path_multiple",
   signature(object = "CSNObject"),
   function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 

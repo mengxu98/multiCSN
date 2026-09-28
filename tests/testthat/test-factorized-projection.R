@@ -1,7 +1,3 @@
-# Reference implementation mirroring the documented projection semantics:
-# per regulator-target pair keep the strongest evidence, treat values within
-# 1e-12 * (1 + |max|) as ties, drop pairs whose ties disagree in sign and use the
-# lexicographically first region as representative.
 reference_strongest_projection <- function(chains) {
   if (!nrow(chains)) {
     return(data.frame(
@@ -32,7 +28,7 @@ reference_strongest_projection <- function(chains) {
   })
   projection <- do.call(rbind, rows)
   projection <- projection[projection$strongest_path_sign_consistent, , drop = FALSE]
-  projection$weight <- multiCSN:::.signed_ordinal_from_evidence(
+  projection$weight <- multiCSN:::signed_ordinal_from_evidence(
     projection$chain_direction, projection$chain_delta_bic
   )
   projection$chain_direction <- NULL

@@ -78,7 +78,7 @@ setdiff_genes <- function(list) {
 }
 
 
-.extract_genes_transition_list <- function(
+extract_genes_transition_list <- function(
   network_list,
   regulators = NULL,
   targets = NULL,
@@ -187,7 +187,7 @@ setMethod(
            top_targets_num = 5,
            common_regulators = TRUE,
            common_targets = TRUE) {
-    .extract_genes_transition_list(
+    extract_genes_transition_list(
       object,
       regulators,
       targets,
@@ -219,7 +219,7 @@ setMethod(
            top_targets_num = 5,
            common_regulators = TRUE,
            common_targets = TRUE) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -243,7 +243,7 @@ setMethod(
     ok <- !sapply(network_list, is.null)
     network_list <- network_list[ok]
     names(network_list) <- celltypes[ok]
-    res <- .extract_genes_transition_list(
+    res <- extract_genes_transition_list(
       network_list,
       regulators,
       targets,
@@ -254,7 +254,7 @@ setMethod(
       common_targets
     )
 
-    state <- .read_multicsn_state(object, init = TRUE)
+    state <- read_multicsn_state(object, init = TRUE)
     extract_res <- state$extract_genes_transition %ss% list()
     extract_res[[network]] <- list(
       method = "extract_genes_transition",
@@ -267,7 +267,7 @@ setMethod(
       result = res
     )
     state$extract_genes_transition <- extract_res
-    .write_multicsn_state(object, state)
+    write_multicsn_state(object, state)
   }
 )
 
@@ -277,6 +277,6 @@ setMethod(
   "extract_genes_transition",
   signature(object = "CSNObject"),
   function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )

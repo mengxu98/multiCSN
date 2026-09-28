@@ -3,7 +3,7 @@
 NULL
 
 
-.edge_uniqueness_list <- function(grnDFs, tfs, weight_column) {
+edge_uniqueness_list <- function(grnDFs, tfs, weight_column) {
   if (length(grnDFs) < 2) {
     stop("edge_uniqueness requires at least two networks in the list.")
   }
@@ -73,7 +73,7 @@ setMethod(
   "edge_uniqueness",
   signature(object = "list"),
   function(object, tfs, weight_column) {
-    .edge_uniqueness_list(object, tfs, weight_column)
+    edge_uniqueness_list(object, tfs, weight_column)
   }
 )
 
@@ -92,7 +92,7 @@ setMethod(
            tfs = NULL,
            weight_column = "weight",
            weight_cutoff = NULL) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -127,14 +127,14 @@ setMethod(
     if (length(grnDFs) < 2) stop("Fewer than two non-empty networks after export.")
 
     if (is.null(tfs)) {
-      tfs <- .multicsn_get_tfs(object)
+      tfs <- multicsn_get_tfs(object)
     }
     if (is.null(tfs) || length(tfs) == 0) {
       stop("Supply tfs= or initialize TFs with `find_motifs()`.")
     }
 
-    res <- .edge_uniqueness_list(grnDFs, tfs, weight_column)
-    state <- .read_multicsn_state(object, init = TRUE)
+    res <- edge_uniqueness_list(grnDFs, tfs, weight_column)
+    state <- read_multicsn_state(object, init = TRUE)
     edge_uniqueness <- state$edge_uniqueness %ss% list()
     edge_uniqueness[[network]] <- list(
       method = "edge_uniqueness",
@@ -145,7 +145,7 @@ setMethod(
       df = res
     )
     state$edge_uniqueness <- edge_uniqueness
-    .write_multicsn_state(object, state)
+    write_multicsn_state(object, state)
   }
 )
 
@@ -155,7 +155,7 @@ setMethod(
   "edge_uniqueness",
   signature(object = "CSNObject"),
   function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 

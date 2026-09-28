@@ -21,7 +21,7 @@ get_layer_data <-
 #' @export
 get_peak_annotation <-
   function(object, peak_assay) {
-    assay_obj <- tryCatch(.csn_get_assay(object, peak_assay), error = function(e) NULL)
+    assay_obj <- tryCatch(csn_get_assay(object, peak_assay), error = function(e) NULL)
     annotation <- NULL
     if (!is.null(assay_obj) && methods::is(assay_obj, "ChromatinAssay")) {
       annotation <- tryCatch(Signac::Annotation(assay_obj), error = function(e) NULL)
@@ -46,11 +46,7 @@ parse_peak_ranges <-
     if (length(peaks) == 0) {
       return(GenomicRanges::GRanges())
     }
-    # Fast path: split on the delimiters with data.table instead of running a
-    # regex per peak (~0.4 s vs ~42 s for the 226k peaks of a real multiome
-    # object). Anything the split cannot interpret falls back to the regular
-    # expressions below, which define the accepted forms and the error messages.
-    fast <- .split_peak_identifiers(peaks)
+    fast <- split_peak_identifiers(peaks)
     chromosomes <- fast$chromosome
     starts <- fast$start
     ends <- fast$end
@@ -68,9 +64,6 @@ parse_peak_ranges <-
         }
       }
     }
-    # An identifier that matches a pattern but whose coordinates overflow the
-    # integer range keeps NA coordinates on purpose: it must reach the
-    # coordinate validation below, not the "could not parse" branch.
     pending <- which(!matched_pattern & (is.na(chromosomes) | is.na(starts) | is.na(ends)))
     invalid <- pending
     if (length(invalid)) {
@@ -96,10 +89,7 @@ parse_peak_ranges <-
   "^(.+)_([0-9]+)_([0-9]+)$"
 )
 
-# Split valid coordinate suffixes in one vectorised pass per delimiter. This
-# avoids making the whole batch fall back to regex parsing when one chromosome
-# name contains an extra delimiter.
-.split_peak_identifiers <- function(peaks) {
+split_peak_identifiers <- function(peaks) {
   n <- length(peaks)
   chromosome <- rep(NA_character_, n)
   start <- rep(NA_integer_, n)
