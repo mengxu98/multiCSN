@@ -8,6 +8,11 @@ plot_contrast_networks(
   network_table,
   degree_value = 0,
   weight_value = 0,
+  cols = NULL,
+  regulator_color = "#8C4985",
+  target_color = "#B0C4DE",
+  label.size = 3.5,
+  base_family = "",
   legend_position = "bottom"
 )
 }
@@ -19,6 +24,16 @@ Default is \code{0}.}
 
 \item{weight_value}{Weight value to filter edges.
 Default is \code{0}.}
+
+\item{cols}{Named vector of colors for edge interactions. Default uses \code{c("Activation" = "#1F78B4", "Repression" = "#E31A1C")}.}
+
+\item{regulator_color}{Color of regulator nodes. Default is \code{"#8C4985"}.}
+
+\item{target_color}{Color of target nodes. Default is \code{"#B0C4DE"}.}
+
+\item{label.size}{Node label font size. Default is \code{3.5}.}
+
+\item{base_family}{Font family for graph theme. Default is \code{""}.}
 
 \item{legend_position}{The position of legend.
 Default is \code{"bottom"}.}

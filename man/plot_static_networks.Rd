@@ -2,13 +2,29 @@
 % Please edit documentation in R/network_visualization.R
 \name{plot_static_networks}
 \alias{plot_static_networks}
-\title{Plot dynamic networks}
+\title{Plot static networks}
 \usage{
 plot_static_networks(
   network_table,
   regulators = NULL,
   targets = NULL,
-  legend_position = "right"
+  legend_position = "right",
+  theme_use = c("theme_this", "theme_blank", "theme_void"),
+  cols = NULL,
+  palette = "Chinese",
+  palcolor = NULL,
+  aspect.ratio = 1,
+  label.size = 3.5,
+  label.fg = "black",
+  label.bg = "white",
+  label.bg.r = 0.12,
+  tf_nodes = NULL,
+  node_state = NULL,
+  state_colors = NULL,
+  node_size = NULL,
+  label_nodes = NULL,
+  seed = NULL,
+  edge_alpha = 0.7
 )
 }
 \arguments{
@@ -18,13 +34,50 @@ plot_static_networks(
 
 \item{targets}{A character vector of targets to include.}
 
-\item{legend_position}{The position of legend.}
+\item{legend_position}{The position of legend. Default is \code{"right"}.}
+
+\item{theme_use}{Theme function name or choice: \code{"theme_this"},
+\code{"theme_blank"}, or \code{"theme_void"}.
+Default is \code{"theme_this"}.}
+
+\item{cols}{Optional named color vector for Interaction (\code{Activation} and \code{Repression}).
+Default is \code{c("Activation" = "#1F78B4", "Repression" = "#E31A1C")}.}
+
+\item{palette}{Palette name used by \code{thisplot::palette_colors()}. Default is \code{"Chinese"}.}
+
+\item{palcolor}{Optional named color vector overriding default node colors.}
+
+\item{aspect.ratio}{Aspect ratio of panel. Default is \code{1}.}
+
+\item{label.size}{Label text size. Default is \code{3.5}.}
+
+\item{label.fg}{Label foreground text color. Default is \code{"black"}.}
+
+\item{label.bg}{Label outline/background color. Default is \code{"white"}.}
+
+\item{label.bg.r}{Label outline radius. Default is \code{0.12}.}
+
+\item{tf_nodes}{Optional character vector of focal TF nodes. When supplied,
+these nodes are drawn as diamonds and other nodes as circles.}
+
+\item{node_state}{Optional node-state mapping. Supply either a named character
+vector or a data.frame with columns \code{name} and \code{state}.}
+
+\item{state_colors}{Optional named vector of colors for \code{node_state}.}
+
+\item{node_size}{Optional named numeric vector of node sizes.}
+
+\item{label_nodes}{Optional character vector of nodes to label. Default labels all nodes.}
+
+\item{seed}{Optional integer seed for the force-directed layout.}
+
+\item{edge_alpha}{Edge alpha. Default is \code{0.7}.}
 }
 \value{
 A ggplot2 object
 }
 \description{
-Plot dynamic networks
+Plot static networks
 }
 \examples{
 data(example_matrix, package = "inferCSN")

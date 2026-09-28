@@ -15,7 +15,14 @@ plot_features(
   value_column = NULL,
   weight_column = "weight",
   view = c("ranking", "dynamics"),
-  scale_value = c("zscore", "raw")
+  scale_value = c("zscore", "raw"),
+  x_text_angle = NULL,
+  engine = c("auto", "ComplexHeatmap", "ggplot"),
+  cell_width = NULL,
+  cell_height = NULL,
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  return_grob = FALSE
 )
 }
 \arguments{
@@ -42,9 +49,30 @@ for per-state feature-score heatmaps (\code{type = "regulators"} only).}
 
 \item{scale_value}{Score scaling for \code{view = "dynamics"}: \code{"zscore"}
 to standardize each feature across states, or \code{"raw"} for raw scores.}
+
+\item{x_text_angle}{Column-label angle for dynamics heatmaps. If \code{NULL},
+choose automatically from the number and length of state labels.}
+
+\item{engine}{Heatmap engine for dynamics view: \code{"auto"},
+\code{"ComplexHeatmap"}, or \code{"ggplot"}. Default is \code{"auto"}.}
+
+\item{cell_width}{Width of each heatmap cell in mm (for ComplexHeatmap).
+If \code{NULL}, auto-calculated from number of columns.}
+
+\item{cell_height}{Height of each heatmap cell in mm (for ComplexHeatmap).
+If \code{NULL}, auto-calculated from number of rows.}
+
+\item{cluster_rows}{Logical, whether to cluster rows in dynamics heatmap.
+Default is \code{FALSE}.}
+
+\item{cluster_columns}{Logical, whether to cluster columns in dynamics heatmap.
+Default is \code{FALSE}.}
+
+\item{return_grob}{Logical, whether to return a grid \code{grob} instead of
+a \code{ggplot}/\code{patchwork} object. Default is \code{FALSE}.}
 }
 \value{
-A \code{ggplot} object.
+A \code{ggplot} or \code{patchwork} object (or a grid \code{grob} if \code{return_grob = TRUE}).
 }
 \description{
 Plot top network features per state

@@ -89,7 +89,7 @@ normalize_chromatin_assay <- function(
   object
 }
 
-.resolve_peak_assay_for_locus <- function(object, peak_assay = NULL) {
+resolve_peak_assay_for_locus <- function(object, peak_assay = NULL) {
   assay_names <- names(object@assays)
   chromatin_assays <- assay_names[vapply(object@assays, function(x) inherits(x, "ChromatinAssay"), logical(1))]
   peak_assay <- peak_assay %ss% if ("ATAC" %in% chromatin_assays) {
@@ -109,7 +109,7 @@ normalize_chromatin_assay <- function(
   peak_assay
 }
 
-.build_gene_peak_map_local <- function(
+build_gene_peak_map_local <- function(
   object,
   genes,
   peak_assay = NULL,
@@ -117,7 +117,7 @@ normalize_chromatin_assay <- function(
   downstream = 0,
   only_tss = FALSE
 ) {
-  peak_assay <- .resolve_peak_assay_for_locus(object, peak_assay)
+  peak_assay <- resolve_peak_assay_for_locus(object, peak_assay)
   genes <- unique(as.character(genes))
   genes <- genes[!is.na(genes) & nzchar(genes)]
   if (length(genes) == 0) {
@@ -165,7 +165,7 @@ plot_tf_peak_overlap_scenic_style <- function(
   peak_assay = NULL,
   top_targets_per_tf = 6
 ) {
-  peak_assay <- .resolve_peak_assay_for_locus(object, peak_assay)
+  peak_assay <- resolve_peak_assay_for_locus(object, peak_assay)
   tfs <- unique(as.character(tfs))
   tfs <- tfs[!is.na(tfs) & nzchar(tfs)]
   if (length(tfs) == 0 || is.null(key_target_tbl) || nrow(key_target_tbl) == 0) {
@@ -182,7 +182,7 @@ plot_tf_peak_overlap_scenic_style <- function(
   }))
   rownames(target_tbl) <- NULL
 
-  gene_peak_map <- .build_gene_peak_map_local(
+  gene_peak_map <- build_gene_peak_map_local(
     object,
     genes = unique(target_tbl$target),
     peak_assay = peak_assay
@@ -270,7 +270,7 @@ plot_tf_peak_overlap_scenic_style <- function(
     ggplot2::scale_fill_gradient(low = "white", high = "#08519C") +
     ggplot2::theme_bw() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       panel.grid = ggplot2::element_blank()
     ) +
     ggplot2::labs(
@@ -282,7 +282,7 @@ plot_tf_peak_overlap_scenic_style <- function(
     )
 }
 
-.ensure_state_group_column <- function(
+ensure_state_group_column <- function(
   object,
   pseudotime_column,
   column_name = NULL,
@@ -322,7 +322,7 @@ plot_tf_peak_overlap_scenic_style <- function(
   list(object = object, column = column_name)
 }
 
-.build_signac_links_for_target <- function(
+build_signac_links_for_target <- function(
   object,
   target_gene,
   key_target_tbl,
@@ -330,7 +330,7 @@ plot_tf_peak_overlap_scenic_style <- function(
   pseudotime_column,
   peak_assay = NULL
 ) {
-  peak_assay <- .resolve_peak_assay_for_locus(object, peak_assay)
+  peak_assay <- resolve_peak_assay_for_locus(object, peak_assay)
   target_gene <- as.character(target_gene[[1]])
   target_tbl <- key_target_tbl[key_target_tbl$target == target_gene, , drop = FALSE]
   if (!is.null(tfs)) {
@@ -342,7 +342,7 @@ plot_tf_peak_overlap_scenic_style <- function(
 
   tfs_use <- unique(target_tbl$tf)
   state_levels <- get_ordered_state_levels(unique(as.character(target_tbl$anchor_state)))
-  gene_peak_map <- .build_gene_peak_map_local(
+  gene_peak_map <- build_gene_peak_map_local(
     object,
     genes = target_gene,
     peak_assay = peak_assay
@@ -447,7 +447,7 @@ plot_tf_peak_overlap_scenic_style <- function(
   list(links = links_gr, gene = gene_gr, link_table = link_df)
 }
 
-.build_peak_pseudocoverage_plot <- function(
+build_peak_pseudocoverage_plot <- function(
   object,
   region,
   group_column,
@@ -535,7 +535,7 @@ plot_tf_peak_overlap_scenic_style <- function(
     )
 }
 
-.build_gene_model_plot <- function(
+build_gene_model_plot <- function(
   gene_gr,
   region,
   gene_label = NULL
@@ -575,7 +575,7 @@ plot_tf_peak_overlap_scenic_style <- function(
     ggplot2::theme_void()
 }
 
-.build_link_arc_plot <- function(
+build_link_arc_plot <- function(
   link_table,
   region,
   title = "Links",
@@ -696,15 +696,15 @@ plot_target_locus_signac <- function(
   show_tf_labels = TRUE,
   normalize_tracks = TRUE
 ) {
-  peak_assay <- .resolve_peak_assay_for_locus(object, peak_assay)
-  state_info <- .ensure_state_group_column(
+  peak_assay <- resolve_peak_assay_for_locus(object, peak_assay)
+  state_info <- ensure_state_group_column(
     object = object,
     pseudotime_column = pseudotime_column,
     include_unassigned = include_unassigned
   )
   object <- state_info$object
 
-  link_res <- .build_signac_links_for_target(
+  link_res <- build_signac_links_for_target(
     object = object,
     target_gene = target_gene,
     key_target_tbl = key_target_tbl,
@@ -780,7 +780,7 @@ plot_target_locus_signac <- function(
     )
   }
 
-  p_cov <- .build_peak_pseudocoverage_plot(
+  p_cov <- build_peak_pseudocoverage_plot(
     object = object,
     region = gene_region,
     group_column = state_info$column,
@@ -811,14 +811,14 @@ plot_target_locus_signac <- function(
   }
 
   if (is.null(p_links) || is.null(p_annot)) {
-    p_links <- .build_link_arc_plot(
+    p_links <- build_link_arc_plot(
       link_table = link_res$link_table,
       region = gene_region,
       title = "Peak-gene links",
       top_n = top_links,
       show_tf_labels = show_tf_labels
     )
-    p_annot <- .build_gene_model_plot(
+    p_annot <- build_gene_model_plot(
       gene_gr = link_res$gene,
       region = gene_region,
       gene_label = target_gene

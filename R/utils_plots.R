@@ -20,7 +20,7 @@ setMethod(
                         celltypes = NULL,
                         point_size = 0.5,
                         ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -127,7 +127,7 @@ setMethod(
   f = "plot_gof",
   signature = "CSNObject",
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
@@ -149,7 +149,7 @@ setMethod(
                         network = NULL,
                         celltypes = NULL,
                         ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -260,7 +260,7 @@ setMethod(
   f = "plot_module_metrics",
   signature = "CSNObject",
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
@@ -335,7 +335,7 @@ setMethod(
                         seed = 1,
                         verbose = TRUE,
                         ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -369,7 +369,7 @@ setMethod(
 
         if (umap_method == "weighted") {
           rna_expr <- t(
-            .csn_layer_data(
+            csn_layer_data(
               object,
               assay = rna_assay,
               layer = rna_layer
@@ -432,7 +432,7 @@ setMethod(
             active_network = network,
             celltypes = celltype
           )
-          rna_expr <- t(.csn_layer_data(object, assay = rna_assay, layer = rna_layer))
+          rna_expr <- t(csn_layer_data(object, assay = rna_assay, layer = rna_layer))
 
           if (!is.null(features)) {
             features <- intersect(
@@ -542,7 +542,7 @@ setMethod(
       net@graphs[[graph_name]] <- gene_graph_list[[celltype]]
       nets[[celltype]] <- net
     }
-    object <- .multicsn_set_networks(object, network, nets)
+    object <- multicsn_set_networks(object, network, nets)
 
     return(object)
   }
@@ -552,7 +552,7 @@ setMethod(
   f = "get_network_graph",
   signature = "CSNObject",
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
@@ -603,7 +603,7 @@ setMethod(
                         ncol = NULL,
                         byrow = TRUE,
                         ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -697,7 +697,7 @@ setMethod(
   f = "plot_network_graph",
   signature = "CSNObject",
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
@@ -734,7 +734,7 @@ setMethod(
                         verbose = TRUE,
                         cores = 1,
                         ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -920,7 +920,7 @@ setMethod(
     for (celltype in celltypes) {
       net <- GetNetwork(object, network = network, celltypes = celltype)[[1]]
       net@graphs$tf_graphs <- tfs_celltype_graph_list[[celltype]]
-      object <- .multicsn_set_network_entry(object, network, celltype, net)
+      object <- multicsn_set_network_entry(object, network, celltype, net)
     }
     return(object)
   }
@@ -930,7 +930,7 @@ setMethod(
   f = "get_tf_network",
   signature = "CSNObject",
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
@@ -974,7 +974,7 @@ setMethod(
                         label_nodes = c("tfs", "all", "none"),
                         color_edges = TRUE,
                         ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       celltypes = celltypes,
@@ -1136,6 +1136,6 @@ setMethod(
   f = "plot_tf_network",
   signature = "CSNObject",
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
