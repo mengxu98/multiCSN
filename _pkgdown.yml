@@ -114,16 +114,11 @@ reference:
   - pseudobulk_perturbation
   - fit_perturbation_effects
 
-- subtitle: "Sparse regression model"
+- subtitle: "Greedy-L0 regression model"
 - contents:
-  - fit_cvglmnet
-  - fit_glm
-  - fit_glmnet
   - fit_srm2
-  - fit_xgb
   - fit_model
   - fit_models
-  - fit_susie
   - format_coefs
 
 - subtitle: "RNA data processing"

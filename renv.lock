@@ -2033,39 +2033,6 @@
       ],
       "Hash": "ab08ac61f3e1be454ae21911eb8bc2fe"
     },
-    "glmnet": {
-      "Package": "glmnet",
-      "Version": "4.1-8",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "Matrix",
-        "R",
-        "Rcpp",
-        "RcppEigen",
-        "foreach",
-        "methods",
-        "shape",
-        "survival",
-        "utils"
-      ],
-      "Hash": "eb6fc70e561aae41d5911a6726188f71"
-    },
-    "glmnetUtils": {
-      "Package": "glmnetUtils",
-      "Version": "1.1.9",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "Matrix",
-        "glmnet",
-        "grDevices",
-        "graphics",
-        "parallel",
-        "stats"
-      ],
-      "Hash": "66165824c789439eff327118c90e844d"
-    },
     "globals": {
       "Package": "globals",
       "Version": "0.17.0",
@@ -2671,21 +2638,6 @@
         "Rcpp"
       ],
       "Hash": "785ef8e22389d4a7634c6c944f2dc07d"
-    },
-    "mixsqp": {
-      "Package": "mixsqp",
-      "Version": "0.3-54",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "RcppArmadillo",
-        "irlba",
-        "stats",
-        "utils"
-      ],
-      "Hash": "62896dd832ccbf1091e7f13324c24160"
     },
     "modelr": {
       "Package": "modelr",
@@ -3333,17 +3285,6 @@
       "Version": "1.1.8",
       "Source": "Repository"
     },
-    "reshape": {
-      "Package": "reshape",
-      "Version": "0.8.9",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "plyr"
-      ],
-      "Hash": "603d56041d7d4fa3ceb1864b3f6ee6b1"
-    },
     "reshape2": {
       "Package": "reshape2",
       "Version": "1.4.4",
@@ -3958,26 +3899,6 @@
       ],
       "Hash": "fe42836742a4f065b3f3f5de81fccab9"
     },
-    "susieR": {
-      "Package": "susieR",
-      "Version": "0.12.35",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "Matrix",
-        "R",
-        "crayon",
-        "ggplot2",
-        "grDevices",
-        "graphics",
-        "matrixStats",
-        "methods",
-        "mixsqp",
-        "reshape",
-        "stats"
-      ],
-      "Hash": "e1fbc50605703cb61f2cc1c9f9dd9a58"
-    },
     "sys": {
       "Package": "sys",
       "Version": "3.4.3",
@@ -4387,20 +4308,6 @@
         "tools"
       ],
       "Hash": "652ce36fe7d57688e6786819b09d9190"
-    },
-    "xgboost": {
-      "Package": "xgboost",
-      "Version": "1.7.9.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "Matrix",
-        "R",
-        "data.table",
-        "jsonlite",
-        "methods"
-      ],
-      "Hash": "a482be43425a774dc5f88906d91b6487"
     },
     "xml2": {
       "Package": "xml2",

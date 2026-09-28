@@ -18,7 +18,7 @@
 #' @param peak_cor_threshold Correlation threshold for peaks
 #' @param aggregate_rna_col Column name for RNA aggregation
 #' @param aggregate_peaks_col Column name for peaks aggregation
-#' @param method Statistical method for model fitting
+#' @param method The sole supported regression method, `"greedy_l0"`
 #' @param interaction_term Type of interaction variable
 #' @param adjust_method Method for p-value adjustment
 #' @param scale Whether to scale the data
@@ -50,14 +50,7 @@ setGeneric(
                  peak_cor_threshold = 0.1,
                  aggregate_rna_col = NULL,
                  aggregate_peaks_col = NULL,
-                 method = c(
-                   "greedy_l0",
-                   "glm",
-                   "glmnet",
-                   "cv.glmnet",
-                   "xgb",
-                   "susie"
-                 ),
+                 method = "greedy_l0",
                  interaction_term = ":",
                  adjust_method = "fdr",
                  scale = FALSE,
@@ -91,14 +84,7 @@ setMethod(
                         peak_cor_threshold = 0.1,
                         aggregate_rna_col = NULL,
                         aggregate_peaks_col = NULL,
-                        method = c(
-                          "greedy_l0",
-                          "glm",
-                          "glmnet",
-                          "cv.glmnet",
-                          "xgb",
-                          "susie"
-                        ),
+                        method = "greedy_l0",
                         interaction_term = ":",
                         adjust_method = "fdr",
                         scale = FALSE,
@@ -106,8 +92,8 @@ setMethod(
                         cores = 1,
                         celltype = NULL,
                         ...) {
-    method <- match.arg(method)
-    seurat <- .get_multicsn_seurat(object, require_state = TRUE)
+    method <- match.arg(method, "greedy_l0")
+    seurat <- get_multicsn_seurat(object, require_state = TRUE)
     params <- Params(object)
 
     has_peaks <- !is.null(params$peak_assay)
@@ -121,7 +107,7 @@ setMethod(
         )
       }
       gene_annot <- Signac::Annotation(
-        .csn_get_assay(object, params$peak_assay)
+        csn_get_assay(object, params$peak_assay)
       )
       if (is.null(gene_annot)) {
         stop("Please provide a gene annotation for the ChromatinAssay.")
@@ -141,7 +127,7 @@ setMethod(
 
     if (is.null(aggregate_rna_col)) {
       gene_data <- Matrix::t(
-        .csn_layer_data(
+        csn_layer_data(
           object,
           assay = params$rna_assay,
           layer = "data"
@@ -174,7 +160,7 @@ setMethod(
 
       if (is.null(aggregate_peaks_col)) {
         peak_data <- Matrix::t(
-          .csn_layer_data(
+          csn_layer_data(
             object,
             assay = params$peak_assay,
             layer = "data"
@@ -192,7 +178,7 @@ setMethod(
       }
 
       features <- intersect(gene_annot$gene_name, targets) |>
-        intersect(rownames(.csn_get_assay(object, params$rna_assay)))
+        intersect(rownames(csn_get_assay(object, params$rna_assay)))
       gene_annot <- gene_annot[gene_annot$gene_name %in% features, ]
 
       celltype_ranges <- Signac::StringToGRanges(celltype_peaks)
@@ -522,7 +508,6 @@ setMethod(
 
     params <- list()
     params[["method"]] <- method
-    params[["family"]] <- family
     params[["gene_cor_threshold"]] <- gene_cor_threshold
     if (has_peaks) {
       params[["dist"]] <- c(
@@ -543,7 +528,7 @@ setMethod(
       metrics = metrics,
       params = params
     )
-    object <- .multicsn_set_network_entry(object, network_name, celltype, network_obj)
+    object <- multicsn_set_network_entry(object, network_name, celltype, network_obj)
     object
   }
 )
@@ -554,7 +539,7 @@ setMethod(
   f = "fit_models",
   signature = signature(object = "CSNObject"),
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
@@ -567,19 +552,12 @@ setMethod(
                         regulators = NULL,
                         targets = NULL,
                         gene_cor_threshold = 0,
-                        method = c(
-                          "greedy_l0",
-                          "glm",
-                          "glmnet",
-                          "cv.glmnet",
-                          "xgb",
-                          "susie"
-                        ),
+                        method = "greedy_l0",
                         scale = FALSE,
                         verbose = TRUE,
                         cores = 1,
                         ...) {
-    method <- match.arg(method)
+    method <- match.arg(method, "greedy_l0")
 
     thisutils::log_message(
       "Fitting models with {.val {length(regulators)}} regulators and {.val {length(targets)}} targets",
