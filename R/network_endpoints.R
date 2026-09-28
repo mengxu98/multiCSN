@@ -58,7 +58,7 @@ read_network_endpoints <- function(root, endpoints = NULL, direction = FALSE,
     if (!file.exists(path)) {
       stop("Missing ", endpoint, " endpoint: ", path, call. = FALSE)
     }
-    table <- .read_endpoint_table(path)
+    table <- read_endpoint_table(path)
     columns <- if (isTRUE(direction)) c(keys, weight_column) else keys
     missing <- setdiff(columns, names(table))
     if (length(missing)) {
@@ -78,6 +78,7 @@ read_network_endpoints <- function(root, endpoints = NULL, direction = FALSE,
         stop(endpoint, " endpoint weights must be finite and non-zero.", call. = FALSE)
       }
       table <- table[, keys, with = FALSE]
+      data.table::setDT(table)
       data.table::set(table, j = "direction", value = sign(values))
     }
     output[[index]] <- table
@@ -85,9 +86,7 @@ read_network_endpoints <- function(root, endpoints = NULL, direction = FALSE,
   output
 }
 
-# `data.table::fread()` needs the optional R.utils package to decompress gzip
-# files, so compressed endpoints go through base R instead.
-.read_endpoint_table <- function(path) {
+read_endpoint_table <- function(path) {
   if (grepl("[.]gz$", path)) {
     return(data.table::as.data.table(utils::read.delim(
       gzfile(path), sep = "\t", check.names = FALSE, stringsAsFactors = FALSE

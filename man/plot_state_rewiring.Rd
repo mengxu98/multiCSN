@@ -33,7 +33,7 @@ or target-gene sets.}
 \item{group.by}{Reserved for future grouping support in similarity plots.}
 
 \item{palette}{Palette name passed to
-\code{thisplot::palette_colors()} via \code{.multicsn_palette_colors()}.}
+\code{thisplot::palette_colors()} via \code{multicsn_palette_colors()}.}
 
 \item{palcolor}{Optional named color vector overriding state/group colors.}
 }

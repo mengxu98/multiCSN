@@ -30,12 +30,9 @@ inferCSN(
   lag_steps = NULL,
   cores = 1,
   verbose = TRUE,
-  penalty = "L0",
-  cross_validation = FALSE,
   seed = 1,
-  n_folds = 5,
   r_squared_threshold = 0,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
+  method = "greedy_l0",
   gene_cor_threshold = 0,
   ...
 )
@@ -50,10 +47,7 @@ inferCSN(
   lag_steps = NULL,
   cores = 1,
   verbose = TRUE,
-  penalty = "L0",
-  cross_validation = FALSE,
   seed = 1,
-  n_folds = 5,
   r_squared_threshold = 0,
   celltypes = NULL,
   network_name = paste0(method, "_network"),
@@ -67,9 +61,7 @@ inferCSN(
   peak_cor_threshold = 0,
   aggregate_rna_col = NULL,
   aggregate_peaks_col = NULL,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
-  alpha = 0.5,
-  family = "gaussian",
+  method = "greedy_l0",
   interaction_term = ":",
   adjust_method = "fdr",
   scale = FALSE,
@@ -112,13 +104,12 @@ For \code{Seurat} objects, a single column name is treated as \code{pseudotime_c
 
 \item{...}{Additional method arguments.}
 
-\item{penalty, cross_validation, seed, n_folds}{Stored on \code{Network} objects for provenance. Fitting uses \code{method}.}
+\item{seed}{Stored on \code{Network} objects for provenance.}
 
 \item{r_squared_threshold}{Threshold of \eqn{R^2} used when formatting \code{Network} / \code{Seurat} results.}
 
-\item{method}{Fitting backend for \code{Network} / \code{Seurat} methods:
-\code{"greedy_l0"} (greedy L0 via \code{\link[inferCSN:fit_greedy_l0]{inferCSN::fit_greedy_l0()}}),
-\code{"glm"}, \code{"glmnet"}, \code{"cv.glmnet"}, \code{"xgb"}, or \code{"susie"}.}
+\item{method}{The sole supported regression method, \code{"greedy_l0"}
+(via \code{\link[inferCSN:fit_greedy_l0]{inferCSN::fit_greedy_l0()}}).}
 
 \item{gene_cor_threshold}{Threshold for TF-target gene correlation.}
 
@@ -143,10 +134,6 @@ For \code{Seurat} objects, a single column name is treated as \code{pseudotime_c
 \item{aggregate_rna_col}{Metadata column used to aggregate RNA.}
 
 \item{aggregate_peaks_col}{Metadata column used to aggregate peaks.}
-
-\item{alpha}{Elastic-net mixing parameter. See \code{\link[glmnet]{glmnet}}.}
-
-\item{family}{Error distribution and link function. See \code{\link[stats]{family}}.}
 
 \item{interaction_term}{Interaction between TF and binding site: \code{"+"}, \code{":"}, or \code{"*"}.}
 

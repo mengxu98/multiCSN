@@ -40,12 +40,6 @@ plot_coefficient <- function(
   show_values = TRUE,
   ...
 ) {
-  if (!requireNamespace("thisplot", quietly = TRUE)) {
-    thisutils::log_message(
-      "{.fn plot_coefficient} requires {.pkg thisplot}",
-      message_type = "error"
-    )
-  }
   style <- match.arg(style)
   data <- as.data.frame(data)
   if (!all(c("regulator", "weight") %in% colnames(data))) {

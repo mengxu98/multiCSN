@@ -43,7 +43,6 @@ test_that("pseudobulk aggregation sums cells into paired samples", {
     c("network_training_control", "heldout_perturbation")
   )
   expect_identical(colnames(aggregated$pseudobulk$RNA), metadata$sample_id)
-  # column sums equal totals of the contributing cells
   raw <- screen$counts[, screen$sample_info$cell_id, drop = FALSE]
   expect_equal(
     as.numeric(Matrix::colSums(aggregated$pseudobulk$RNA[, "rep1__A", drop = FALSE])),
@@ -85,7 +84,6 @@ test_that("pseudobulk aggregation validates its inputs", {
     ),
     "lacks a sample for: B"
   )
-  # one replicate carrying two timepoints is rejected
   mixed_timepoint <- screen$sample_info
   rep2 <- mixed_timepoint$replicate == "rep2"
   renamed <- which(rep2)[seq_len(sum(rep2) %/% 2L)]
@@ -124,7 +122,6 @@ test_that("paired effect fitting recovers the spiked perturbation effect", {
   expect_identical(unique(fitted$summary$perturbation_cells), 120L)
   files <- list.files(output, pattern = "[.]tsv[.]gz$", recursive = TRUE)
   expect_identical(length(files), 2L)
-  # base R gz reading keeps the test independent of the optional R.utils package
   effect <- data.table::as.data.table(utils::read.delim(
     gzfile(file.path(output, "RNA", "day_7__A.tsv.gz")),
     sep = "\t", check.names = FALSE, stringsAsFactors = FALSE
@@ -135,7 +132,6 @@ test_that("paired effect fitting recovers the spiked perturbation effect", {
   expect_true(effect$logFC[effect$feature == "f1"] > 1)
   expect_true(effect$FDR[effect$feature == "f1"] < 0.05)
   expect_gt(fitted$summary$significant_up_fdr_0_05[fitted$summary$target == "A"], 0L)
-  # the same call without output_dir keeps the tables in memory
   in_memory <- fit_perturbation_effects(
     aggregated$pseudobulk, aggregated$sample_metadata, targets = "A", verbose = FALSE
   )

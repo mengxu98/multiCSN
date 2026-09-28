@@ -1,9 +1,7 @@
 #' @include utils_sparse_blocks.R setClass.R
 NULL
 
-# ---- empty tables ----------------------------------------------------------
-
-.empty_tf_gene_edges <- function() {
+empty_tf_gene_edges <- function() {
   data.frame(
     regulator = character(), target = character(),
     standardized_beta = numeric(), deletion_delta_bic = numeric(),
@@ -11,7 +9,7 @@ NULL
   )
 }
 
-.empty_tf_region_edges <- function() {
+empty_tf_region_edges <- function() {
   data.frame(
     regulator = character(), region = character(),
     standardized_beta = numeric(), deletion_delta_bic = numeric(),
@@ -19,7 +17,7 @@ NULL
   )
 }
 
-.empty_region_gene_edges <- function() {
+empty_region_gene_edges <- function() {
   data.frame(
     region = character(), target = character(),
     standardized_beta = numeric(), deletion_delta_bic = numeric(),
@@ -27,7 +25,7 @@ NULL
   )
 }
 
-.empty_shared_accounting <- function() {
+empty_shared_accounting <- function() {
   data.frame(
     endpoint = character(), target = character(), n_candidates = integer(),
     n_selected = integer(), rss = numeric(), bic = numeric(), status = character(),
@@ -35,7 +33,7 @@ NULL
   )
 }
 
-.empty_region_gene_accounting <- function() {
+empty_region_gene_accounting <- function() {
   data.frame(
     endpoint = character(), target = character(), n_candidates = integer(),
     n_selected = integer(), status = character(), seconds = numeric(),
@@ -43,7 +41,7 @@ NULL
   )
 }
 
-.layered_rbind <- function(parts, empty) {
+layered_rbind <- function(parts, empty) {
   parts <- parts[!vapply(parts, is.null, logical(1))]
   parts <- parts[vapply(parts, nrow, integer(1)) > 0L]
   if (!length(parts)) {
@@ -54,9 +52,7 @@ NULL
   out
 }
 
-# ---- numerics --------------------------------------------------------------
-
-.layered_standardize_design <- function(x) {
+layered_standardize_design <- function(x) {
   x <- as.matrix(x)
   storage.mode(x) <- "double"
   means <- colMeans(x)
@@ -69,7 +65,7 @@ NULL
   )
 }
 
-.layered_response_statistics <- function(response, n_obs) {
+layered_response_statistics <- function(response, n_obs) {
   means <- as.numeric(Matrix::colSums(response)) / n_obs
   sumsq <- as.numeric(Matrix::colSums(response^2))
   centered_ss <- pmax(0, sumsq - n_obs * means^2)
@@ -77,27 +73,19 @@ NULL
   list(means = means, scales = scales, variable = is.finite(scales) & scales > 0)
 }
 
-.layered_affine_alias <- function(standardized_crossproduct, n_obs, tolerance = 1e-10) {
+layered_affine_alias <- function(standardized_crossproduct, n_obs, tolerance = 1e-10) {
   correlation <- abs(as.numeric(standardized_crossproduct)) / (n_obs - 1)
   is.finite(correlation) & correlation >= 1 - tolerance
 }
 
-.layered_lapply <- function(x, fun, cores = 1L) {
+layered_lapply <- function(x, fun, cores = 1L) {
   cores <- as.integer(cores)
   if (cores <= 1L || length(x) <= 1L) {
     return(lapply(x, fun))
   }
-  # Use the package-wide parallel framework instead of raw mclapply: it picks
-  # fork or PSOCK automatically (so Windows gets real parallelism too), honours
-  # nested workers. Convert its error objects to a useful error at this seam.
   result <- thisutils::parallelize_fun(
     x, fun,
     cores = cores,
-    # Fork on Unix, PSOCK on Windows. `backend = "auto"` can resolve to PSOCK on
-    # Unix, and shipping the peak x motif / peak x cell matrices to every worker
-    # then costs far more than the fit itself (measured: a 103 s job did not
-    # finish in 5 min). Callers can still override via
-    # options(multicsn.parallel_backend = "auto"|"fork"|"psock").
     backend = getOption(
       "multicsn.parallel_backend",
       if (.Platform$OS.type == "windows") "psock" else "fork"
@@ -118,14 +106,14 @@ NULL
   result
 }
 
-.layered_checkpoint <- function(root, name, ...) {
+layered_checkpoint <- function(root, name, ...) {
   if (is.null(root)) {
     return(NULL)
   }
   file.path(root, name, ...)
 }
 
-.layered_prepare_checkpoint <- function(root, inputs, settings) {
+layered_prepare_checkpoint <- function(root, inputs, settings) {
   if (is.null(root)) return(invisible(NULL))
   dir.create(root, recursive = TRUE, showWarnings = FALSE)
   manifest <- file.path(root, "layered_checkpoint_identity.rds")
@@ -169,17 +157,15 @@ NULL
   invisible(identity)
 }
 
-# ---- candidate builders ----------------------------------------------------
-
-.layered_candidate_functions <- function(gene_by_cell, peaks2gene, peak_tf_gate,
+layered_candidate_functions <- function(gene_by_cell, peaks2gene, peak_tf_gate,
                                          features, regulators, min_detected,
                                          endpoint = c("tf_gene", "tf_region")) {
   endpoint <- match.arg(endpoint)
-  peaks2gene_rows <- .row_compressed_matrix(peaks2gene)
-  gate_rows <- .row_compressed_matrix(peak_tf_gate)
+  peaks2gene_rows <- row_compressed_matrix(peaks2gene)
+  gate_rows <- row_compressed_matrix(peak_tf_gate)
   if (identical(endpoint, "tf_region")) {
     return(function(response_index) {
-      .row_compressed_positive(gate_rows, response_index)
+      row_compressed_positive(gate_rows, response_index)
     })
   }
   gate_row_of_region <- match(colnames(peaks2gene), rownames(peak_tf_gate))
@@ -198,10 +184,10 @@ NULL
     gene_row <- gene_positions[[target_index]]
     candidates <- integer()
     if (!is.na(gene_row)) {
-      rows <- gate_row_of_region[.row_compressed_nonzero(peaks2gene_rows, gene_row)]
+      rows <- gate_row_of_region[row_compressed_nonzero(peaks2gene_rows, gene_row)]
       rows <- rows[!is.na(rows)]
       if (length(rows)) {
-        candidate_sets <- lapply(rows, function(row) .row_compressed_positive(gate_rows, row))
+        candidate_sets <- lapply(rows, function(row) row_compressed_positive(gate_rows, row))
         candidates <- sort(unique(unlist(candidate_sets, use.names = FALSE)))
       }
     }
@@ -216,31 +202,32 @@ NULL
   }
 }
 
-# ---- layer fitters ---------------------------------------------------------
-
-.fit_layered_shared_design <- function(design, response, response_names,
+fit_layered_shared_design <- function(design, response, response_names,
                                        candidate_function, endpoint, settings,
                                        checkpoint_root = NULL) {
   n_obs <- nrow(design)
   gram <- crossprod(design)
-  response_stats <- .layered_response_statistics(response, n_obs)
+  response_stats <- layered_response_statistics(response, n_obs)
   chunk_size <- as.integer(settings$response_chunk)
   chunk_starts <- seq.int(1L, length(response_names), by = chunk_size)
   part_root <- gsub("-", "_", tolower(endpoint))
-  chunk_results <- .layered_lapply(seq_along(chunk_starts), function(chunk_index) {
+  chunk_results <- layered_lapply(seq_along(chunk_starts), function(chunk_index) {
     first <- chunk_starts[[chunk_index]]
     last <- min(length(response_names), first + chunk_size - 1L)
     indices <- first:last
-    cache_path <- .layered_checkpoint(
+    cache_path <- layered_checkpoint(
       checkpoint_root, paste0(part_root, "_parts"),
       sprintf("chunk_%06d_%06d.rds", first, last)
     )
     if (!is.null(cache_path) && file.exists(cache_path)) {
       return(readRDS(cache_path))
     }
-    raw_xty <- as.matrix(Matrix::crossprod(
-      design, response[, indices, drop = FALSE]
-    ))
+    response_block <- if (methods::is(response, "dgCMatrix")) {
+      column_compressed_block(response, indices)
+    } else {
+      response[, indices, drop = FALSE]
+    }
+    raw_xty <- as.matrix(Matrix::crossprod(design, response_block))
     xty <- raw_xty
     variable <- response_stats$variable[indices]
     if (any(variable)) {
@@ -254,7 +241,7 @@ NULL
     if (isTRUE(settings$exclude_response_alias)) {
       candidates <- lapply(seq_along(candidates), function(j) {
         cand <- candidates[[j]]
-        cand[!.layered_affine_alias(xty[cand, j], n_obs)]
+        cand[!layered_affine_alias(xty[cand, j], n_obs)]
       })
     }
     fit <- inferCSN::fit_greedy_l0_batch(
@@ -299,29 +286,34 @@ NULL
   if (any(failures)) {
     stop("Layered fit failed for ", sum(failures), " ", endpoint, " chunk(s).", call. = FALSE)
   }
-  edges <- .layered_rbind(
+  edges <- layered_rbind(
     lapply(chunk_results, `[[`, "edges"),
-    function() .empty_tf_gene_edges()
+    function() empty_tf_gene_edges()
   )
-  accounting <- .layered_rbind(
+  accounting <- layered_rbind(
     lapply(chunk_results, `[[`, "accounting"),
-    .empty_shared_accounting
+    empty_shared_accounting
   )
   list(edges = edges, accounting = accounting)
 }
 
-.fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2gene,
+fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2gene,
                                      settings, checkpoint_root = NULL) {
   n_obs <- ncol(gene_by_cell)
-  peak_rows <- .row_compressed_matrix(peak_by_cell)
-  domain_rows <- .row_compressed_matrix(peaks2gene)
-  gene_rows <- .row_compressed_matrix(gene_by_cell)
+  peak_rows <- row_compressed_matrix(peak_by_cell)
+  domain_rows <- row_compressed_matrix(peaks2gene)
+  gene_rows <- row_compressed_matrix(gene_by_cell)
+  peak_means <- as.numeric(Matrix::rowSums(peak_by_cell)) / n_obs
+  peak_centered_ss <- pmax(
+    0, as.numeric(Matrix::rowSums(peak_by_cell^2)) - n_obs * peak_means^2
+  )
+  peak_scales <- sqrt(peak_centered_ss / (n_obs - 1L))
   domain_to_peak_row <- match(colnames(peaks2gene), rownames(peak_by_cell))
   genes_to_domain_row <- match(features, rownames(peaks2gene))
   genes_to_gene_row <- match(features, rownames(gene_by_cell))
   fit_one <- function(target_index) {
     target <- features[[target_index]]
-    cache_path <- .layered_checkpoint(
+    cache_path <- layered_checkpoint(
       checkpoint_root, "region_gene_parts", sprintf("target_%06d.rds", target_index)
     )
     if (!is.null(cache_path) && file.exists(cache_path)) {
@@ -332,7 +324,7 @@ NULL
     candidate_rows <- if (is.na(domain_row)) {
       integer()
     } else {
-      rows <- domain_to_peak_row[.row_compressed_nonzero(domain_rows, domain_row)]
+      rows <- domain_to_peak_row[row_compressed_nonzero(domain_rows, domain_row)]
       rows[!is.na(rows)]
     }
     candidates <- rownames(peak_by_cell)[candidate_rows]
@@ -344,12 +336,9 @@ NULL
       stringsAsFactors = FALSE
     )
     if (length(candidates)) {
-      candidate_block <- .row_compressed_block(peak_rows, candidate_rows)
-      means <- as.numeric(Matrix::colSums(candidate_block)) / n_obs
-      centered_ss <- pmax(
-        0, as.numeric(Matrix::colSums(candidate_block^2)) - n_obs * means^2
-      )
-      scales <- sqrt(centered_ss / (n_obs - 1L))
+      candidate_block <- row_compressed_block(peak_rows, candidate_rows)
+      means <- peak_means[candidate_rows]
+      scales <- peak_scales[candidate_rows]
       variable <- is.finite(scales) & scales > 0
       candidates <- candidates[variable]
       candidate_rows <- candidate_rows[variable]
@@ -361,7 +350,7 @@ NULL
         gram <- (raw_gram - n_obs * tcrossprod(means)) / tcrossprod(scales)
         gram <- (gram + t(gram)) / 2
         diag(gram) <- n_obs - 1
-        y <- .row_compressed_dense(gene_rows, genes_to_gene_row[[target_index]], n_obs)
+        y <- row_compressed_dense(gene_rows, genes_to_gene_row[[target_index]], n_obs)
         y_mean <- mean(y)
         y_scale <- sqrt(sum((y - y_mean)^2) / (n_obs - 1L))
         if (is.finite(y_scale) && y_scale > 0) {
@@ -407,14 +396,10 @@ NULL
     }
     result
   }
-  # Forking once per target costs more than the work itself on real data
-  # (16k+ targets). Group targets into chunks so every worker amortises its
-  # fork over many fits; the per-target order is preserved, so the assembled
-  # tables are byte-identical.
   target_chunk <- if (is.null(settings$target_chunk)) 256L else as.integer(settings$target_chunk)
   target_chunk <- max(1L, min(length(features), target_chunk))
   task_starts <- seq.int(1L, length(features), by = target_chunk)
-  chunked <- .layered_lapply(seq_along(task_starts), function(task_index) {
+  chunked <- layered_lapply(seq_along(task_starts), function(task_index) {
     first <- task_starts[[task_index]]
     last <- min(length(features), first + target_chunk - 1L)
     lapply(first:last, fit_one)
@@ -431,16 +416,14 @@ NULL
     stop("Layered region-gene fit failed for ", sum(failures), " target(s).", call. = FALSE)
   }
   list(
-    edges = .layered_rbind(lapply(results, `[[`, "edges"), .empty_region_gene_edges),
-    accounting = .layered_rbind(
-      lapply(results, `[[`, "accounting"), .empty_region_gene_accounting
+    edges = layered_rbind(lapply(results, `[[`, "edges"), empty_region_gene_edges),
+    accounting = layered_rbind(
+      lapply(results, `[[`, "accounting"), empty_region_gene_accounting
     )
   )
 }
 
-# ---- input preparation -----------------------------------------------------
-
-.layered_inputs <- function(object, cell_group, cells, regulators, targets,
+layered_inputs <- function(object, cell_group, cells, regulators, targets,
                             min_peak_cells, upstream, downstream, tf_region_scope,
                             renormalize, sort_regulators, verbose) {
   params <- Params(object)
@@ -557,36 +540,34 @@ NULL
   )
 }
 
-# ---- driver ----------------------------------------------------------------
-
-.fit_layered_core <- function(inputs, settings) {
+fit_layered_core <- function(inputs, settings) {
   gene_by_cell <- inputs$gene_by_cell
   features <- inputs$features
   regulators <- inputs$regulators
-  tf_design_info <- .layered_standardize_design(
+  tf_design_info <- layered_standardize_design(
     Matrix::t(gene_by_cell[regulators, , drop = FALSE])
   )
   tf_design <- tf_design_info$matrix
   regulators <- colnames(tf_design)
   peak_tf_gate <- inputs$peak_tf_gate[, regulators, drop = FALSE]
-  tf_gene_candidate <- .layered_candidate_functions(
+  tf_gene_candidate <- layered_candidate_functions(
     gene_by_cell = gene_by_cell, peaks2gene = inputs$peaks2gene,
     peak_tf_gate = peak_tf_gate, features = features, regulators = regulators,
     min_detected = settings$min_detected, endpoint = "tf_gene"
   )
-  tf_region_candidate <- .layered_candidate_functions(
+  tf_region_candidate <- layered_candidate_functions(
     gene_by_cell = gene_by_cell, peaks2gene = inputs$peaks2gene,
     peak_tf_gate = peak_tf_gate, features = features, regulators = regulators,
     min_detected = settings$min_detected, endpoint = "tf_region"
   )
   thisutils::log_message("Fitting the TF-gene layer", verbose = settings$verbose)
-  tf_gene <- .fit_layered_shared_design(
+  tf_gene <- fit_layered_shared_design(
     tf_design, Matrix::t(gene_by_cell[features, , drop = FALSE]), features,
     tf_gene_candidate, "TF-gene", settings, settings$checkpoint_dir
   )
   names(tf_gene$edges)[names(tf_gene$edges) == "feature"] <- "regulator"
   thisutils::log_message("Fitting the TF-region layer", verbose = settings$verbose)
-  tf_region <- .fit_layered_shared_design(
+  tf_region <- fit_layered_shared_design(
     tf_design,
     Matrix::t(inputs$all_peak_by_cell[inputs$tf_region_names, , drop = FALSE]),
     inputs$tf_region_names, tf_region_candidate, "TF-region", settings,
@@ -596,7 +577,7 @@ NULL
   names(tf_region$edges)[names(tf_region$edges) == "target"] <- "region"
   names(tf_region$accounting)[names(tf_region$accounting) == "target"] <- "region"
   thisutils::log_message("Fitting the region-gene layer", verbose = settings$verbose)
-  region_gene <- .fit_layered_region_gene(
+  region_gene <- fit_layered_region_gene(
     inputs$peak_by_cell, gene_by_cell, features, inputs$peaks2gene, settings,
     settings$checkpoint_dir
   )
@@ -632,7 +613,7 @@ NULL
   )
 }
 
-.layered_store <- function(object, fit, network_name, cell_group, settings) {
+layered_store <- function(object, fit, network_name, cell_group, settings) {
   entry <- function(coefficients, metrics, regulators, targets, endpoint) {
     parameters <- settings
     parameters$endpoint <- endpoint
@@ -666,7 +647,7 @@ NULL
     network <- entry(
       value$edges, value$accounting, value$regulators, value$targets, layer_name
     )
-    object <- .multicsn_set_network_entry(
+    object <- multicsn_set_network_entry(
       object, network = layer_name, celltype = cell_group, value = network
     )
   }
@@ -776,21 +757,21 @@ fit_layered_network <- function(object,
     sort_regulators = isTRUE(sort_regulators), cores = cores,
     checkpoint_dir = checkpoint_dir, verbose = isTRUE(verbose)
   )
-  inputs <- .layered_inputs(
+  inputs <- layered_inputs(
     object = object, cell_group = cell_group, cells = cells,
     regulators = regulators, targets = targets, min_peak_cells = min_peak_cells,
     upstream = upstream, downstream = downstream, tf_region_scope = tf_region_scope,
     renormalize = renormalize, sort_regulators = sort_regulators, verbose = verbose
   )
-  .layered_prepare_checkpoint(checkpoint_dir, inputs, settings)
-  fit <- .fit_layered_core(inputs, settings)
+  layered_prepare_checkpoint(checkpoint_dir, inputs, settings)
+  fit <- fit_layered_core(inputs, settings)
   result <- c(
     fit,
     list(settings = settings, cells = inputs$cells, targets = inputs$features,
          regulators = inputs$regulators)
   )
   if (isTRUE(store)) {
-    result$object <- .layered_store(
+    result$object <- layered_store(
       inputs$object, fit, network_name, cell_group, settings
     )
   }

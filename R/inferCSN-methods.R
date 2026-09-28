@@ -23,21 +23,12 @@ setMethod(
                         lag_steps = NULL,
                         cores = 1,
                         verbose = TRUE,
-                        penalty = "L0",
-                        cross_validation = FALSE,
                         seed = 1,
-                        n_folds = 5,
                         r_squared_threshold = 0,
-                        method = c(
-                          "greedy_l0",
-                          "glm",
-                          "glmnet",
-                          "cv.glmnet",
-                          "xgb",
-                          "susie"
-                        ),
+                        method = "greedy_l0",
                         gene_cor_threshold = 0,
                         ...) {
+    method <- match.arg(method, "greedy_l0")
     matrix <- thisutils::as_matrix(object@data)
     if (is.null(regulators)) {
       regulators <- object@regulators
@@ -114,16 +105,13 @@ setMethod(
     object@targets <- targets
     object@params <- list(
       method = method,
-      penalty = penalty,
-      cross_validation = cross_validation,
       seed = seed,
-      n_folds = n_folds,
       gene_cor_threshold = gene_cor_threshold,
       r_squared_threshold = r_squared_threshold,
       cores = cores,
       verbose = verbose
     )
-    object <- .process_Network(
+    object <- process_Network(
       object,
       r_squared_threshold = r_squared_threshold
     )
@@ -147,14 +135,7 @@ setMethod(
 #' @param peak_cor_threshold Threshold for binding peak - target gene correlation.
 #' @param aggregate_rna_col aggregate_rna_col
 #' @param aggregate_peaks_col aggregate_peaks_col
-#' @param method A character string indicating the method to fit the model.
-#' * \code{'greedy_l0'} - Sparse Regression Model.
-#' * \code{'glm'} - Generalized Liner Model with \code{\link[stats]{glm}}.
-#' * \code{'glmnet'}, \code{'cv.glmnet'} - Regularized Generalized Liner Model with \code{\link[glmnet]{glmnet}}.
-#' * \code{'xgb'} - Gradient Boosting Regression using \code{\link[xgboost]{xgboost}}.
-#' @param alpha The elasticnet mixing parameter. See \code{\link[glmnet]{glmnet}} for details.
-#' @param family A description of the error distribution and link function to be used in the model.
-#' See \code{\link[stats]{family}} for mode details.
+#' @param method The sole supported regression method, \code{"greedy_l0"}.
 #' @param interaction_term The interaction variable to use in the model between TF and binding site.
 #' * \code{'+'} for additive interaction.
 #' * \code{':'} for 'multiplicative' interaction.
@@ -192,10 +173,7 @@ setMethod(
                         lag_steps = NULL,
                         cores = 1,
                         verbose = TRUE,
-                        penalty = "L0",
-                        cross_validation = FALSE,
                         seed = 1,
-                        n_folds = 5,
                         r_squared_threshold = 0,
                         celltypes = NULL,
                         network_name = paste0(method, "_network"),
@@ -209,22 +187,14 @@ setMethod(
                         peak_cor_threshold = 0.,
                         aggregate_rna_col = NULL,
                         aggregate_peaks_col = NULL,
-                        method = c(
-                          "greedy_l0",
-                          "glm",
-                          "glmnet",
-                          "cv.glmnet",
-                          "xgb",
-                          "susie"
-                        ),
-                        alpha = 0.5,
-                        family = "gaussian",
+                        method = "greedy_l0",
                         interaction_term = ":",
                         adjust_method = "fdr",
                         scale = FALSE,
                         pseudotime_column = NULL,
                         dynamic_features = NULL,
                         ...) {
+    method <- match.arg(method, "greedy_l0")
     if (is.null(pseudotime_column) &&
       is.character(pseudotime) &&
       length(pseudotime) == 1L) {
@@ -236,7 +206,6 @@ setMethod(
           object = object,
           pseudotime_column = pseudotime_column,
           method = method,
-          penalty = penalty,
           r_squared_threshold = r_squared_threshold,
           regulators = regulators,
           targets = targets,
@@ -250,11 +219,10 @@ setMethod(
     }
 
 
-    method <- match.arg(method)
     peak_to_gene_method <- match.arg(peak_to_gene_method)
 
     if (is.null(celltypes)) {
-      celltypes <- .csn_celltypes(object)
+      celltypes <- csn_celltypes(object)
     }
 
     for (celltype in celltypes) {
@@ -295,8 +263,6 @@ setMethod(
         aggregate_rna_col = aggregate_rna_col,
         aggregate_peaks_col = aggregate_peaks_col,
         method = method,
-        alpha = alpha,
-        family = family,
         interaction_term = interaction_term,
         adjust_method = adjust_method,
         scale = scale,
@@ -313,7 +279,7 @@ setMethod(
       verbose = verbose
     )
 
-    object <- .process_csn(
+    object <- process_csn(
       object,
       r_squared_threshold = r_squared_threshold
     )
@@ -363,6 +329,6 @@ setMethod(
                         cores = 1,
                         verbose = TRUE,
                         ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )

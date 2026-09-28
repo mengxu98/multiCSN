@@ -61,10 +61,6 @@ plot_network_heatmap(
 
 \item{heatmap_title}{Heatmap title.}
 
-\item{heatmap_title_color}{Optional title colors. Default \code{NULL} preserves
-the default text color. Otherwise, supply one color per input network,
-in input order (including a ground-truth network, if present).}
-
 \item{ncol, nrow}{Layout dimensions for multiple heatmaps.}
 
 \item{performance_metrics}{Metrics appended to titles.}
@@ -95,6 +91,10 @@ Default is on for a single network and off for a list of networks.}
 \item{row_anno_type, column_anno_type}{Annotation plot types.}
 
 \item{legend_name, row_title}{Legend and row titles.}
+
+\item{heatmap_title_color}{Optional title colors. Default `NULL` preserves
+the default text color. Otherwise, supply one color per input network,
+in input order (including a ground-truth network, if present).}
 }
 \value{
 A heatmap object.

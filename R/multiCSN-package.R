@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 #' @title Inferring Cell-Specific Gene Regulatory Network
 #'

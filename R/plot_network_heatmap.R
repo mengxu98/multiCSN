@@ -730,7 +730,7 @@ network_palette_colors <- function(
       n <- max(3, n)
     }
     colors <- grDevices::colorRampPalette(palcolor)(n)
-  } else if (requireNamespace("thisplot", quietly = TRUE)) {
+  } else {
     if (is.null(palette)) {
       colors <- thisplot::palette_colors(
         x = seq_len(n),
@@ -745,9 +745,6 @@ network_palette_colors <- function(
         type = type
       )
     }
-  } else {
-    palette_name <- if (type == "continuous") "viridis" else "Set 2"
-    colors <- grDevices::hcl.colors(n, palette = palette_name)
   }
   colors <- unname(colors)
   if (type == "continuous" && length(colors) < 3) {

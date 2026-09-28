@@ -1,25 +1,25 @@
-.csn_celltypes <- function(object) {
-  .multicsn_get_celltypes(object)
+csn_celltypes <- function(object) {
+  multicsn_get_celltypes(object)
 }
 
-.csn_get_assay <- function(object, assay = NULL) {
+csn_get_assay <- function(object, assay = NULL) {
   if (methods::is(object, "CSNObject")) {
     return(Seurat::GetAssay(object@data, assay = assay))
   }
   if (methods::is(object, "Seurat")) {
     return(Seurat::GetAssay(object, assay = assay))
   }
-  stop(".csn_get_assay: object must be a Seurat or CSNObject object.", call. = FALSE)
+  stop("csn_get_assay: object must be a Seurat or CSNObject object.", call. = FALSE)
 }
 
-.csn_layer_data <- function(object, ...) {
+csn_layer_data <- function(object, ...) {
   if (methods::is(object, "CSNObject")) {
     return(SeuratObject::LayerData(object@data, ...))
   }
   if (methods::is(object, "Seurat")) {
     return(SeuratObject::LayerData(object, ...))
   }
-  stop(".csn_layer_data: object must be a Seurat or CSNObject object.", call. = FALSE)
+  stop("csn_layer_data: object must be a Seurat or CSNObject object.", call. = FALSE)
 }
 
 #' Aggregate Seurat assay over groups

@@ -7,8 +7,7 @@
 state_dynamic(
   object,
   pseudotime_column,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
-  penalty = "L0",
+  method = "greedy_l0",
   r_squared_threshold = 0,
   regulators = NULL,
   targets = NULL,
@@ -30,9 +29,7 @@ state_dynamic(
 
 \item{pseudotime_column}{Metadata column containing pseudotime values.}
 
-\item{method}{Network inference method.}
-
-\item{penalty}{Penalty passed to \code{inferCSN()} for \code{Network}.}
+\item{method}{The sole supported regression method, `"greedy_l0"`.}
 
 \item{r_squared_threshold}{R-squared threshold.}
 

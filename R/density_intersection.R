@@ -117,7 +117,7 @@ density_points <- function(
 #'   \code{DensityPoints_<pseudotime_column>}.
 #' @param group_column Optional grouping column for density curves.
 #' @param palette Optional colors.
-#' @param palette_name Palette name used by \code{.multicsn_palette_colors()}.
+#' @param palette_name Palette name used by \code{multicsn_palette_colors()}.
 #'
 #' @return A data.frame of kept state windows.
 #' @export
@@ -166,7 +166,7 @@ plot_states <- function(
   group_order <- density_result$group_order
   plot_data$cluster <- factor(plot_data$cluster, levels = group_order)
   if (is.null(palette)) {
-    palette <- .multicsn_palette_colors(group_order, palette = palette_name)
+    palette <- multicsn_palette_colors(group_order, palette = palette_name)
   } else if (is.null(names(palette))) {
     palette <- stats::setNames(
       rep(palette, length.out = length(group_order)),
@@ -324,7 +324,7 @@ resolve_pseudotime_column <- function(object, pseudotime_column = NULL) {
     return(pseudotime_column)
   }
   active_network <- tryCatch(
-    .multicsn_resolve_network(
+    multicsn_resolve_network(
       object,
       network = NULL,
       preferred = "dynamic",
@@ -898,7 +898,7 @@ state_windows_from_result <- function(
   }
   nets <- tryCatch(
     {
-      active_network <- .multicsn_resolve_network(
+      active_network <- multicsn_resolve_network(
         object,
         network = NULL,
         preferred = "dynamic",

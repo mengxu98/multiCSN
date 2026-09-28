@@ -42,7 +42,7 @@ network_ordinal_weight <-
     out
   }
 
-.empty_factorized_chain_table <-
+empty_factorized_chain_table <-
   function() {
     data.frame(
       regulator = character(), target = character(), region = character(), tf_region_beta = numeric(),
@@ -52,7 +52,7 @@ network_ordinal_weight <-
     )
   }
 
-.signed_ordinal_from_evidence <-
+signed_ordinal_from_evidence <-
   function(direction, evidence) {
     direction <- sign(as.numeric(direction))
     evidence <- as.numeric(evidence)
@@ -66,7 +66,7 @@ network_ordinal_weight <-
     network_ordinal_weight(direction, evidence)
   }
 
-.validate_factorized_endpoint <-
+validate_factorized_endpoint <-
   function(x, keys, beta_column = "standardized_beta", evidence_column = "deletion_delta_bic", label = "endpoint") {
     required <- c(keys, beta_column, evidence_column)
     if (!is.data.frame(x) || !all(required %in% names(x))) {
@@ -93,8 +93,8 @@ network_ordinal_weight <-
 #' @export
 factorized_chain_support <-
   function(tf_region, region_gene, tf_gene = NULL) {
-    .validate_factorized_endpoint(tf_region, c("regulator", "region"), label = "TF-region endpoint")
-    .validate_factorized_endpoint(region_gene, c("region", "target"), label = "region-gene endpoint")
+    validate_factorized_endpoint(tf_region, c("regulator", "region"), label = "TF-region endpoint")
+    validate_factorized_endpoint(region_gene, c("region", "target"), label = "region-gene endpoint")
     tf_region <- data.frame(
       regulator = as.character(tf_region$regulator), region = as.character(tf_region$region),
       tf_region_beta = as.numeric(tf_region$standardized_beta), tf_region_delta_bic = as.numeric(tf_region$deletion_delta_bic),
@@ -107,15 +107,15 @@ factorized_chain_support <-
     )
     chains <- merge(tf_region, region_gene, by = "region", sort = FALSE)
     if (!nrow(chains)) {
-      return(.empty_factorized_chain_table())
+      return(empty_factorized_chain_table())
     }
     chains$chain_delta_bic <- pmin(chains$tf_region_delta_bic, chains$region_gene_delta_bic)
     chains$chain_direction <- sign(chains$tf_region_beta * chains$region_gene_beta)
-    chains$weight <- .signed_ordinal_from_evidence(chains$chain_direction, chains$chain_delta_bic)
+    chains$weight <- signed_ordinal_from_evidence(chains$chain_direction, chains$chain_delta_bic)
     chains$backbone_selected <- FALSE
     chains$backbone_sign_concordant <- FALSE
     if (!is.null(tf_gene)) {
-      .validate_factorized_endpoint(tf_gene, c("regulator", "target"), label = "TF-gene endpoint")
+      validate_factorized_endpoint(tf_gene, c("regulator", "target"), label = "TF-gene endpoint")
       backbone <- data.frame(
         regulator = as.character(tf_gene$regulator), target = as.character(tf_gene$target),
         backbone_direction = sign(as.numeric(tf_gene$standardized_beta)), stringsAsFactors = FALSE
@@ -125,7 +125,7 @@ factorized_chain_support <-
       chains$backbone_sign_concordant <- chains$backbone_selected & chains$backbone_direction == chains$chain_direction
       chains$backbone_direction <- NULL
     }
-    chains <- chains[order(-abs(chains$weight), chains$regulator, chains$region, chains$target), names(.empty_factorized_chain_table()),
+    chains <- chains[order(-abs(chains$weight), chains$regulator, chains$region, chains$target), names(empty_factorized_chain_table()),
       drop = FALSE
     ]
     rownames(chains) <- NULL
@@ -159,10 +159,6 @@ strongest_mediated_projection <-
         stringsAsFactors = FALSE
       ))
     }
-    # Grouped reduction instead of split()/lapply()/rbind(): the earlier version
-    # was quadratic in the number of regulator-target pairs (181 s for the
-    # GSE274113 day-11 chain table). Rows are pre-sorted with base order() so the
-    # representative region and tie counts are unchanged.
     table_chains <- as.data.frame(chains, stringsAsFactors = FALSE)[
       order(chains$regulator, chains$target, chains$region),
       c("regulator", "target", "region", "chain_delta_bic", "weight"),
@@ -191,7 +187,7 @@ strongest_mediated_projection <-
       stringsAsFactors = FALSE
     )
     projection <- projection[projection$strongest_path_sign_consistent, , drop = FALSE]
-    projection$weight <- .signed_ordinal_from_evidence(projection$chain_direction, projection$chain_delta_bic)
+    projection$weight <- signed_ordinal_from_evidence(projection$chain_direction, projection$chain_delta_bic)
     projection$chain_direction <- NULL
     projection <- projection[order(
       -abs(projection$weight), projection$regulator, projection$target,

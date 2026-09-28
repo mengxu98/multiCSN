@@ -28,9 +28,22 @@ plot_dynamic_networks(object, ...)
   ntop = 10,
   filter_by_ntop = TRUE,
   title = NULL,
-  theme_type = "theme_void",
+  theme_use = "theme_this",
+  theme_type = NULL,
   plot_type = "ggplot",
-  layout = "fruchtermanreingold",
+  layout = "anchor",
+  align_nodes = TRUE,
+  cols = NULL,
+  palette = "Chinese",
+  palcolor = NULL,
+  regulator_color = NULL,
+  target_color = NULL,
+  aspect.ratio = 1,
+  aspect_ratio = NULL,
+  label.size = 3.5,
+  label.fg = "black",
+  label.bg = "white",
+  label.bg.r = 0.12,
   nrow = 2,
   ncol = NULL,
   byrow = TRUE,
@@ -64,17 +77,46 @@ Default is `10`.}
 \item{title}{The title of figure.
 Default is `NULL`.}
 
-\item{theme_type}{The theme of figure.
-Could be `"theme_void"`, `"theme_blank"`, or `"theme_facet"`.
-Default is `"theme_void"`.}
+\item{theme_use}{Theme function name or choice: \code{"theme_this"}, \code{"theme_blank"}, or \code{"theme_void"}.
+Default is \code{"theme_this"}.}
+
+\item{theme_type}{Legacy theme choice: \code{"theme_void"},
+\code{"theme_blank"}, or \code{"theme_facet"}.}
 
 \item{plot_type}{The type of figure.
 Could be `"ggplot"`, `"animate"`, or `"ggplotly"`.
 Default is `"ggplot"`.}
 
 \item{layout}{The layout of figure.
-Could be `"fruchtermanreingold"` or `"kamadakawai"`.
-Default is `"fruchtermanreingold"`.}
+Could be `"anchor"` (temporally aligned coordinates across states),
+`"fruchtermanreingold"` or `"kamadakawai"`.
+Default is `"anchor"`.}
+
+\item{align_nodes}{Logical. If \code{TRUE} (default), anchor node positions across all states
+based on the union graph to ensure temporal coherence and avoid jumping nodes.}
+
+\item{cols}{Optional named color vector for Interaction (\code{Activation} and \code{Repression}).
+Default is \code{c("Activation" = "#1F78B4", "Repression" = "#E31A1C")}.}
+
+\item{palette}{Palette name used by \code{thisplot::palette_colors()}. Default is \code{"Chinese"}.}
+
+\item{palcolor}{Optional named color vector overriding default node colors.}
+
+\item{regulator_color}{Fill color for regulator nodes. Default is \code{NULL} (resolved via \code{palette}).}
+
+\item{target_color}{Fill color for target nodes. Default is \code{NULL} (resolved via \code{palette}).}
+
+\item{aspect.ratio}{Numeric aspect ratio for panels. Default is \code{1}.}
+
+\item{aspect_ratio}{Alias for \code{aspect.ratio}.}
+
+\item{label.size}{Label text size. Default is \code{3.5}.}
+
+\item{label.fg}{Label foreground text color. Default is \code{"black"}.}
+
+\item{label.bg}{Label outline/background color. Default is \code{"white"}.}
+
+\item{label.bg.r}{Label outline radius. Default is \code{0.12}.}
 
 \item{nrow}{The number of rows of figure (for \code{facet_wrap} when \code{combine=TRUE}).
 Default is `2`.}

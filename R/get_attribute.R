@@ -1,7 +1,7 @@
 #' @include setGenerics.R
 NULL
 
-.get_attribute_impl <- function(
+get_attribute_impl <- function(
   object,
   celltypes = NULL,
   active_network = NULL,
@@ -38,12 +38,12 @@ NULL
     if (is_dynamic_network && !is.null(nets_active) && length(nets_active) > 0) {
       celltypes <- names(nets_active)
     } else {
-      celltypes <- .csn_celltypes(object)
+      celltypes <- csn_celltypes(object)
     }
   }
 
   attribute <- match.arg(attribute)
-  attrs_state <- .multicsn_get_attributes(object)
+  attrs_state <- multicsn_get_attributes(object)
   attributes <- switch(
     EXPR = attribute,
     "genes" = lapply(
@@ -108,13 +108,13 @@ NULL
     )
   )
   if (attribute == "tfs") {
-    return(.multicsn_get_tfs(object))
+    return(multicsn_get_tfs(object))
   }
   if (attribute == "celltypes") {
     if (is_dynamic_network && !is.null(nets_active) && length(nets_active) > 0) {
       return(names(nets_active))
     }
-    return(.csn_celltypes(object))
+    return(csn_celltypes(object))
   }
 
   attributes <- purrr::set_names(attributes, celltypes)
@@ -134,7 +134,7 @@ NULL
 setMethod(
   "get_attribute",
   "Seurat",
-  .get_attribute_impl
+  get_attribute_impl
 )
 
 #' @rdname get_attribute
@@ -143,6 +143,6 @@ setMethod(
   "get_attribute",
   "CSNObject",
   function(object, ...) {
-    .get_attribute_impl(object, ...)
+    get_attribute_impl(object, ...)
   }
 )

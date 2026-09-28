@@ -15,14 +15,9 @@ setGeneric(
   }
 )
 
-#' @param p_thresh Float indicating the significance threshold on the adjusted p-value.
 #' @param rsq_thresh Float indicating the \eqn{R^2} threshold on the adjusted p-value.
 #' @param nvar_thresh Integer indicating the minimum number of variables in the model.
 #' @param min_genes_per_module Integer indicating the minimum number of genes in a module.
-#' @param xgb_method Method to get modules from xgb models
-#' \code{tf} - Choose top targets for each TF.
-#' \code{target} - Choose top TFs for each target gene.
-#' @param xgb_top Interger indicating how many top targets/TFs to return.
 #' @param verbose Print messages.
 #'
 #' @return A Network object.
@@ -34,23 +29,19 @@ setMethod(
   f = "find_modules",
   signature = "Network",
   definition = function(object,
-                        p_thresh = 0.05,
                         rsq_thresh = 0.1,
                         nvar_thresh = 10,
                         min_genes_per_module = 5,
-                        xgb_method = c("tf", "target"),
-                        xgb_top = 50,
                         verbose = TRUE,
                         ...) {
     fit_method <- NetworkParams(object)$method
-    xgb_method <- match.arg(xgb_method)
 
-    if (!fit_method %in% c("greedy_l0", "glm", "cv.glmnet", "glmnet", "xgb")) {
+    if (!identical(fit_method, "greedy_l0")) {
       stop(
         paste0(
-          'find_modules() is not yet implemented for "',
+          'find_modules() requires a greedy_l0 network, not "',
           fit_method,
-          '" models'
+          '".'
         )
       )
     }
@@ -63,18 +54,8 @@ setMethod(
     modules <- coef(object) |>
       dplyr::filter(target %in% models_use)
 
-    if (fit_method %in% c("greedy_l0", "cv.glmnet", "glmnet")) {
-      modules <- modules |>
-        dplyr::filter(coefficient != 0)
-    } else if (fit_method == "xgb") {
-      modules <- modules |>
-        dplyr::group_by_at(xgb_method) |>
-        dplyr::top_n(xgb_top, gain) |>
-        dplyr::mutate(coefficient = sign(corr) * gain)
-    } else {
-      modules <- modules |>
-        dplyr::filter(ifelse(is.na(padj), T, padj < p_thresh))
-    }
+    modules <- modules |>
+      dplyr::filter(coefficient != 0)
 
     modules <- modules |>
       dplyr::group_by(target) |>
@@ -90,27 +71,14 @@ setMethod(
       dplyr::mutate(gene_per_tf = length(unique(target))) |>
       dplyr::group_by(target, tf)
 
-    if (fit_method %in% c("greedy_l0", "cv.glmnet", "glmnet", "xgb")) {
-      modules <- modules |>
-        dplyr::reframe(
-          coefficient = sum(coefficient),
-          n_regions = peak_per_gene,
-          n_genes = gene_per_tf,
-          n_tfs = tf_per_gene,
-          regions = paste(region, collapse = ";")
-        )
-    } else {
-      modules <- modules |>
-        dplyr::reframe(
-          coefficient = sum(coefficient),
-          n_regions = peak_per_gene,
-          n_genes = gene_per_tf,
-          n_tfs = tf_per_gene,
-          regions = paste(region, collapse = ";"),
-          pval = min(pval),
-          padj = min(padj)
-        )
-    }
+    modules <- modules |>
+      dplyr::reframe(
+        coefficient = sum(coefficient),
+        n_regions = peak_per_gene,
+        n_genes = gene_per_tf,
+        n_tfs = tf_per_gene,
+        regions = paste(region, collapse = ";")
+      )
 
     modules <- modules |>
       dplyr::distinct() |>
@@ -186,7 +154,6 @@ setMethod(
     object@modules@meta <- module_meta
     object@modules@features <- module_feats
     object@modules@params <- list(
-      p_thresh = p_thresh,
       rsq_thresh = rsq_thresh,
       nvar_thresh = nvar_thresh,
       min_genes_per_module = min_genes_per_module
@@ -209,13 +176,12 @@ setMethod(
   signature = "Seurat",
   definition = function(object,
                         network = NULL,
-                        p_thresh = 0.05,
                         rsq_thresh = 0.1,
                         nvar_thresh = 10,
                         min_genes_per_module = 5,
                         verbose = TRUE,
                         ...) {
-    network <- .multicsn_resolve_network(
+    network <- multicsn_resolve_network(
       object,
       network = network,
       preferred = "active",
@@ -239,9 +205,9 @@ setMethod(
     if (is_dynamic && length(nets_active) > 0) {
       cell_types <- names(nets_active)
     } else {
-      cell_types <- tryCatch(names(.multicsn_get_attributes(object)), error = function(e) NULL)
+      cell_types <- tryCatch(names(multicsn_get_attributes(object)), error = function(e) NULL)
       if (is.null(cell_types) || length(cell_types) == 0) {
-        cell_types <- .csn_celltypes(object)
+        cell_types <- csn_celltypes(object)
       }
     }
     if (is.null(cell_types) || length(cell_types) == 0) {
@@ -272,7 +238,6 @@ setMethod(
         )
         find_modules(
           x,
-          p_thresh = p_thresh,
           rsq_thresh = rsq_thresh,
           nvar_thresh = nvar_thresh,
           min_genes_per_module = min_genes_per_module
@@ -291,7 +256,7 @@ setMethod(
           peaks_neg <- vector("list", length(modules@features$genes_neg %ss% list()))
         } else {
           reg2peaks <- rownames(
-            .csn_get_assay(object, assay = params$peak_assay)
+            csn_get_assay(object, assay = params$peak_assay)
           )[regions@peaks]
           names(reg2peaks) <- Signac::GRangesToString(regions@ranges)
           peaks_pos <- modules@features$regions_pos |>
@@ -315,7 +280,7 @@ setMethod(
       net <- GetNetwork(object, network = network, celltypes = celltype)[[1]]
       if (is.null(mod) || is.null(net)) next
       net@modules <- mod
-      object <- .multicsn_set_network_entry(object, network, celltype, net)
+      object <- multicsn_set_network_entry(object, network, celltype, net)
     }
 
     return(object)
@@ -328,6 +293,6 @@ setMethod(
   f = "find_modules",
   signature = "CSNObject",
   definition = function(object, ...) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )

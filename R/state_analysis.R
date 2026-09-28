@@ -493,21 +493,7 @@ extract_tf_target_table <- function(
   out
 }
 
-#' Internal helper: integrated regulator prioritization
-#'
-#' @param object A \code{Seurat} object.
-#' @param network Dynamic network name. Defaults to \code{DefaultNetwork(object)}.
-#' @param pseudotime_column Optional pseudotime column.
-#' @param assay RNA assay used for TF expression summaries.
-#' @param peak_assay Chromatin assay used for motif-accessibility summaries.
-#' @param method Regulator ranking method.
-#' @param require_all_states Require TFs to be present in all inferable states.
-#' @param min_state_fraction Minimum fraction of states where TF must be present when \code{require_all_states = FALSE}.
-#' @param min_targets Minimum number of targets in at least one state.
-#'
-#' @return A scored data.frame of key TF candidates.
-#' @noRd
-.prioritize_regulators_integrated <- function(
+prioritize_regulators_integrated <- function(
   object,
   network = DefaultNetwork(object),
   pseudotime_column = NULL,
@@ -806,13 +792,13 @@ prioritize_features <- function(
   }
 
   if (identical(type, "regulators")) {
-    .prioritize_regulators_integrated(
+    prioritize_regulators_integrated(
       object = object,
       network = network,
       ...
     )
   } else {
-    .prioritize_targets_integrated(
+    prioritize_targets_integrated(
       object = object,
       network = network,
       ...
@@ -820,25 +806,7 @@ prioritize_features <- function(
   }
 }
 
-#' Internal helper: integrated target prioritization
-#'
-#' @param object A \code{Seurat} object.
-#' @param tfs Optional TF vector. If \code{NULL}, derived from \code{tf_scores}.
-#' @param tf_scores Optional output of \code{prioritize_features(type = "regulators", strategy = "integrated")}.
-#' @param network Dynamic network name.
-#' @param pseudotime_column Optional pseudotime column.
-#' @param assay RNA assay used for target-expression support.
-#' @param peak_assay Chromatin assay used for peak support.
-#' @param weight_column Edge-weight column.
-#' @param dynamic_only Restrict candidate targets to dynamic genes when available.
-#' @param dynamic_padjust_threshold Adjusted P-value threshold for dynamic genes.
-#' @param peak_to_gene_method Peak-to-gene linking method.
-#' @param upstream,downstream,only_tss Peak-to-gene window parameters.
-#' @param top_targets_per_tf Optional truncation after scoring.
-#'
-#' @return A data.frame of scored TF-target pairs.
-#' @noRd
-.prioritize_targets_integrated <- function(
+prioritize_targets_integrated <- function(
   object,
   tfs = NULL,
   tf_scores = NULL,
@@ -865,7 +833,7 @@ prioritize_features <- function(
   peak_assay <- resolve_peak_assay_name(object, peak_assay = peak_assay)
 
   if (is.null(tf_scores) || nrow(tf_scores) == 0) {
-    tf_scores <- .prioritize_regulators_integrated(
+    tf_scores <- prioritize_regulators_integrated(
       object = object,
       network = network,
       pseudotime_column = pseudotime_column,
@@ -1176,7 +1144,7 @@ plot_key_tf_multiome <- function(tf_scores, top_n = 12) {
       mid = "white",
       high = "#B2182B"
     ) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(panel.grid.major.y = ggplot2::element_blank()) +
     ggplot2::labs(
       title = "Integrated key-TF ranking",
@@ -1226,16 +1194,15 @@ plot_key_tf_multiome <- function(tf_scores, top_n = 12) {
       mid = "white",
       high = "#B2182B"
     ) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       panel.grid = ggplot2::element_blank()
     ) +
     ggplot2::labs(title = "Score components", x = NULL, y = NULL, fill = "z")
 
   p <- p_rank | p_heat
-  print(p)
-  invisible(p)
+  return(p)
 }
 
 #' @title Plot integrated key-target ranking with ATAC support
@@ -1262,37 +1229,41 @@ plot_key_target_multiome <- function(target_scores, top_n = 10) {
     plot_df,
     ggplot2::aes(
       x = target_label,
-      y = target_score,
-      color = peak_support,
-      size = pmax(abs_weight, 1e-8),
-      shape = peak_supported
+      y = target_score
     )
   ) +
     ggplot2::geom_segment(
       ggplot2::aes(xend = target_label, y = 0, yend = target_score),
-      color = "grey75"
+      color = "grey75",
+      linewidth = 0.7
     ) +
-    ggplot2::geom_point(alpha = 0.95) +
+    ggplot2::geom_point(
+      ggplot2::aes(
+        color = peak_support,
+        size = pmax(abs_weight, 1e-8),
+        shape = peak_supported
+      ),
+      alpha = 0.95
+    ) +
     ggplot2::facet_grid(tf ~ ., scales = "free_y", space = "free_y") +
     ggplot2::coord_flip() +
     ggplot2::scale_x_discrete(labels = function(x) sub("^.*___", "", x)) +
-    ggplot2::scale_color_gradient(low = "grey85", high = "#B2182B") +
+    ggplot2::scale_color_gradient(low = "#FDDBC7", high = "#B2182B") +
     ggplot2::scale_shape_manual(values = c(`TRUE` = 16, `FALSE` = 1)) +
-    ggplot2::theme_bw() +
+    ggplot2::scale_size_continuous(range = c(2.5, 5)) +
+    thisplot::theme_this() +
     ggplot2::theme(
-      strip.text.y = ggplot2::element_text(angle = 0),
+      strip.text.y = ggplot2::element_text(angle = 0, face = "bold"),
       panel.grid.major.y = ggplot2::element_blank()
     ) +
     ggplot2::labs(
-      title = "Integrated key-target ranking",
       x = NULL,
-      y = "TargetScore",
+      y = "Target Score",
       color = "Peak support",
       size = "Edge weight",
       shape = "ATAC-supported"
     )
-  print(p)
-  invisible(p)
+  return(p)
 }
 
 build_state_density_plot <- function(
@@ -1338,7 +1309,7 @@ build_state_density_plot <- function(
   group_order <- density_result$group_order
   plot_data$cluster <- factor(plot_data$cluster, levels = group_order)
   if (is.null(palette)) {
-    palette <- .multicsn_palette_colors(group_order, palette = palette_name)
+    palette <- multicsn_palette_colors(group_order, palette = palette_name)
   } else if (is.null(names(palette))) {
     palette <- stats::setNames(
       rep(palette, length.out = length(group_order)),
@@ -1803,7 +1774,7 @@ build_gene_peak_map <- function(
   if (is.null(peak_assay) || length(genes) == 0) {
     return(NULL)
   }
-  gene_annot <- Signac::Annotation(.csn_get_assay(object, peak_assay))
+  gene_annot <- Signac::Annotation(csn_get_assay(object, peak_assay))
   if (is.null(gene_annot)) {
     return(NULL)
   }
@@ -1812,7 +1783,7 @@ build_gene_peak_map <- function(
   if (length(gene_annot) == 0) {
     return(NULL)
   }
-  peak_ranges <- Signac::StringToGRanges(rownames(.csn_get_assay(
+  peak_ranges <- Signac::StringToGRanges(rownames(csn_get_assay(
     object,
     peak_assay
   )))
@@ -2655,15 +2626,14 @@ plot_celltype_specificity_heatmap <- function(
       high = high_color,
       na.value = "grey95"
     ) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       panel.grid = ggplot2::element_blank()
     ) +
     ggplot2::labs(x = "Cell type pair", y = "TF", fill = metric)
 
-  print(p)
-  invisible(p)
+  return(p)
 }
 
 #' @title Summarize transition-specific TF rewiring and target gain/loss
@@ -2794,7 +2764,7 @@ summarize_transition_analysis <- function(
   )
 }
 
-.summarize_states_base <- function(
+summarize_states_base <- function(
   object,
   pseudotime_column = NULL,
   network = NULL
@@ -2850,7 +2820,7 @@ summarize_networks <- function(
     stop("summarize_networks: object must be a Seurat object.", call. = FALSE)
   }
 
-  states <- .summarize_states_base(
+  states <- summarize_states_base(
     object,
     pseudotime_column = pseudotime_column,
     network = network
@@ -3574,15 +3544,14 @@ plot_network_summary <- function(
   ) +
     ggplot2::geom_col(width = 0.75) +
     ggplot2::facet_wrap(~metric, scales = "free_y", ncol = 1) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       legend.position = "bottom"
     ) +
     ggplot2::labs(x = "State", y = NULL, fill = "State type")
 
-  print(p)
-  invisible(p)
+  return(p)
 }
 
 #' @title Plot top network features per state
@@ -3601,7 +3570,22 @@ plot_network_summary <- function(
 #' @param scale_value Score scaling for \code{view = "dynamics"}: \code{"zscore"}
 #'   to standardize each feature across states, or \code{"raw"} for raw scores.
 #'
-#' @return A \code{ggplot} object.
+#' @param x_text_angle Column-label angle for dynamics heatmaps. If \code{NULL},
+#'   choose automatically from the number and length of state labels.
+#' @param engine Heatmap engine for dynamics view: \code{"auto"},
+#'   \code{"ComplexHeatmap"}, or \code{"ggplot"}. Default is \code{"auto"}.
+#' @param cell_width Width of each heatmap cell in mm (for ComplexHeatmap).
+#'   If \code{NULL}, auto-calculated from number of columns.
+#' @param cell_height Height of each heatmap cell in mm (for ComplexHeatmap).
+#'   If \code{NULL}, auto-calculated from number of rows.
+#' @param cluster_rows Logical, whether to cluster rows in dynamics heatmap.
+#'   Default is \code{FALSE}.
+#' @param cluster_columns Logical, whether to cluster columns in dynamics heatmap.
+#'   Default is \code{FALSE}.
+#' @param return_grob Logical, whether to return a grid \code{grob} instead of
+#'   a \code{ggplot}/\code{patchwork} object. Default is \code{FALSE}.
+#'
+#' @return A \code{ggplot} or \code{patchwork} object (or a grid \code{grob} if \code{return_grob = TRUE}).
 #' @export
 plot_features <- function(
   object = NULL,
@@ -3614,12 +3598,30 @@ plot_features <- function(
   value_column = NULL,
   weight_column = "weight",
   view = c("ranking", "dynamics"),
-  scale_value = c("zscore", "raw")
+  scale_value = c("zscore", "raw"),
+  x_text_angle = NULL,
+  engine = c("auto", "ComplexHeatmap", "ggplot"),
+  cell_width = NULL,
+  cell_height = NULL,
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  return_grob = FALSE
 ) {
   type <- match.arg(type)
   method <- match.arg(method)
   view <- match.arg(view)
   scale_value <- match.arg(scale_value)
+  engine <- match.arg(engine)
+
+  if (identical(engine, "auto")) {
+    if (requireNamespace("ComplexHeatmap", quietly = TRUE) &&
+        requireNamespace("circlize", quietly = TRUE)) {
+      engine <- "ComplexHeatmap"
+    } else {
+      engine <- "ggplot"
+    }
+  }
+
   if (is.null(data)) {
     if (is.null(object)) {
       stop("plot_features: provide either object or data.", call. = FALSE)
@@ -3643,7 +3645,7 @@ plot_features <- function(
 
   network_kind <- unique(as.character(tbl$network_kind))
   network_kind <- network_kind[!is.na(network_kind) & nzchar(network_kind)]
-  network_kind <- network_kind[[1]] %ss% "dynamic"
+  network_kind <- if (length(network_kind) > 0) (network_kind[[1]] %ss% "dynamic") else "dynamic"
 
   if (identical(view, "dynamics")) {
     if (!identical(type, "regulators")) {
@@ -3676,11 +3678,13 @@ plot_features <- function(
         call. = FALSE
       )
     }
-    plot_df <- tbl[,
-      c("state_id", "gene", value_column, "order_key"),
-      drop = FALSE
-    ]
+    cols_to_keep <- c("state_id", "gene", value_column)
+    if ("order_key" %in% colnames(tbl)) {
+      cols_to_keep <- c(cols_to_keep, "order_key")
+    }
+    plot_df <- tbl[, cols_to_keep, drop = FALSE]
     colnames(plot_df)[colnames(plot_df) == value_column] <- "score"
+
     if (scale_value == "zscore") {
       plot_df$score_plot <- ave(plot_df$score, plot_df$gene, FUN = function(x) {
         if (length(x) < 2 || stats::sd(x, na.rm = TRUE) == 0) {
@@ -3699,25 +3703,159 @@ plot_features <- function(
     tf_rank <- tf_rank[order(tf_rank$x, decreasing = TRUE), , drop = FALSE]
     top_genes <- tf_rank$gene[seq_len(min(top_n, nrow(tf_rank)))]
     plot_df <- plot_df[plot_df$gene %in% top_genes, , drop = FALSE]
-    state_levels <- unique(as.character(plot_df$state_id)[order(
-      plot_df$order_key
-    )])
+
+    if ("order_key" %in% colnames(plot_df)) {
+      state_levels <- unique(as.character(plot_df$state_id)[order(
+        plot_df$order_key
+      )])
+    } else {
+      state_levels <- get_ordered_state_levels(plot_df$state_id)
+    }
+
+    if (!cluster_rows) {
+      peaks <- vapply(top_genes, function(g) {
+        sub <- plot_df[plot_df$gene == g, , drop = FALSE]
+        st_idx <- match(as.character(sub$state_id), state_levels)
+        vals <- sub$score_plot
+        if (length(vals) == 0 || all(is.na(vals))) return(1)
+        st_idx[which.max(vals)]
+      }, numeric(1))
+      max_vals <- vapply(top_genes, function(g) {
+        sub <- plot_df[plot_df$gene == g, , drop = FALSE]
+        vals <- sub$score_plot
+        if (length(vals) == 0 || all(is.na(vals))) return(0)
+        max(vals, na.rm = TRUE)
+      }, numeric(1))
+      top_genes <- top_genes[order(peaks, -max_vals)]
+    }
+
+    if (identical(engine, "ComplexHeatmap")) {
+      mat_plot <- matrix(
+        NA_real_,
+        nrow = length(top_genes),
+        ncol = length(state_levels),
+        dimnames = list(top_genes, state_levels)
+      )
+      idx <- cbind(
+        match(as.character(plot_df$gene), top_genes),
+        match(as.character(plot_df$state_id), state_levels)
+      )
+      valid <- !is.na(idx[, 1]) & !is.na(idx[, 2])
+      mat_plot[idx[valid, , drop = FALSE]] <- plot_df$score_plot[valid]
+
+      n_row <- nrow(mat_plot)
+      n_col <- ncol(mat_plot)
+
+      c_w <- cell_width %ss% (if (n_col <= 4) 18 else if (n_col <= 8) 15 else max(8, 100 / n_col))
+      c_h <- cell_height %ss% (if (n_row <= 6) 12 else if (n_row <= 15) 9 else max(5, 100 / n_row))
+      cell_w_unit <- if (grid::is.unit(c_w)) c_w else grid::unit(c_w, "mm")
+      cell_h_unit <- if (grid::is.unit(c_h)) c_h else grid::unit(c_h, "mm")
+      ht_w <- n_col * cell_w_unit
+      ht_h <- n_row * cell_h_unit
+
+      if (scale_value == "zscore") {
+        lim <- max(abs(mat_plot), na.rm = TRUE)
+        lim <- if (is.finite(lim) && lim > 0) min(max(lim, 1.5), 3) else 2
+        lim <- round(lim, 1)
+        col_fun <- circlize::colorRamp2(c(-lim, 0, lim), c("#2166AC", "white", "#B2182B"))
+        legend_at <- c(-lim, 0, lim)
+      } else {
+        vmin <- min(mat_plot, na.rm = TRUE)
+        vmax <- max(mat_plot, na.rm = TRUE)
+        if (is.finite(vmin) && vmin < 0) {
+          lim <- max(abs(vmin), abs(vmax))
+          col_fun <- circlize::colorRamp2(c(-lim, 0, lim), c("#2166AC", "white", "#B2182B"))
+          legend_at <- round(c(-lim, 0, lim), 2)
+        } else {
+          col_fun <- circlize::colorRamp2(
+            seq(vmin, vmax, length.out = 5),
+            grDevices::colorRampPalette(c("#F7F7F7", "#FDDBC7", "#D6604D", "#B2182B"))(5)
+          )
+          legend_at <- round(seq(vmin, vmax, length.out = 3), 2)
+        }
+      }
+
+      if (is.null(x_text_angle)) {
+        max_chars <- max(nchar(as.character(state_levels)), na.rm = TRUE)
+        x_text_angle <- if (n_col <= 6 && max_chars <= 12) 0 else 45
+      }
+      col_rot <- x_text_angle
+      col_centered <- (col_rot == 0)
+
+      ht <- ComplexHeatmap::Heatmap(
+        mat_plot,
+        name = if (scale_value == "zscore") "z-score" else value_column,
+        col = col_fun,
+        width = ht_w,
+        height = ht_h,
+        cluster_rows = cluster_rows,
+        cluster_columns = cluster_columns,
+        rect_gp = grid::gpar(col = "white", lwd = 1.2),
+        row_names_side = "left",
+        column_names_side = "bottom",
+        column_names_rot = col_rot,
+        column_names_centered = col_centered,
+        column_title = "State",
+        column_title_side = "bottom",
+        column_title_gp = grid::gpar(fontsize = 11, fontfamily = "sans"),
+        row_title = "TF",
+        row_title_side = "left",
+        row_title_gp = grid::gpar(fontsize = 11, fontfamily = "sans"),
+        row_names_gp = grid::gpar(fontsize = 10, fontfamily = "sans"),
+        column_names_gp = grid::gpar(fontsize = 10, fontfamily = "sans"),
+        heatmap_legend_param = list(
+          title = if (scale_value == "zscore") "z-score" else value_column,
+          title_gp = grid::gpar(fontsize = 9, fontface = "bold", fontfamily = "sans"),
+          labels_gp = grid::gpar(fontsize = 8, fontfamily = "sans"),
+          at = legend_at,
+          direction = "vertical",
+          title_position = "topleft"
+        )
+      )
+
+      g_ht <- grid::grid.grabExpr(
+        ComplexHeatmap::draw(ht, padding = grid::unit(c(2, 2, 2, 2), "mm")),
+        wrap = TRUE
+      )
+
+      if (isTRUE(return_grob)) {
+        attr(g_ht, "Heatmap") <- ht
+        return(g_ht)
+      }
+      p <- patchwork::wrap_elements(full = g_ht)
+      attr(p, "grob") <- g_ht
+      attr(p, "Heatmap") <- ht
+      return(p)
+    }
+
     plot_df$state_id <- factor(plot_df$state_id, levels = unique(state_levels))
     plot_df$gene <- factor(plot_df$gene, levels = rev(top_genes))
+
+    if (is.null(x_text_angle)) {
+      max_chars <- max(nchar(as.character(unique(plot_df$state_id))), na.rm = TRUE)
+      n_states <- length(unique(plot_df$state_id))
+      x_text_angle <- if (n_states <= 6 && max_chars <= 12) 0 else 45
+    }
+    x_hjust <- if (x_text_angle == 0) 0.5 else 1
+    x_vjust <- if (x_text_angle == 0) 0.5 else 1
 
     p <- ggplot2::ggplot(
       plot_df,
       ggplot2::aes(x = state_id, y = gene, fill = score_plot)
     ) +
-      ggplot2::geom_tile(color = "grey90") +
+      ggplot2::geom_tile(color = "grey90", linewidth = 0.3) +
       ggplot2::scale_fill_gradient2(
         low = "#2166AC",
         mid = "white",
         high = "#B2182B"
       ) +
-      ggplot2::theme_bw() +
+      thisplot::theme_this() +
       ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        axis.text.x = ggplot2::element_text(
+          angle = x_text_angle,
+          hjust = x_hjust,
+          vjust = x_vjust
+        ),
         panel.grid = ggplot2::element_blank()
       ) +
       ggplot2::labs(
@@ -3725,8 +3863,12 @@ plot_features <- function(
         y = "TF",
         fill = if (scale_value == "zscore") "z-score" else value_column
       )
-    print(p)
-    return(invisible(p))
+    if (isTRUE(return_grob)) {
+      g <- ggplot2::ggplotGrob(p)
+      attr(g, "ggplot") <- p
+      return(g)
+    }
+    return(p)
   }
 
   preferred <- if (identical(type, "regulators")) {
@@ -3760,20 +3902,34 @@ plot_features <- function(
     )
   }
 
-  tbl <- prepare_feature_plot_table(
-    tbl,
-    feature_col = feature_col,
-    value_col = value_column
-  )
   facet_col <- if (identical(network_kind, "dynamic")) {
     "state_id"
   } else {
     "celltype_id"
   }
-  tbl[[facet_col]] <- factor(
-    as.character(tbl[[facet_col]]),
-    levels = unique(as.character(tbl[[facet_col]]))
-  )
+
+  ordered_states <- if ("order_key" %in% colnames(tbl)) {
+    unique(as.character(tbl[[facet_col]])[order(tbl$order_key)])
+  } else {
+    get_ordered_state_levels(tbl[[facet_col]])
+  }
+
+  split_df <- split(tbl, tbl[[facet_col]])
+  ordered_states <- ordered_states[ordered_states %in% names(split_df)]
+  split_df <- split_df[ordered_states]
+
+  out <- lapply(split_df, function(x) {
+    x <- x[order(x[[value_column]], decreasing = TRUE), , drop = FALSE]
+    if (!is.null(top_n) && nrow(x) > top_n) {
+      x <- x[seq_len(top_n), , drop = FALSE]
+    }
+    x$feature_label <- paste(x[[facet_col]], x[[feature_col]], sep = "___")
+    x$feature_label <- factor(x$feature_label, levels = rev(x$feature_label))
+    x
+  })
+  tbl <- do.call(rbind, out)
+  rownames(tbl) <- NULL
+  tbl[[facet_col]] <- factor(as.character(tbl[[facet_col]]), levels = ordered_states)
 
   p <- ggplot2::ggplot(
     tbl,
@@ -3782,9 +3938,10 @@ plot_features <- function(
     ggplot2::geom_segment(
       ggplot2::aes(xend = feature_label, yend = !!rlang::sym(value_column)),
       y = 0,
-      color = "grey70"
+      color = "grey70",
+      linewidth = 0.65
     ) +
-    ggplot2::geom_point(color = point_color, size = 2) +
+    ggplot2::geom_point(color = point_color, size = 2.6) +
     ggplot2::facet_grid(
       stats::as.formula(paste(facet_col, "~ .")),
       scales = "free_y",
@@ -3792,12 +3949,19 @@ plot_features <- function(
     ) +
     ggplot2::coord_flip() +
     ggplot2::scale_x_discrete(labels = function(x) sub("^.*___", "", x)) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0)) +
+    thisplot::theme_this() +
+    ggplot2::theme(
+      strip.text.y = ggplot2::element_text(angle = 0, face = "bold"),
+      panel.grid.major.y = ggplot2::element_blank()
+    ) +
     ggplot2::labs(x = NULL, y = value_column)
 
-  print(p)
-  invisible(p)
+  if (isTRUE(return_grob)) {
+    g <- ggplot2::ggplotGrob(p)
+    attr(g, "ggplot") <- p
+    return(g)
+  }
+  return(p)
 }
 
 #' @title Plot adjacent-state TF rewiring heatmap
@@ -3813,7 +3977,7 @@ plot_features <- function(
 #' @param weight.by Weight column used when exporting networks.
 #' @param group.by Reserved for future grouping support in similarity plots.
 #' @param palette Palette name passed to
-#'   \code{thisplot::palette_colors()} via \code{.multicsn_palette_colors()}.
+#'   \code{thisplot::palette_colors()} via \code{multicsn_palette_colors()}.
 #' @param palcolor Optional named color vector overriding state/group colors.
 #'
 #' @return A drawable plot object. When \pkg{ComplexHeatmap} is available,
@@ -3856,7 +4020,7 @@ plot_rewiring <- function(
       state_colors <- palcolor[state_ids]
     }
     if (length(state_colors) == 0 || any(is.na(state_colors))) {
-      state_colors <- .multicsn_palette_colors(
+      state_colors <- multicsn_palette_colors(
         state_ids,
         palette = palette
       )
@@ -3864,12 +4028,6 @@ plot_rewiring <- function(
     state_colors <- state_colors[state_ids]
 
     if (!identical(plot_type, "heatmap")) {
-      if (!requireNamespace("thisplot", quietly = TRUE)) {
-        stop(
-          "plot_rewiring: plot_type='venn'/'upset' requires the thisplot package.",
-          call. = FALSE
-        )
-      }
       all_features <- sort(unique(unlist(feature_sets, use.names = FALSE)))
       set_df <- as.data.frame(
         stats::setNames(
@@ -3892,8 +4050,7 @@ plot_rewiring <- function(
           "Set overlap"
         )
       )
-      print(p)
-      return(invisible(p))
+      return(p)
     }
 
     if (
@@ -4086,14 +4243,13 @@ plot_rewiring <- function(
         values = c("TRUE" = "white", "FALSE" = "gray40"),
         guide = "none"
       ) +
-      ggplot2::theme_bw() +
+      thisplot::theme_this() +
       ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
         panel.grid = ggplot2::element_blank()
       ) +
       ggplot2::labs(x = NULL, y = NULL, fill = "Jaccard\nsimilarity")
-    print(p)
-    return(invisible(p))
+    return(p)
   }
 
   if (!identical(plot_type, "heatmap")) {
@@ -4345,22 +4501,15 @@ plot_rewiring <- function(
       na.value = "white",
       limits = c(0, 1)
     ) +
-    ggplot2::theme_classic() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
-      axis.line = ggplot2::element_blank(),
-      panel.border = ggplot2::element_rect(
-        fill = NA,
-        color = "grey35",
-        linewidth = 0.6
-      ),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       legend.key.height = grid::unit(1.8, "cm"),
       legend.key.width = grid::unit(0.55, "cm")
     ) +
     ggplot2::labs(x = "Adjacent state pair", y = "TF", fill = fill_title)
 
-  print(p)
-  invisible(p)
+  return(p)
 }
 
 #' @title Plot single-TF case study across ordered states
@@ -4441,8 +4590,8 @@ plot_tf_case_study <- function(
   ) +
     ggplot2::geom_line(color = "#B22222", linewidth = 0.7) +
     ggplot2::geom_point(color = "#B22222", size = 2.5) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
+    thisplot::theme_this() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)) +
     ggplot2::labs(
       title = paste0(tf, ": regulator activity"),
       x = "State",
@@ -4514,8 +4663,8 @@ plot_tf_case_study <- function(
     ggplot2::aes(x = pair_label, y = rewiring_score)
   ) +
     ggplot2::geom_col(fill = "#1F78B4", width = 0.7, na.rm = TRUE) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
+    thisplot::theme_this() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)) +
     ggplot2::labs(
       title = paste0(tf, ": adjacent-state rewiring"),
       x = "State pair",
@@ -4562,9 +4711,9 @@ plot_tf_case_study <- function(
     ) +
       ggplot2::geom_tile(color = "grey90") +
       ggplot2::scale_fill_gradient(low = "white", high = "#B2182B") +
-      ggplot2::theme_bw() +
+      thisplot::theme_this() +
       ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
       ) +
       ggplot2::labs(
         title = paste0(tf, ": target strength by state"),
@@ -4593,8 +4742,7 @@ plot_tf_case_study <- function(
   ) +
     patchwork::plot_annotation(title = paste0("TF case study: ", tf))
 
-  print(p)
-  invisible(p)
+  return(p)
 }
 
 #' @title Plot paper-style ordered-state overview
@@ -4694,8 +4842,7 @@ plot_state_overview_figure <- function(
       subtitle = paste(states$state_id, collapse = "  ->  ")
     )
 
-  print(p)
-  invisible(p)
+  return(p)
 }
 
 compute_pairwise_state_edge_overlap <- function(
@@ -4778,9 +4925,9 @@ build_state_edge_overlap_plot <- function(
       high = "#2166AC",
       limits = c(0, 1)
     ) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       panel.grid = ggplot2::element_blank()
     ) +
     ggplot2::labs(
@@ -4840,9 +4987,9 @@ build_adjacent_rewiring_summary_plot <- function(rewiring_result) {
       values = c("Edge rewiring" = "#B2182B", "Mean TF rewiring" = "#2166AC")
     ) +
     ggplot2::coord_cartesian(ylim = c(0, 1)) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       panel.grid = ggplot2::element_blank(),
       legend.position = "top"
     ) +
@@ -4920,9 +5067,9 @@ build_rewiring_heatmap_plot <- function(
       high = high_color,
       na.value = "grey95"
     ) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       panel.grid = ggplot2::element_blank()
     ) +
     ggplot2::labs(
@@ -5031,9 +5178,9 @@ build_tf_dynamics_heatmap_plot <- function(
       mid = "white",
       high = "#B2182B"
     ) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       panel.grid = ggplot2::element_blank()
     ) +
     ggplot2::labs(
@@ -5116,8 +5263,7 @@ plot_rewiring_overview_figure <- function(
     p_heatmap +
     patchwork::plot_layout(heights = c(1.0, 1.35)) +
     patchwork::plot_annotation(title = "Ordered-state GRN rewiring overview")
-  print(p)
-  invisible(p)
+  return(p)
 }
 
 #' @title Plot manuscript Figure 3 key-TF summary
@@ -5232,9 +5378,9 @@ plot_key_tf_summary_figure <- function(
   ) +
     ggplot2::geom_line(linewidth = 0.8) +
     ggplot2::geom_point(size = 2.3) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       panel.grid = ggplot2::element_blank(),
       legend.position = "right"
     ) +
@@ -5287,9 +5433,9 @@ plot_key_tf_summary_figure <- function(
       mid = "white",
       high = "#B2182B"
     ) +
-    ggplot2::theme_bw() +
+    thisplot::theme_this() +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
       panel.grid = ggplot2::element_blank()
     ) +
     ggplot2::labs(
@@ -5324,9 +5470,9 @@ plot_key_tf_summary_figure <- function(
     ) +
       ggplot2::geom_tile(color = "grey90") +
       ggplot2::scale_fill_gradient(low = "white", high = "#B2182B") +
-      ggplot2::theme_bw() +
+      thisplot::theme_this() +
       ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
         panel.grid = ggplot2::element_blank()
       ) +
       ggplot2::labs(
@@ -5354,8 +5500,7 @@ plot_key_tf_summary_figure <- function(
       title = "Key transcription-factor dynamics and rewiring",
       subtitle = paste("Selected TFs:", paste(tfs, collapse = ", "))
     )
-  print(p)
-  invisible(p)
+  return(p)
 }
 
 #' @title Plot state-level network summary metrics

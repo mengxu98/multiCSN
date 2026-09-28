@@ -11,12 +11,9 @@ find_modules(object, ...)
 
 \S4method{find_modules}{Network}(
   object,
-  p_thresh = 0.05,
   rsq_thresh = 0.1,
   nvar_thresh = 10,
   min_genes_per_module = 5,
-  xgb_method = c("tf", "target"),
-  xgb_top = 50,
   verbose = TRUE,
   ...
 )
@@ -24,7 +21,6 @@ find_modules(object, ...)
 \S4method{find_modules}{Seurat}(
   object,
   network = NULL,
-  p_thresh = 0.05,
   rsq_thresh = 0.1,
   nvar_thresh = 10,
   min_genes_per_module = 5,
@@ -39,19 +35,11 @@ find_modules(object, ...)
 
 \item{...}{Arguments for other methods}
 
-\item{p_thresh}{Float indicating the significance threshold on the adjusted p-value.}
-
 \item{rsq_thresh}{Float indicating the \eqn{R^2} threshold on the adjusted p-value.}
 
 \item{nvar_thresh}{Integer indicating the minimum number of variables in the model.}
 
 \item{min_genes_per_module}{Integer indicating the minimum number of genes in a module.}
-
-\item{xgb_method}{Method to get modules from xgb models
-\code{tf} - Choose top targets for each TF.
-\code{target} - Choose top TFs for each target gene.}
-
-\item{xgb_top}{Interger indicating how many top targets/TFs to return.}
 
 \item{verbose}{Print messages.}
 

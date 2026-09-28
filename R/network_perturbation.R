@@ -126,7 +126,7 @@ setMethod(
         predictPerturbation(net, perturb_tfs, use_weight, n_iter, scale_factor, verbose)
       }
     )
-    .multicsn_set_networks(object, network_name, nets)
+    multicsn_set_networks(object, network_name, nets)
   }
 )
 
@@ -135,7 +135,7 @@ setMethod(
 setMethod(
   "predictPerturbation", signature(object = "CSNObject"),
   function(object, perturb_tfs, use_weight = FALSE) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 
@@ -172,7 +172,7 @@ setMethod(
         embedPerturbation(net, reduction_method = reduction_method, dims = dims, scale = scale, cores = cores, seed = seed)
       }
     )
-    .multicsn_set_networks(object, network_name, nets)
+    multicsn_set_networks(object, network_name, nets)
   }
 )
 
@@ -432,7 +432,7 @@ setMethod(
            max_overlaps = 10, alpha = 0.6,
            show_trajectory = TRUE, arrow_size = 0.5,
            grid_n = 25) {
-    .stop_csnobject_runtime()
+    stop_csnobject_runtime()
   }
 )
 

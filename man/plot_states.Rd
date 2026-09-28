@@ -23,7 +23,7 @@ reuses the value stored in the active dynamic network or in
 
 \item{palette}{Optional colors.}
 
-\item{palette_name}{Palette name used by \code{.multicsn_palette_colors()}.}
+\item{palette_name}{Palette name used by \code{multicsn_palette_colors()}.}
 }
 \value{
 A data.frame of kept state windows.
