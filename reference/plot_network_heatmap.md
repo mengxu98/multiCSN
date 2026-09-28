@@ -78,12 +78,6 @@ plot_network_heatmap(
 
   Heatmap title.
 
-- heatmap_title_color:
-
-  Optional title colors. Default `NULL` preserves the default text
-  color. Otherwise, supply one color per input network, in input order
-  (including a ground-truth network, if present).
-
 - ncol, nrow:
 
   Layout dimensions for multiple heatmaps.
@@ -145,6 +139,12 @@ plot_network_heatmap(
 - legend_name, row_title:
 
   Legend and row titles.
+
+- heatmap_title_color:
+
+  Optional title colors. Default \`NULL\` preserves the default text
+  color. Otherwise, supply one color per input network, in input order
+  (including a ground-truth network, if present).
 
 ## Value
 

@@ -9,6 +9,11 @@ plot_contrast_networks(
   network_table,
   degree_value = 0,
   weight_value = 0,
+  cols = NULL,
+  regulator_color = "#8C4985",
+  target_color = "#B0C4DE",
+  label.size = 3.5,
+  base_family = "",
   legend_position = "bottom"
 )
 ```
@@ -27,6 +32,27 @@ plot_contrast_networks(
 
   Weight value to filter edges. Default is `0`.
 
+- cols:
+
+  Named vector of colors for edge interactions. Default uses
+  `c("Activation" = "#1F78B4", "Repression" = "#E31A1C")`.
+
+- regulator_color:
+
+  Color of regulator nodes. Default is `"#8C4985"`.
+
+- target_color:
+
+  Color of target nodes. Default is `"#B0C4DE"`.
+
+- label.size:
+
+  Node label font size. Default is `3.5`.
+
+- base_family:
+
+  Font family for graph theme. Default is `""`.
+
 - legend_position:
 
   The position of legend. Default is `"bottom"`.
@@ -40,10 +66,10 @@ A ggplot2 object.
 ``` r
 data(example_matrix, package = "inferCSN")
 network_table <- inferCSN::inferCSN(example_matrix)
-#> ℹ [2026-09-23 00:48:26] Inferring network for <matrix/array>...
-#> ◌ [2026-09-23 00:48:26] Checking parameters...
-#> ✔ [2026-09-23 00:48:26] Inferring network done
-#> ℹ [2026-09-23 00:48:26] Network information:
+#> ℹ [2026-09-28 03:01:02] Inferring network for <matrix/array>...
+#> ◌ [2026-09-28 03:01:02] Checking parameters...
+#> ✔ [2026-09-28 03:01:02] Inferring network done
+#> ℹ [2026-09-28 03:01:02] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 plot_contrast_networks(network_table[1:50, ])

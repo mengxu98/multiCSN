@@ -72,12 +72,9 @@ inferCSN; Network and Seurat methods are implemented here."><meta property="og:i
 <span>  lag_steps <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cores <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  penalty <span class="op">=</span> <span class="st">"L0"</span>,</span>
-<span>  cross_validation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  n_folds <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  r_squared_threshold <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greedy_l0"</span>, <span class="st">"glm"</span>, <span class="st">"glmnet"</span>, <span class="st">"cv.glmnet"</span>, <span class="st">"xgb"</span>, <span class="st">"susie"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"greedy_l0"</span>,</span>
 <span>  gene_cor_threshold <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -93,10 +90,7 @@ inferCSN; Network and Seurat methods are implemented here."><meta property="og:i
 <span>  lag_steps <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cores <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  penalty <span class="op">=</span> <span class="st">"L0"</span>,</span>
-<span>  cross_validation <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  n_folds <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  r_squared_threshold <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  celltypes <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  network_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">method</span>, <span class="st">"_network"</span><span class="op">)</span>,</span>
@@ -110,9 +104,7 @@ inferCSN; Network and Seurat methods are implemented here."><meta property="og:i
 <span>  peak_cor_threshold <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  aggregate_rna_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  aggregate_peaks_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greedy_l0"</span>, <span class="st">"glm"</span>, <span class="st">"glmnet"</span>, <span class="st">"cv.glmnet"</span>, <span class="st">"xgb"</span>, <span class="st">"susie"</span><span class="op">)</span>,</span>
-<span>  alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  family <span class="op">=</span> <span class="st">"gaussian"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"greedy_l0"</span>,</span>
 <span>  interaction_term <span class="op">=</span> <span class="st">":"</span>,</span>
 <span>  adjust_method <span class="op">=</span> <span class="st">"fdr"</span>,</span>
 <span>  scale <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -178,8 +170,8 @@ For <code>Seurat</code> objects, a single column name is treated as <code>pseudo
 <dd><p>Additional method arguments.</p></dd>
 
 
-<dt id="arg-penalty-cross-validation-seed-n-folds">penalty, cross_validation, seed, n_folds<a class="anchor" aria-label="anchor" href="#arg-penalty-cross-validation-seed-n-folds"></a></dt>
-<dd><p>Stored on <code>Network</code> objects for provenance. Fitting uses <code>method</code>.</p></dd>
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>Stored on <code>Network</code> objects for provenance.</p></dd>
 
 
 <dt id="arg-r-squared-threshold">r_squared_threshold<a class="anchor" aria-label="anchor" href="#arg-r-squared-threshold"></a></dt>
@@ -187,9 +179,8 @@ For <code>Seurat</code> objects, a single column name is treated as <code>pseudo
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>Fitting backend for <code>Network</code> / <code>Seurat</code> methods:
-<code>"greedy_l0"</code> (greedy L0 via <code><a href="https://mengxu98.github.io/inferCSN/reference/fit_greedy_l0.html" class="external-link">inferCSN::fit_greedy_l0()</a></code>),
-<code>"glm"</code>, <code>"glmnet"</code>, <code>"cv.glmnet"</code>, <code>"xgb"</code>, or <code>"susie"</code>.</p></dd>
+<dd><p>The sole supported regression method, <code>"greedy_l0"</code>
+(via <code><a href="https://mengxu98.github.io/inferCSN/reference/fit_greedy_l0.html" class="external-link">inferCSN::fit_greedy_l0()</a></code>).</p></dd>
 
 
 <dt id="arg-gene-cor-threshold">gene_cor_threshold<a class="anchor" aria-label="anchor" href="#arg-gene-cor-threshold"></a></dt>
@@ -240,14 +231,6 @@ For <code>Seurat</code> objects, a single column name is treated as <code>pseudo
 <dd><p>Metadata column used to aggregate peaks.</p></dd>
 
 
-<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
-<dd><p>Elastic-net mixing parameter. See <code><a href="https://rdrr.io/pkg/glmnet/man/glmnet.html" class="external-link">glmnet</a></code>.</p></dd>
-
-
-<dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>
-<dd><p>Error distribution and link function. See <code><a href="https://rdrr.io/r/stats/family.html" class="external-link">family</a></code>.</p></dd>
-
-
 <dt id="arg-interaction-term">interaction_term<a class="anchor" aria-label="anchor" href="#arg-interaction-term"></a></dt>
 <dd><p>Interaction between TF and binding site: <code>"+"</code>, <code>":"</code>, or <code>"*"</code>.</p></dd>
 
@@ -287,10 +270,10 @@ assemble their selected supports.</p>
 <span class="r-in"><span><span class="va">network_table_1</span> <span class="op">&lt;-</span> <span class="fu">inferCSN</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">example_matrix</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:14] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-23 00:48:14] Checking parameters...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-23 00:48:14] Inferring network done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:14] <span style="color: #555555;">Network information:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-28 03:00:52] Checking parameters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-28 03:00:52] Inferring network done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] <span style="color: #555555;">Network information:</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">  Edges Regulators Targets</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">1    12          6       6</span></span>
 <span class="r-in"><span></span></span>
@@ -298,10 +281,10 @@ assemble their selected supports.</p>
 <span class="r-in"><span>  <span class="va">example_matrix</span>,</span></span>
 <span class="r-in"><span>  cores <span class="op">=</span> <span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:14] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-23 00:48:14] Checking parameters...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-23 00:48:14] Inferring network done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:14] <span style="color: #555555;">Network information:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-28 03:00:52] Checking parameters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-28 03:00:52] Inferring network done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] <span style="color: #555555;">Network information:</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">  Edges Regulators Targets</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">1    12          6       6</span></span>
 <span class="r-in"><span></span></span>
@@ -325,10 +308,10 @@ assemble their selected supports.</p>
 <span class="r-in"><span>  regulators <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g1"</span>, <span class="st">"g2"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  targets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g3"</span>, <span class="st">"g4"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:14] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-23 00:48:14] Checking parameters...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-23 00:48:14] Inferring network done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:14] <span style="color: #555555;">Network information:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-28 03:00:52] Checking parameters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-28 03:00:52] Inferring network done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] <span style="color: #555555;">Network information:</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">  Edges Regulators Targets</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">1     4          2       2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   regulator target weight</span>
@@ -341,11 +324,11 @@ assemble their selected supports.</p>
 <span class="r-in"><span>  regulators <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g1"</span>, <span class="st">"g2"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  targets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g3"</span>, <span class="st">"g0"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:14] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-23 00:48:14] Checking parameters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-28 03:00:52] Checking parameters...</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Ignoring 1 requested targets absent from `object`: g0</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-23 00:48:14] Inferring network done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:14] <span style="color: #555555;">Network information:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-28 03:00:52] Inferring network done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] <span style="color: #555555;">Network information:</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">  Edges Regulators Targets</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">1     2          2       1</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   regulator target weight</span>

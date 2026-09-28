@@ -60,7 +60,7 @@
 <span>  peak_cor_threshold <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  aggregate_rna_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  aggregate_peaks_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greedy_l0"</span>, <span class="st">"glm"</span>, <span class="st">"glmnet"</span>, <span class="st">"cv.glmnet"</span>, <span class="st">"xgb"</span>, <span class="st">"susie"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"greedy_l0"</span>,</span>
 <span>  interaction_term <span class="op">=</span> <span class="st">":"</span>,</span>
 <span>  adjust_method <span class="op">=</span> <span class="st">"fdr"</span>,</span>
 <span>  scale <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -86,7 +86,7 @@
 <span>  peak_cor_threshold <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  aggregate_rna_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  aggregate_peaks_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greedy_l0"</span>, <span class="st">"glm"</span>, <span class="st">"glmnet"</span>, <span class="st">"cv.glmnet"</span>, <span class="st">"xgb"</span>, <span class="st">"susie"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"greedy_l0"</span>,</span>
 <span>  interaction_term <span class="op">=</span> <span class="st">":"</span>,</span>
 <span>  adjust_method <span class="op">=</span> <span class="st">"fdr"</span>,</span>
 <span>  scale <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -112,7 +112,7 @@
 <span>  peak_cor_threshold <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  aggregate_rna_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  aggregate_peaks_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greedy_l0"</span>, <span class="st">"glm"</span>, <span class="st">"glmnet"</span>, <span class="st">"cv.glmnet"</span>, <span class="st">"xgb"</span>, <span class="st">"susie"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"greedy_l0"</span>,</span>
 <span>  interaction_term <span class="op">=</span> <span class="st">":"</span>,</span>
 <span>  adjust_method <span class="op">=</span> <span class="st">"fdr"</span>,</span>
 <span>  scale <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -138,7 +138,7 @@
 <span>  peak_cor_threshold <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  aggregate_rna_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  aggregate_peaks_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"greedy_l0"</span>, <span class="st">"glm"</span>, <span class="st">"glmnet"</span>, <span class="st">"cv.glmnet"</span>, <span class="st">"xgb"</span>, <span class="st">"susie"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"greedy_l0"</span>,</span>
 <span>  interaction_term <span class="op">=</span> <span class="st">":"</span>,</span>
 <span>  adjust_method <span class="op">=</span> <span class="st">"fdr"</span>,</span>
 <span>  scale <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -210,7 +210,7 @@
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>Statistical method for model fitting</p></dd>
+<dd><p>The sole supported regression method, <code>"greedy_l0"</code></p></dd>
 
 
 <dt id="arg-interaction-term">interaction_term<a class="anchor" aria-label="anchor" href="#arg-interaction-term"></a></dt>

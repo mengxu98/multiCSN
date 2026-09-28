@@ -20,7 +20,7 @@ fit_models(
   peak_cor_threshold = 0.1,
   aggregate_rna_col = NULL,
   aggregate_peaks_col = NULL,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
+  method = "greedy_l0",
   interaction_term = ":",
   adjust_method = "fdr",
   scale = FALSE,
@@ -46,7 +46,7 @@ fit_models(
   peak_cor_threshold = 0.1,
   aggregate_rna_col = NULL,
   aggregate_peaks_col = NULL,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
+  method = "greedy_l0",
   interaction_term = ":",
   adjust_method = "fdr",
   scale = FALSE,
@@ -72,7 +72,7 @@ fit_models(
   peak_cor_threshold = 0.1,
   aggregate_rna_col = NULL,
   aggregate_peaks_col = NULL,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
+  method = "greedy_l0",
   interaction_term = ":",
   adjust_method = "fdr",
   scale = FALSE,
@@ -98,7 +98,7 @@ fit_models(
   peak_cor_threshold = 0.1,
   aggregate_rna_col = NULL,
   aggregate_peaks_col = NULL,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
+  method = "greedy_l0",
   interaction_term = ":",
   adjust_method = "fdr",
   scale = FALSE,
@@ -169,7 +169,7 @@ fit_models(
 
 - method:
 
-  Statistical method for model fitting
+  The sole supported regression method, `"greedy_l0"`
 
 - interaction_term:
 

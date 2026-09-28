@@ -8,8 +8,7 @@ Infer dynamic state networks from density-partitioned pseudotime states
 state_dynamic(
   object,
   pseudotime_column,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
-  penalty = "L0",
+  method = "greedy_l0",
   r_squared_threshold = 0,
   regulators = NULL,
   targets = NULL,
@@ -39,13 +38,7 @@ state_dynamic(
 
 - method:
 
-  Network inference method.
-
-- penalty:
-
-  Penalty passed to
-  [`inferCSN()`](https://mengxu98.github.io/multiCSN/reference/inferCSN.md)
-  for `Network`.
+  The sole supported regression method, \`"greedy_l0"\`.
 
 - r_squared_threshold:
 

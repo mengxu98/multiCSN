@@ -32,10 +32,10 @@ list
 ``` r
 data("example_matrix", package = "inferCSN")
 network_table <- inferCSN::inferCSN(example_matrix)
-#> ℹ [2026-09-23 00:48:37] Inferring network for <matrix/array>...
-#> ◌ [2026-09-23 00:48:37] Checking parameters...
-#> ✔ [2026-09-23 00:48:37] Inferring network done
-#> ℹ [2026-09-23 00:48:37] Network information:
+#> ℹ [2026-09-28 03:01:13] Inferring network for <matrix/array>...
+#> ◌ [2026-09-28 03:01:13] Checking parameters...
+#> ✔ [2026-09-28 03:01:13] Inferring network done
+#> ℹ [2026-09-28 03:01:13] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 rough_hierarchy(network_table)

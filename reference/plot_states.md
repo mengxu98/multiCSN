@@ -36,7 +36,7 @@ plot_states(
 
 - palette_name:
 
-  Palette name used by `.multicsn_palette_colors()`.
+  Palette name used by `multicsn_palette_colors()`.
 
 ## Value
 

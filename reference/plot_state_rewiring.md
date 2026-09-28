@@ -50,7 +50,7 @@ plot_state_rewiring(
 
   Palette name passed to
   [`thisplot::palette_colors()`](https://mengxu98.github.io/thisplot/reference/palette_colors.html)
-  via `.multicsn_palette_colors()`.
+  via `multicsn_palette_colors()`.
 
 - palcolor:
 

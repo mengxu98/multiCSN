@@ -97,7 +97,7 @@ More functions and usages about
 - [`plot_dynamic_networks()`](https://mengxu98.github.io/multiCSN/reference/plot_dynamic_networks.md)
   : Plot dynamic networks
 - [`plot_static_networks()`](https://mengxu98.github.io/multiCSN/reference/plot_static_networks.md)
-  : Plot dynamic networks
+  : Plot static networks
 - [`plot_contrast_networks()`](https://mengxu98.github.io/multiCSN/reference/plot_contrast_networks.md)
   : Plot contrast networks
 - [`plot_network_heatmap()`](https://mengxu98.github.io/multiCSN/reference/plot_network_heatmap.md)
@@ -214,24 +214,14 @@ More functions and usages about
 - [`fit_perturbation_effects()`](https://mengxu98.github.io/multiCSN/reference/fit_perturbation_effects.md)
   : Fit paired perturbation effects on pseudobulk counts
 
-### Sparse regression model
+### Greedy-L0 regression model
 
-- [`fit_cvglmnet()`](https://mengxu98.github.io/multiCSN/reference/fit_cvglmnet.md)
-  : Cross-validation for regularized generalized linear models
-- [`fit_glm()`](https://mengxu98.github.io/multiCSN/reference/fit_glm.md)
-  : Fit generalized linear model
-- [`fit_glmnet()`](https://mengxu98.github.io/multiCSN/reference/fit_glmnet.md)
-  : Fit regularized generalized linear model
 - [`fit_srm2()`](https://mengxu98.github.io/multiCSN/reference/fit_srm2.md)
   : Fit a sparse regression model
-- [`fit_xgb()`](https://mengxu98.github.io/multiCSN/reference/fit_xgb.md)
-  : Fit a gradient boosting regression model with XGBoost
 - [`fit_model()`](https://mengxu98.github.io/multiCSN/reference/fit_model.md)
   : Fit model
 - [`fit_models()`](https://mengxu98.github.io/multiCSN/reference/fit_models.md)
   : Fit models for gene expression
-- [`fit_susie()`](https://mengxu98.github.io/multiCSN/reference/fit_susie.md)
-  : Fit a SuSiE regression model
 - [`format_coefs()`](https://mengxu98.github.io/multiCSN/reference/format_coefs.md)
   : Format network coefficients
 

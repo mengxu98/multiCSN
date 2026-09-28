@@ -49,6 +49,11 @@
 <span>  <span class="va">network_table</span>,</span>
 <span>  degree_value <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  weight_value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  regulator_color <span class="op">=</span> <span class="st">"#8C4985"</span>,</span>
+<span>  target_color <span class="op">=</span> <span class="st">"#B0C4DE"</span>,</span>
+<span>  label.size <span class="op">=</span> <span class="fl">3.5</span>,</span>
+<span>  base_family <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  legend_position <span class="op">=</span> <span class="st">"bottom"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -71,6 +76,26 @@ Default is <code>0</code>.</p></dd>
 Default is <code>0</code>.</p></dd>
 
 
+<dt id="arg-cols">cols<a class="anchor" aria-label="anchor" href="#arg-cols"></a></dt>
+<dd><p>Named vector of colors for edge interactions. Default uses <code>c("Activation" = "#1F78B4", "Repression" = "#E31A1C")</code>.</p></dd>
+
+
+<dt id="arg-regulator-color">regulator_color<a class="anchor" aria-label="anchor" href="#arg-regulator-color"></a></dt>
+<dd><p>Color of regulator nodes. Default is <code>"#8C4985"</code>.</p></dd>
+
+
+<dt id="arg-target-color">target_color<a class="anchor" aria-label="anchor" href="#arg-target-color"></a></dt>
+<dd><p>Color of target nodes. Default is <code>"#B0C4DE"</code>.</p></dd>
+
+
+<dt id="arg-label-size">label.size<a class="anchor" aria-label="anchor" href="#arg-label-size"></a></dt>
+<dd><p>Node label font size. Default is <code>3.5</code>.</p></dd>
+
+
+<dt id="arg-base-family">base_family<a class="anchor" aria-label="anchor" href="#arg-base-family"></a></dt>
+<dd><p>Font family for graph theme. Default is <code>""</code>.</p></dd>
+
+
 <dt id="arg-legend-position">legend_position<a class="anchor" aria-label="anchor" href="#arg-legend-position"></a></dt>
 <dd><p>The position of legend.
 Default is <code>"bottom"</code>.</p></dd>
@@ -85,10 +110,10 @@ Default is <code>"bottom"</code>.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">example_matrix</span>, package <span class="op">=</span> <span class="st">"inferCSN"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">network_table</span> <span class="op">&lt;-</span> <span class="fu">inferCSN</span><span class="fu">::</span><span class="fu"><a href="https://mengxu98.github.io/inferCSN/reference/inferCSN.html" class="external-link">inferCSN</a></span><span class="op">(</span><span class="va">example_matrix</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:26] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-23 00:48:26] Checking parameters...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-23 00:48:26] Inferring network done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-23 00:48:26] <span style="color: #555555;">Network information:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:01:02] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-28 03:01:02] Checking parameters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-28 03:01:02] Inferring network done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:01:02] <span style="color: #555555;">Network information:</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">  Edges Regulators Targets</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">1    12          6       6</span></span>
 <span class="r-in"><span><span class="fu">plot_contrast_networks</span><span class="op">(</span><span class="va">network_table</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span>, <span class="op">]</span><span class="op">)</span></span></span>

@@ -30,12 +30,9 @@ inferCSN(
   lag_steps = NULL,
   cores = 1,
   verbose = TRUE,
-  penalty = "L0",
-  cross_validation = FALSE,
   seed = 1,
-  n_folds = 5,
   r_squared_threshold = 0,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
+  method = "greedy_l0",
   gene_cor_threshold = 0,
   ...
 )
@@ -51,10 +48,7 @@ inferCSN(
   lag_steps = NULL,
   cores = 1,
   verbose = TRUE,
-  penalty = "L0",
-  cross_validation = FALSE,
   seed = 1,
-  n_folds = 5,
   r_squared_threshold = 0,
   celltypes = NULL,
   network_name = paste0(method, "_network"),
@@ -68,9 +62,7 @@ inferCSN(
   peak_cor_threshold = 0,
   aggregate_rna_col = NULL,
   aggregate_peaks_col = NULL,
-  method = c("greedy_l0", "glm", "glmnet", "cv.glmnet", "xgb", "susie"),
-  alpha = 0.5,
-  family = "gaussian",
+  method = "greedy_l0",
   interaction_term = ":",
   adjust_method = "fdr",
   scale = FALSE,
@@ -136,9 +128,9 @@ inferCSN(
 
   Additional method arguments.
 
-- penalty, cross_validation, seed, n_folds:
+- seed:
 
-  Stored on `Network` objects for provenance. Fitting uses `method`.
+  Stored on `Network` objects for provenance.
 
 - r_squared_threshold:
 
@@ -147,10 +139,8 @@ inferCSN(
 
 - method:
 
-  Fitting backend for `Network` / `Seurat` methods: `"greedy_l0"`
-  (greedy L0 via
-  [`inferCSN::fit_greedy_l0()`](https://mengxu98.github.io/inferCSN/reference/fit_greedy_l0.html)),
-  `"glm"`, `"glmnet"`, `"cv.glmnet"`, `"xgb"`, or `"susie"`.
+  The sole supported regression method, `"greedy_l0"` (via
+  [`inferCSN::fit_greedy_l0()`](https://mengxu98.github.io/inferCSN/reference/fit_greedy_l0.html)).
 
 - gene_cor_threshold:
 
@@ -204,16 +194,6 @@ inferCSN(
 
   Metadata column used to aggregate peaks.
 
-- alpha:
-
-  Elastic-net mixing parameter. See
-  [`glmnet`](https://rdrr.io/pkg/glmnet/man/glmnet.html).
-
-- family:
-
-  Error distribution and link function. See
-  [`family`](https://rdrr.io/r/stats/family.html).
-
 - interaction_term:
 
   Interaction between TF and binding site: `"+"`, `":"`, or `"*"`.
@@ -254,10 +234,10 @@ data("example_matrix", package = "inferCSN")
 network_table_1 <- inferCSN(
   example_matrix
 )
-#> ℹ [2026-09-23 00:48:14] Inferring network for <matrix/array>...
-#> ◌ [2026-09-23 00:48:14] Checking parameters...
-#> ✔ [2026-09-23 00:48:14] Inferring network done
-#> ℹ [2026-09-23 00:48:14] Network information:
+#> ℹ [2026-09-28 03:00:52] Inferring network for <matrix/array>...
+#> ◌ [2026-09-28 03:00:52] Checking parameters...
+#> ✔ [2026-09-28 03:00:52] Inferring network done
+#> ℹ [2026-09-28 03:00:52] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -265,10 +245,10 @@ network_table_2 <- inferCSN(
   example_matrix,
   cores = 2
 )
-#> ℹ [2026-09-23 00:48:14] Inferring network for <matrix/array>...
-#> ◌ [2026-09-23 00:48:14] Checking parameters...
-#> ✔ [2026-09-23 00:48:14] Inferring network done
-#> ℹ [2026-09-23 00:48:14] Network information:
+#> ℹ [2026-09-28 03:00:52] Inferring network for <matrix/array>...
+#> ◌ [2026-09-28 03:00:52] Checking parameters...
+#> ✔ [2026-09-28 03:00:52] Inferring network done
+#> ℹ [2026-09-28 03:00:52] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -292,10 +272,10 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g4")
 )
-#> ℹ [2026-09-23 00:48:14] Inferring network for <matrix/array>...
-#> ◌ [2026-09-23 00:48:14] Checking parameters...
-#> ✔ [2026-09-23 00:48:14] Inferring network done
-#> ℹ [2026-09-23 00:48:14] Network information:
+#> ℹ [2026-09-28 03:00:52] Inferring network for <matrix/array>...
+#> ◌ [2026-09-28 03:00:52] Checking parameters...
+#> ✔ [2026-09-28 03:00:52] Inferring network done
+#> ℹ [2026-09-28 03:00:52] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     4          2       2
 #>   regulator target weight
@@ -308,11 +288,11 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g0")
 )
-#> ℹ [2026-09-23 00:48:14] Inferring network for <matrix/array>...
-#> ◌ [2026-09-23 00:48:14] Checking parameters...
+#> ℹ [2026-09-28 03:00:52] Inferring network for <matrix/array>...
+#> ◌ [2026-09-28 03:00:52] Checking parameters...
 #> Warning: Ignoring 1 requested targets absent from `object`: g0
-#> ✔ [2026-09-23 00:48:14] Inferring network done
-#> ℹ [2026-09-23 00:48:14] Network information:
+#> ✔ [2026-09-28 03:00:52] Inferring network done
+#> ℹ [2026-09-28 03:00:52] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     2          2       1
 #>   regulator target weight

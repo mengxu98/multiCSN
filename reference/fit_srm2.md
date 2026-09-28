@@ -1,7 +1,6 @@
 # Fit a sparse regression model
 
-Fits a sparse regression model using
-[`inferCSN::fit_greedy_l0()`](https://mengxu98.github.io/inferCSN/reference/fit_greedy_l0.html).
+Fits a sparse regression model using \[inferCSN::fit_greedy_l0()\].
 
 ## Usage
 
@@ -19,29 +18,23 @@ fit_srm2(
 
 - formula:
 
-  An object of class *`formula`* with a symbolic description of the
-  model to be fitted.
+  An object of class \`formula\` describing the model.
 
 - data:
 
-  A *`data.frame`* containing the variables in the model.
+  A data frame containing the variables in the model.
 
 - verbose:
 
-  If `TRUE`, show warning messages.
+  Whether to show warning messages.
 
 - max_support_size, min_improvement:
 
-  See
-  [inferCSN::fit_greedy_l0](https://mengxu98.github.io/inferCSN/reference/fit_greedy_l0.html).
+  See \[inferCSN::fit_greedy_l0()\].
 
 ## Value
 
-A list containing two data frames:
-
-- *`metrics`* - Goodness of fit measures
-
-- *`coefficients`* - Fitted coefficients with sparse structure
+A list containing model, fit metrics, and nonzero coefficients.
 
 ## Examples
 
