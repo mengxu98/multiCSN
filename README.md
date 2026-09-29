@@ -10,9 +10,9 @@
 
 [multiCSN](https://mengxu98.github.io/multiCSN/) is an R package for **infer**ring **C**ell-**S**pecific gene regulatory **N**etwork from single-cell omics data.
 
-<img src="https://raw.githubusercontent.com/mengxu98/figures/main/multiCSN/multiCSN.svg#gh-light-mode-only" alt="multiCSN workflow diagram" width="75%"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/multiCSN/multiCSN.svg#gh-light-mode-only" alt="multiCSN workflow diagram"/>
 
-<img src="https://raw.githubusercontent.com/mengxu98/figures/main/multiCSN/multiCSN-dark.svg#gh-dark-mode-only" alt="multiCSN workflow diagram" width="75%"/>
+<img src="https://raw.githubusercontent.com/mengxu98/figures/main/multiCSN/multiCSN-dark.svg#gh-dark-mode-only" alt="multiCSN workflow diagram"/>
 
 ## **Installation**
 

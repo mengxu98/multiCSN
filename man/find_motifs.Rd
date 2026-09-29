@@ -45,11 +45,10 @@ Scan for motifs in candidate regions
 }
 \examples{
 \dontrun{
-data(pbmcmultiome_sub, package = "scop")
+# Supply a Seurat object containing RNA and chromatin accessibility assays.
 data(motifs)
-data(motif2tf)
 
-object <- Seurat::NormalizeData(pbmcmultiome_sub, assay = "RNA", verbose = FALSE)
+object <- Seurat::NormalizeData(object, assay = "RNA", verbose = FALSE)
 object <- Signac::RunTFIDF(object, assay = "peaks", verbose = FALSE)
 object <- initiate_object(
   object,
@@ -63,7 +62,6 @@ genome <- getExportedValue("BSgenome.Hsapiens.UCSC.hg38", "BSgenome.Hsapiens.UCS
 object <- find_motifs(
   object,
   pfm = motifs,
-  motif_tfs = motif2tf,
   genome = genome,
   backend = "motifmatchr",
   verbose = FALSE
