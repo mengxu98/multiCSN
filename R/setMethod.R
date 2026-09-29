@@ -1049,29 +1049,7 @@ process_csn <- function(
 #'
 #' @examples
 #' \dontrun{
-#' data(pbmcmultiome_sub, package = "scop")
-#' data(motifs)
-#' data(motif2tf)
-#'
-#' object <- Seurat::NormalizeData(pbmcmultiome_sub, assay = "RNA", verbose = FALSE)
-#' object <- Signac::RunTFIDF(object, assay = "peaks", verbose = FALSE)
-#' object <- initiate_object(
-#'   object,
-#'   group.by = "CellType",
-#'   rna_assay = "RNA",
-#'   peak_assay = "peaks",
-#'   verbose = FALSE
-#' )
-#' genome <- getExportedValue("BSgenome.Hsapiens.UCSC.hg38", "BSgenome.Hsapiens.UCSC.hg38")
-#' object <- find_motifs(
-#'   object,
-#'   pfm = motifs,
-#'   motif_tfs = motif2tf,
-#'   genome = genome,
-#'   backend = "motifmatchr",
-#'   verbose = FALSE
-#' )
-#' object <- inferCSN(object, cores = 2, verbose = FALSE)
+#' # Supply a multiome Seurat object with a completed CSN.
 #'
 #' networks <- export_csn(object)
 #' head(networks[[1]])

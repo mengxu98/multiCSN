@@ -112,9 +112,9 @@ setMethod(
 #' @return CSNObject object.
 #'
 #' @examples
-#' data(pbmcmultiome_sub, package = "scop")
-#'
-#' object <- Seurat::NormalizeData(pbmcmultiome_sub, assay = "RNA", verbose = FALSE)
+#' \dontrun{
+#' # Supply a Seurat object containing RNA and chromatin accessibility assays.
+#' object <- Seurat::NormalizeData(object, assay = "RNA", verbose = FALSE)
 #' object <- Signac::RunTFIDF(object, assay = "peaks", verbose = FALSE)
 #'
 #' object <- initiate_object(
@@ -124,7 +124,7 @@ setMethod(
 #'   peak_assay = "peaks",
 #'   verbose = FALSE
 #' )
-#' object
+#' }
 #' @rdname initiate_object
 #' @export
 setMethod(
