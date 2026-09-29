@@ -91,7 +91,7 @@ Suggests:
     proxy,
     RANN
 Remotes:
-    mengxu98/inferCSN,
+    mengxu98/inferCSN@eca4097c1310ea03b1591a009cd09afafc013659,
     mengxu98/thisplot,
     mengxu98/thisutils@bb62888fbf17e5988d71012677df3c47693290b2
 Config/Needs/website: mengxu98/thistemplate
