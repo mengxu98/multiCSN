@@ -46,7 +46,6 @@ Suggests:
     testthat (>= 3.0.0),
     ComplexHeatmap,
     circlize,
-    chromVAR,
     cli,
     dplyr,
     FNN,
