@@ -248,7 +248,11 @@ For <code>Seurat</code> objects, a single column name is treated as <code>pseudo
 
 
 <dt id="arg-dynamic-features">dynamic_features<a class="anchor" aria-label="anchor" href="#arg-dynamic-features"></a></dt>
-<dd><p>Optional dynamic-gene filter when <code>pseudotime_column</code> is set.</p></dd>
+<dd><p>Optional dynamic-gene filter when <code>pseudotime_column</code> is set.
+A list with <code>fit_method</code> (<code>"pretsa"</code> by default or <code>"gam"</code>),
+<code>padjust_threshold</code> (default 0.05), and optional <code>n_candidates</code>
+(default NULL, no cap). Compatible cached statistics are reused; otherwise
+<code><a href="https://mengxu98.github.io/inferCSN/reference/select_trend_features.html" class="external-link">inferCSN::select_trend_features()</a></code> computes the candidates.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -270,10 +274,10 @@ assemble their selected supports.</p>
 <span class="r-in"><span><span class="va">network_table_1</span> <span class="op">&lt;-</span> <span class="fu">inferCSN</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">example_matrix</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-28 03:00:52] Checking parameters...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-28 03:00:52] Inferring network done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] <span style="color: #555555;">Network information:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-29 14:51:51] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-29 14:51:51] Checking parameters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-29 14:51:51] Inferring network done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-29 14:51:51] <span style="color: #555555;">Network information:</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">  Edges Regulators Targets</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">1    12          6       6</span></span>
 <span class="r-in"><span></span></span>
@@ -281,10 +285,10 @@ assemble their selected supports.</p>
 <span class="r-in"><span>  <span class="va">example_matrix</span>,</span></span>
 <span class="r-in"><span>  cores <span class="op">=</span> <span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-28 03:00:52] Checking parameters...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-28 03:00:52] Inferring network done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] <span style="color: #555555;">Network information:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-29 14:51:51] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-29 14:51:51] Checking parameters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-29 14:51:51] Inferring network done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-29 14:51:51] <span style="color: #555555;">Network information:</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">  Edges Regulators Targets</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">1    12          6       6</span></span>
 <span class="r-in"><span></span></span>
@@ -308,10 +312,10 @@ assemble their selected supports.</p>
 <span class="r-in"><span>  regulators <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g1"</span>, <span class="st">"g2"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  targets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g3"</span>, <span class="st">"g4"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-28 03:00:52] Checking parameters...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-28 03:00:52] Inferring network done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] <span style="color: #555555;">Network information:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-29 14:51:51] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-29 14:51:51] Checking parameters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-29 14:51:51] Inferring network done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-29 14:51:51] <span style="color: #555555;">Network information:</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">  Edges Regulators Targets</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">1     4          2       2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   regulator target weight</span>
@@ -324,11 +328,11 @@ assemble their selected supports.</p>
 <span class="r-in"><span>  regulators <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g1"</span>, <span class="st">"g2"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  targets <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"g3"</span>, <span class="st">"g0"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-28 03:00:52] Checking parameters...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-29 14:51:51] Inferring network for <span style="color: #0000BB;">&lt;matrix/array&gt;</span>...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #FFAF00;">◌</span> [2026-09-29 14:51:51] Checking parameters...</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Ignoring 1 requested targets absent from `object`: g0</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-28 03:00:52] Inferring network done</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-28 03:00:52] <span style="color: #555555;">Network information:</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> [2026-09-29 14:51:51] Inferring network done</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> [2026-09-29 14:51:51] <span style="color: #555555;">Network information:</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">  Edges Regulators Targets</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>                       <span style="color: #555555;">1     2          2       1</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   regulator target weight</span>
@@ -350,11 +354,10 @@ assemble their selected supports.</p>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># multiome input: motif scanning comes first</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pbmcmultiome_sub</span>, package <span class="op">=</span> <span class="st">"scop"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Supply a Seurat object containing RNA and chromatin accessibility assays.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">motifs</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">motif2tf</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/NormalizeData.html" class="external-link">NormalizeData</a></span><span class="op">(</span><span class="va">pbmcmultiome_sub</span>, assay <span class="op">=</span> <span class="st">"RNA"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/NormalizeData.html" class="external-link">NormalizeData</a></span><span class="op">(</span><span class="va">object</span>, assay <span class="op">=</span> <span class="st">"RNA"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/RunTFIDF.html" class="external-link">RunTFIDF</a></span><span class="op">(</span><span class="va">object</span>, assay <span class="op">=</span> <span class="st">"peaks"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="initiate_object.html">initiate_object</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">object</span>,</span></span>
@@ -368,7 +371,6 @@ assemble their selected supports.</p>
 <span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="find_motifs.html">find_motifs</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">object</span>,</span></span>
 <span class="r-in"><span>  pfm <span class="op">=</span> <span class="va">motifs</span>,</span></span>
-<span class="r-in"><span>  motif_tfs <span class="op">=</span> <span class="va">motif2tf</span>,</span></span>
 <span class="r-in"><span>  genome <span class="op">=</span> <span class="va">genome</span>,</span></span>
 <span class="r-in"><span>  backend <span class="op">=</span> <span class="st">"motifmatchr"</span>,</span></span>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>

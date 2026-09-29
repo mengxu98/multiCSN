@@ -132,9 +132,9 @@ CSNObject object.
 ## Examples
 
 ``` r
-data(pbmcmultiome_sub, package = "scop")
-
-object <- Seurat::NormalizeData(pbmcmultiome_sub, assay = "RNA", verbose = FALSE)
+if (FALSE) { # \dontrun{
+# Supply a Seurat object containing RNA and chromatin accessibility assays.
+object <- Seurat::NormalizeData(object, assay = "RNA", verbose = FALSE)
 object <- Signac::RunTFIDF(object, assay = "peaks", verbose = FALSE)
 
 object <- initiate_object(
@@ -144,10 +144,5 @@ object <- initiate_object(
   peak_assay = "peaks",
   verbose = FALSE
 )
-object
-#> An object of class Seurat 
-#> 24405 features across 500 samples within 2 assays 
-#> Active assay: peaks (12000 features, 0 variable features)
-#>  2 layers present: counts, data
-#>  1 other assay present: RNA
+} # }
 ```

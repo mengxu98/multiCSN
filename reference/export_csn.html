@@ -94,29 +94,7 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pbmcmultiome_sub</span>, package <span class="op">=</span> <span class="st">"scop"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">motifs</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">motif2tf</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/NormalizeData.html" class="external-link">NormalizeData</a></span><span class="op">(</span><span class="va">pbmcmultiome_sub</span>, assay <span class="op">=</span> <span class="st">"RNA"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/RunTFIDF.html" class="external-link">RunTFIDF</a></span><span class="op">(</span><span class="va">object</span>, assay <span class="op">=</span> <span class="st">"peaks"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="initiate_object.html">initiate_object</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">object</span>,</span></span>
-<span class="r-in"><span>  group.by <span class="op">=</span> <span class="st">"CellType"</span>,</span></span>
-<span class="r-in"><span>  rna_assay <span class="op">=</span> <span class="st">"RNA"</span>,</span></span>
-<span class="r-in"><span>  peak_assay <span class="op">=</span> <span class="st">"peaks"</span>,</span></span>
-<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">genome</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-reflect.html" class="external-link">getExportedValue</a></span><span class="op">(</span><span class="st">"BSgenome.Hsapiens.UCSC.hg38"</span>, <span class="st">"BSgenome.Hsapiens.UCSC.hg38"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="find_motifs.html">find_motifs</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">object</span>,</span></span>
-<span class="r-in"><span>  pfm <span class="op">=</span> <span class="va">motifs</span>,</span></span>
-<span class="r-in"><span>  motif_tfs <span class="op">=</span> <span class="va">motif2tf</span>,</span></span>
-<span class="r-in"><span>  genome <span class="op">=</span> <span class="va">genome</span>,</span></span>
-<span class="r-in"><span>  backend <span class="op">=</span> <span class="st">"motifmatchr"</span>,</span></span>
-<span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="inferCSN.html">inferCSN</a></span><span class="op">(</span><span class="va">object</span>, cores <span class="op">=</span> <span class="fl">2</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Supply a multiome Seurat object with a completed CSN.</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">networks</span> <span class="op">&lt;-</span> <span class="fu">export_csn</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">networks</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>

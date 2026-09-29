@@ -212,7 +212,13 @@ inferCSN(
 
 - dynamic_features:
 
-  Optional dynamic-gene filter when `pseudotime_column` is set.
+  Optional dynamic-gene filter when `pseudotime_column` is set. A list
+  with `fit_method` (`"pretsa"` by default or `"gam"`),
+  `padjust_threshold` (default 0.05), and optional `n_candidates`
+  (default NULL, no cap). Compatible cached statistics are reused;
+  otherwise
+  [`inferCSN::select_trend_features()`](https://mengxu98.github.io/inferCSN/reference/select_trend_features.html)
+  computes the candidates.
 
 ## Value
 
@@ -234,10 +240,10 @@ data("example_matrix", package = "inferCSN")
 network_table_1 <- inferCSN(
   example_matrix
 )
-#> ℹ [2026-09-28 03:00:52] Inferring network for <matrix/array>...
-#> ◌ [2026-09-28 03:00:52] Checking parameters...
-#> ✔ [2026-09-28 03:00:52] Inferring network done
-#> ℹ [2026-09-28 03:00:52] Network information:
+#> ℹ [2026-09-29 14:51:51] Inferring network for <matrix/array>...
+#> ◌ [2026-09-29 14:51:51] Checking parameters...
+#> ✔ [2026-09-29 14:51:51] Inferring network done
+#> ℹ [2026-09-29 14:51:51] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -245,10 +251,10 @@ network_table_2 <- inferCSN(
   example_matrix,
   cores = 2
 )
-#> ℹ [2026-09-28 03:00:52] Inferring network for <matrix/array>...
-#> ◌ [2026-09-28 03:00:52] Checking parameters...
-#> ✔ [2026-09-28 03:00:52] Inferring network done
-#> ℹ [2026-09-28 03:00:52] Network information:
+#> ℹ [2026-09-29 14:51:51] Inferring network for <matrix/array>...
+#> ◌ [2026-09-29 14:51:51] Checking parameters...
+#> ✔ [2026-09-29 14:51:51] Inferring network done
+#> ℹ [2026-09-29 14:51:51] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -272,10 +278,10 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g4")
 )
-#> ℹ [2026-09-28 03:00:52] Inferring network for <matrix/array>...
-#> ◌ [2026-09-28 03:00:52] Checking parameters...
-#> ✔ [2026-09-28 03:00:52] Inferring network done
-#> ℹ [2026-09-28 03:00:52] Network information:
+#> ℹ [2026-09-29 14:51:51] Inferring network for <matrix/array>...
+#> ◌ [2026-09-29 14:51:51] Checking parameters...
+#> ✔ [2026-09-29 14:51:51] Inferring network done
+#> ℹ [2026-09-29 14:51:51] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     4          2       2
 #>   regulator target weight
@@ -288,11 +294,11 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g0")
 )
-#> ℹ [2026-09-28 03:00:52] Inferring network for <matrix/array>...
-#> ◌ [2026-09-28 03:00:52] Checking parameters...
+#> ℹ [2026-09-29 14:51:51] Inferring network for <matrix/array>...
+#> ◌ [2026-09-29 14:51:51] Checking parameters...
 #> Warning: Ignoring 1 requested targets absent from `object`: g0
-#> ✔ [2026-09-28 03:00:52] Inferring network done
-#> ℹ [2026-09-28 03:00:52] Network information:
+#> ✔ [2026-09-29 14:51:51] Inferring network done
+#> ℹ [2026-09-29 14:51:51] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     2          2       1
 #>   regulator target weight
@@ -314,11 +320,10 @@ object <- inferCSN(object)
 } # }
 if (FALSE) { # \dontrun{
 # multiome input: motif scanning comes first
-data(pbmcmultiome_sub, package = "scop")
+# Supply a Seurat object containing RNA and chromatin accessibility assays.
 data(motifs)
-data(motif2tf)
 
-object <- Seurat::NormalizeData(pbmcmultiome_sub, assay = "RNA", verbose = FALSE)
+object <- Seurat::NormalizeData(object, assay = "RNA", verbose = FALSE)
 object <- Signac::RunTFIDF(object, assay = "peaks", verbose = FALSE)
 object <- initiate_object(
   object,
@@ -332,7 +337,6 @@ genome <- getExportedValue("BSgenome.Hsapiens.UCSC.hg38", "BSgenome.Hsapiens.UCS
 object <- find_motifs(
   object,
   pfm = motifs,
-  motif_tfs = motif2tf,
   genome = genome,
   backend = "motifmatchr",
   verbose = FALSE
