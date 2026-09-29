@@ -147,12 +147,11 @@ setMethod(
 #' @param dynamic_features List or NULL. When \code{pseudotime_column} is set, pre-filter genes by dynamic expression to speed up inference.
 #'   \code{NULL}: use all genes. List with optional elements:
 #'   \itemize{
-#'     \item \code{n_candidates}: number of candidate dynamic genes to consider (default 1000).
+#'     \item \code{n_candidates}: maximum number of significant dynamic genes (default NULL, no cap).
 #'     \item \code{padjust_threshold}: adjusted P-value threshold for dynamic genes (default 0.05).
 #'     \item \code{fit_method}: dynamic feature fitting method, one of \code{"gam"} or \code{"pretsa"} (default \code{"pretsa"}).
-#'     \item \code{run}: logical, if \code{TRUE} and no pre-computed dynamic features are found in \code{object@data@tools},
-#'           \code{RunDynamicFeatures} is called to compute them; if \code{FALSE}, only pre-computed results are used.
-#'     \item \code{min_dynamic}: minimal number of dynamic genes; if fewer are found, no filtering is applied and all targets are used (default 50).
+#'     \item Compatible cached results are reused; otherwise candidates are computed
+#'           by \code{inferCSN::select_trend_features()}.
 #'   }
 #'   Dynamic features are always computed with the same \code{cores} argument passed to \code{inferCSN}.
 #'

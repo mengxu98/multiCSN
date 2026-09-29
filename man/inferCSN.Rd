@@ -143,7 +143,11 @@ For \code{Seurat} objects, a single column name is treated as \code{pseudotime_c
 
 \item{pseudotime_column}{Metadata column for pseudotime. If set, runs state-dynamic inference.}
 
-\item{dynamic_features}{Optional dynamic-gene filter when \code{pseudotime_column} is set.}
+\item{dynamic_features}{Optional dynamic-gene filter when \code{pseudotime_column} is set.
+A list with \code{fit_method} (\code{"pretsa"} by default or \code{"gam"}),
+\code{padjust_threshold} (default 0.05), and optional \code{n_candidates}
+(default NULL, no cap). Compatible cached statistics are reused; otherwise
+\code{inferCSN::select_trend_features()} computes the candidates.}
 }
 \value{
 A regulator-target edge table for matrix input, a \code{Network} object, or a \code{Seurat} object.

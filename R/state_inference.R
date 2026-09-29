@@ -1,106 +1,80 @@
-get_dynamic_genes <- function(
-  seurat_obj,
-  pseudotime_column,
-  dynamic_features,
-  genes_all,
-  cores,
-  assay = NULL,
-  verbose = TRUE
+get_trend_genes <- function(
+  seurat_obj, pseudotime_column, dynamic_features, genes_all,
+  cores, assay = NULL, verbose = TRUE
 ) {
   if (is.null(dynamic_features) || !is.list(dynamic_features)) {
     return(genes_all)
   }
-  n_candidates <- if (!is.null(dynamic_features$n_candidates)) {
-    dynamic_features$n_candidates
-  } else {
-    NULL
-  }
-  padjust_threshold <- if (!is.null(dynamic_features$padjust_threshold)) {
-    dynamic_features$padjust_threshold
-  } else {
-    0.05
-  }
-  fit_method <- if (!is.null(dynamic_features$fit_method)) {
-    dynamic_features$fit_method
-  } else {
-    "pretsa"
-  }
-
+  n_candidates <- dynamic_features$n_candidates
+  threshold <- if (is.null(dynamic_features$padjust_threshold)) 0.05 else dynamic_features$padjust_threshold
+  method <- if (is.null(dynamic_features$fit_method)) "pretsa" else dynamic_features$fit_method
+  method <- match.arg(method, c("pretsa", "gam"))
+  assay <- if (is.null(assay)) SeuratObject::DefaultAssay(seurat_obj) else assay
   tool_name <- paste0("DynamicFeatures_", pseudotime_column)
   tool <- seurat_obj@tools[[tool_name]]
-
-  if (!is.null(tool) && !is.null(tool$DynamicFeatures)) {
-    cached_features <- NULL
-    if (!is.null(tool$raw_matrix) && ncol(tool$raw_matrix) > 1) {
-      cached_features <- setdiff(colnames(tool$raw_matrix), "pseudotime")
-    } else if (!is.null(tool$DynamicFeatures) && nrow(tool$DynamicFeatures) > 0) {
-      cached_features <- rownames(tool$DynamicFeatures)
-    }
-    cached_features <- unique(as.character(cached_features))
-    current_features <- unique(as.character(genes_all))
-    same_candidates <- !is.null(cached_features) &&
-      length(cached_features) == length(current_features) &&
-      identical(sort(cached_features), sort(current_features))
-
-    if (isTRUE(same_candidates)) {
-      df <- tool$DynamicFeatures
-      padj <- if ("padjust" %in% names(df)) df$padjust else df$pvalue
-      dyn <- rownames(df)[padj < padjust_threshold]
-      dyn <- intersect(dyn, genes_all)
-      if (!is.null(n_candidates) && length(dyn) > n_candidates) {
-        ord <- order(padj[dyn], decreasing = FALSE)
-        dyn <- dyn[ord][seq_len(n_candidates)]
-      }
-      if (length(dyn) > 0) {
-        thisutils::log_message(
-          "Using {.val {length(dyn)}} pre-computed dynamic genes out of {.val {length(genes_all)}} candidates (padjust < {padjust_threshold}, {if (!is.null(n_candidates)) paste0('top ', n_candidates) else 'all'}, method={fit_method})",
-          verbose = verbose
-        )
-        return(dyn)
-      }
+  if (!is.null(tool$DynamicFeatures)) {
+    cached_features <- if (!is.null(tool$raw_matrix)) {
+      setdiff(colnames(tool$raw_matrix), "pseudotime")
     } else {
-      thisutils::log_message(
-        "Dynamic gene cache ignored because candidate features changed ({.val {length(cached_features %ss% character(0))}} cached vs {.val {length(current_features)}} current). Recomputing dynamic features.",
-        verbose = verbose
+      rownames(tool$DynamicFeatures)
+    }
+    compatible <- setequal(cached_features, genes_all) &&
+      (is.null(tool$method) || identical(tool$method, method)) &&
+      (is.null(tool$assay) || identical(tool$assay, assay))
+    if (compatible) {
+      selected <- inferCSN::select_trend_features(
+        statistics = tool$DynamicFeatures[genes_all, , drop = FALSE],
+        padjust_threshold = threshold, n_candidates = n_candidates
       )
+      if (length(selected$features)) {
+        return(selected$features)
+      }
     }
   }
-
-  seurat_obj <- scop::RunDynamicFeatures(
-    seurat_obj,
-    lineages = pseudotime_column,
-    features = genes_all,
-    n_candidates = n_candidates,
-    fit_method = fit_method,
-    layer = "data",
-    assay = assay,
-    cores = cores,
-    verbose = verbose
-  )
-  tool <- seurat_obj@tools[[tool_name]]
-  df <- tool$DynamicFeatures
-  padj <- if ("padjust" %in% names(df)) df$padjust else df$pvalue
-  dyn <- rownames(df)[padj < padjust_threshold]
-  dyn <- intersect(dyn, genes_all)
-  if (!is.null(n_candidates) && length(dyn) > n_candidates) {
-    ord <- order(padj[dyn], decreasing = FALSE)
-    dyn <- dyn[ord][seq_len(n_candidates)]
+  values <- SeuratObject::GetAssayData(seurat_obj, assay = assay, layer = "data")
+  counts <- SeuratObject::GetAssayData(seurat_obj, assay = assay, layer = "counts")
+  raw_counts <- function(x) {
+    v <- if (inherits(x, "sparseMatrix")) methods::as(x, "dgCMatrix")@x else as.vector(x)
+    all(is.finite(v)) && all(v >= 0) && all(v %% 1 == 0)
   }
-  if (length(dyn) == 0) {
-    stop(
-      sprintf(
-        "No dynamic genes passed padjust_threshold = %s within %d candidates. Consider using a higher padjust_threshold.",
-        padjust_threshold,
-        length(genes_all)
-      ),
-      call. = FALSE
-    )
+  family <- stats::setNames(rep(if (raw_counts(values)) "nb" else "gaussian", length(genes_all)), genes_all)
+  sizes <- if (raw_counts(counts)) Matrix::colSums(counts) else stats::setNames(rep(1, ncol(counts)), colnames(counts))
+  time <- seurat_obj[[pseudotime_column, drop = TRUE]]
+  time <- time[is.finite(time)]
+  time <- time[order(time)]
+  x <- as.matrix(values[genes_all, names(time), drop = FALSE])
+  raw <- cbind(pseudotime = time, t(x))
+  if (method == "pretsa" && raw_counts(values)) x <- log1p(x)
+  reference <- stats::median(sizes[is.finite(sizes) & sizes > 0])
+  selected <- inferCSN::select_trend_features(
+    t(x), time,
+    method = method, padjust_threshold = threshold,
+    n_candidates = n_candidates, family = family,
+    exposure = sizes[names(time)], reference_exposure = reference,
+    cores = cores, verbose = verbose
+  )
+  fitted <- selected$fit
+  DF <- fitted$statistics
+  names(DF)[names(DF) == "n_above_min"] <- "exp_ncells"
+  seurat_obj@tools[[tool_name]] <- list(
+    DynamicFeatures = DF, raw_matrix = raw,
+    fitted_matrix = cbind(pseudotime = time, t(fitted$fitted)),
+    upr_matrix = cbind(pseudotime = time, t(fitted$upper)),
+    lwr_matrix = cbind(pseudotime = time, t(fitted$lower)),
+    libsize = sizes[names(time)], lineages = pseudotime_column,
+    family = family, method = method, assay = assay
+  )
+  if (!length(selected$features)) {
+    stop(sprintf(
+      "No dynamic genes passed padjust_threshold = %s within %d candidates.",
+      threshold, length(genes_all)
+    ), call. = FALSE)
   }
   thisutils::log_message(
-    "{.val {length(dyn)}} dynamic genes out of {.val {length(genes_all)}} candidates (padjust < {padjust_threshold}, {if (!is.null(n_candidates)) paste0('top ', n_candidates) else 'all'}, method={fit_method})",
+    "{.val {length(selected$features)}} dynamic genes out of {.val {length(genes_all)}} candidates (method={method})",
     verbose = verbose
   )
-  list(genes = dyn, seurat = seurat_obj)
+  list(genes = selected$features, seurat = seurat_obj)
 }
 
 require_meta_column <- function(meta, col, what = "column") {
@@ -311,7 +285,7 @@ state_dynamic <- function(
 
   genes_all <- rownames(expr)
   targets_base <- if (is.null(targets)) genes_all else intersect(as.character(targets), genes_all)
-  dyn_res <- get_dynamic_genes(
+  dyn_res <- get_trend_genes(
     seurat_obj = seurat_obj,
     pseudotime_column = pseudotime_column,
     dynamic_features = dynamic_features,

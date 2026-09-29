@@ -23,7 +23,6 @@ Imports:
     Rcpp,
     data.table,
     digest,
-    scop,
     Signac,
     Seurat,
     SeuratObject,
@@ -93,7 +92,6 @@ Suggests:
     RANN
 Remotes:
     mengxu98/inferCSN,
-    mengxu98/scop,
     mengxu98/thisplot,
     mengxu98/thisutils
 Config/Needs/website: mengxu98/thistemplate
