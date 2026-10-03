@@ -5,6 +5,8 @@
 #' @param ground_truth Ground-truth edge table.
 #' @param metric_type Metrics to compute.
 #' @param return_plot Whether to return a plot.
+#' @details Binary summaries use a Youden-optimal threshold. When the candidate
+#' pool contains only one class, Youden is undefined and no positive calls are made.
 #' @param line_color,line_width Plot line style.
 #' @param tf_edges Whether to restrict regulators to transcription factors.
 #' @return A list with metrics and an optional plot.
@@ -306,6 +308,12 @@ calculate_all_metrics_from_pred_data <- function(
   list(metrics = metrics_df)
 }
 
+metric_edge_ids <- function(regulator, target) {
+  regulator <- enc2utf8(as.character(regulator))
+  target <- enc2utf8(as.character(target))
+  paste0(nchar(regulator, type = "bytes"), ":", regulator, target, recycle0 = TRUE)
+}
+
 normalize_ground_truth_edges <- function(ground_truth) {
   truth <- as.data.frame(ground_truth, stringsAsFactors = FALSE)
   if (ncol(truth) > 2) {
@@ -366,7 +374,7 @@ select_top_ranked_edges <- function(
   pred <- normalize_signed_predicted_edges(network_table)
 
   if (!is.null(restrict_edges)) {
-    edge_ids <- paste(pred$regulator, pred$target, sep = "\r")
+    edge_ids <- metric_edge_ids(pred$regulator, pred$target)
     pred <- pred[edge_ids %in% restrict_edges, , drop = FALSE]
   }
 
@@ -478,22 +486,19 @@ compute_network_scores <- function(network_table, ground_truth, tf_edges = FALSE
     }
     universe <- universe[universe$regulator != universe$target, , drop = FALSE]
 
-    truth_edge_ids <- paste(
+    truth_edge_ids <- metric_edge_ids(
       truth$regulator,
-      truth$target,
-      sep = "\n"
+      truth$target
     )
-    pred_edge_ids <- paste(
+    pred_edge_ids <- metric_edge_ids(
       pred$regulator,
-      pred$target,
-      sep = "\n"
+      pred$target
     )
     pred_lookup <- stats::setNames(pred$weight, pred_edge_ids)
 
-    universe_edge_ids <- paste(
+    universe_edge_ids <- metric_edge_ids(
       universe$regulator,
-      universe$target,
-      sep = "\n"
+      universe$target
     )
     universe$weight <- pred_lookup[universe_edge_ids]
     universe$weight[is.na(universe$weight)] <- 0
@@ -512,8 +517,8 @@ compute_network_scores <- function(network_table, ground_truth, tf_edges = FALSE
   true_label <- factor(gold$label, levels = c(0, 1))
 
   pred_binary_edges <- gold[threshold_result$predicted_positive, c("regulator", "target"), drop = FALSE]
-  pred_edge_ids <- paste(pred_binary_edges$regulator, pred_binary_edges$target, sep = "\r")
-  true_edge_ids <- paste(truth$regulator, truth$target, sep = "\r")
+  pred_edge_ids <- metric_edge_ids(pred_binary_edges$regulator, pred_binary_edges$target)
+  true_edge_ids <- metric_edge_ids(truth$regulator, truth$target)
 
   list(
     gold = gold,
@@ -595,6 +600,9 @@ select_best_binary_threshold <- function(scores, labels) {
   best_numerator <- -Inf
   n_positive <- as.double(sum(labels == 1))
   n_negative <- as.double(sum(labels == 0))
+  if (n_positive == 0 || n_negative == 0) {
+    return(best)
+  }
 
   for (threshold in thresholds) {
     predicted_positive <- scores >= threshold
@@ -751,7 +759,7 @@ calculate_epr <- function(
 
   universe_genes <- sort(unique(c(truth$regulator, truth$target)))
   n_genes <- length(universe_genes)
-  true_edges <- unique(paste(truth$regulator, truth$target, sep = "\r"))
+  true_edges <- unique(metric_edge_ids(truth$regulator, truth$target))
   n_true <- length(true_edges)
   n_possible <- if (isTRUE(tf_edges)) {
     as.double(length(unique(truth$regulator))) * max(n_genes - 1L, 0L)
@@ -774,7 +782,7 @@ calculate_epr <- function(
     if (!nrow(pred)) {
       value <- 0
     } else {
-      pred_ids <- paste(pred$regulator, pred$target, sep = "\r")
+      pred_ids <- metric_edge_ids(pred$regulator, pred$target)
       eprec <- length(intersect(pred_ids, true_edges)) / nrow(pred)
       value <- safe_metric_divide(
         eprec,
@@ -967,15 +975,13 @@ calculate_ji <- function(network_table, ground_truth, tf_edges = FALSE) {
 #' @export
 calculate_signed_epr <- function(network_table, ground_truth) {
   truth <- normalize_signed_ground_truth_edges(ground_truth)
-  activation_ids <- paste(
+  activation_ids <- metric_edge_ids(
     truth$regulator[truth$type == "+"],
-    truth$target[truth$type == "+"],
-    sep = "\r"
+    truth$target[truth$type == "+"]
   )
-  inhibitory_ids <- paste(
+  inhibitory_ids <- metric_edge_ids(
     truth$regulator[truth$type == "-"],
-    truth$target[truth$type == "-"],
-    sep = "\r"
+    truth$target[truth$type == "-"]
   )
   all_genes <- unique(c(truth$regulator, truth$target))
   n_possible <- length(all_genes) * max(length(all_genes) - 1, 0)
@@ -989,7 +995,7 @@ calculate_signed_epr <- function(network_table, ground_truth) {
       return(NA_real_)
     }
 
-    pred_ids <- paste(pred$regulator, pred$target, sep = "\r")
+    pred_ids <- metric_edge_ids(pred$regulator, pred$target)
     candidates <- pred[!(pred_ids %in% opposite_ids), , drop = FALSE]
     if (!nrow(candidates)) {
       return(0)
@@ -1008,7 +1014,7 @@ calculate_signed_epr <- function(network_table, ground_truth) {
       return(NA_real_)
     }
 
-    selected_ids <- paste(selected$regulator, selected$target, sep = "\r")
+    selected_ids <- metric_edge_ids(selected$regulator, selected$target)
     early_precision <- length(intersect(selected_ids, true_ids)) /
       length(unique(selected_ids))
     safe_metric_divide(early_precision, k / n_possible, default = NA_real_)
@@ -1097,12 +1103,12 @@ calculate_motif_ratios <- function(
       matrix(character(0), ncol = 2)
     }
     edge_ids <- if (length(edges_mat)) {
-      apply(edges_mat, 1, paste, collapse = "\r")
+      metric_edge_ids(edges_mat[, 1], edges_mat[, 2])
     } else {
       character(0)
     }
     reciprocal_pairs <- if (length(edge_ids)) {
-      sum(paste(edges_mat[, 2], edges_mat[, 1], sep = "\r") %in% edge_ids) / 2
+      sum(metric_edge_ids(edges_mat[, 2], edges_mat[, 1]) %in% edge_ids) / 2
     } else {
       0
     }
@@ -1213,12 +1219,8 @@ calculate_path_stats <- function(network_table, ground_truth, top_k = NULL) {
   )
 
   ref_edges <- if (igraph::ecount(ref_graph)) {
-    apply(
-      igraph::as_edgelist(ref_graph, names = TRUE),
-      1,
-      paste,
-      collapse = "\r"
-    )
+    ref_edges_mat <- igraph::as_edgelist(ref_graph, names = TRUE)
+    metric_edge_ids(ref_edges_mat[, 1], ref_edges_mat[, 2])
   } else {
     character(0)
   }
@@ -1228,19 +1230,19 @@ calculate_path_stats <- function(network_table, ground_truth, top_k = NULL) {
     matrix(character(0), ncol = 2)
   }
   pred_edges <- if (length(pred_edges_mat)) {
-    apply(pred_edges_mat, 1, paste, collapse = "\r")
+    metric_edge_ids(pred_edges_mat[, 1], pred_edges_mat[, 2])
   } else {
     character(0)
   }
-  false_positive_ids <- setdiff(pred_edges, ref_edges)
+  false_positive_indices <- which(!pred_edges %in% ref_edges)
 
   path_counts <- c(`0` = 0, `2` = 0, `3` = 0, `4` = 0, `5` = 0)
   fp_with_path <- 0
   fp_no_path <- 0
 
-  if (length(false_positive_ids)) {
-    for (edge_id in false_positive_ids) {
-      parts <- strsplit(edge_id, "\r", fixed = TRUE)[[1]]
+  if (length(false_positive_indices)) {
+    for (edge_index in false_positive_indices) {
+      parts <- pred_edges_mat[edge_index, ]
       if (!all(parts %in% igraph::V(ref_graph)$name)) {
         fp_no_path <- fp_no_path + 1
         next
@@ -1298,7 +1300,7 @@ calculate_stability_jaccard <- function(network_tables, ground_truth) {
   top_k <- nrow(truth)
   edge_sets <- lapply(network_tables, function(x) {
     pred <- select_top_ranked_edges(x, top_k = top_k)
-    paste(pred$regulator, pred$target, sep = "\r")
+    metric_edge_ids(pred$regulator, pred$target)
   })
 
   if (length(edge_sets) < 2) {
@@ -1344,11 +1346,11 @@ calculate_stability_spearman <- function(network_tables, ground_truth) {
       stringsAsFactors = FALSE
     )
     universe <- universe[universe$regulator != universe$target, , drop = FALSE]
-    universe_ids <- paste(universe$regulator, universe$target, sep = "\r")
+    universe_ids <- metric_edge_ids(universe$regulator, universe$target)
 
     weight_matrix <- lapply(network_tables, function(x) {
       pred <- normalize_signed_predicted_edges(x)
-      pred_ids <- paste(pred$regulator, pred$target, sep = "\r")
+      pred_ids <- metric_edge_ids(pred$regulator, pred$target)
       vec <- pred$weight[match(universe_ids, pred_ids)]
       vec[is.na(vec)] <- 0
       vec

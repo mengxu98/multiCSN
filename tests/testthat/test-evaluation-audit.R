@@ -43,9 +43,72 @@ test_that("feedback motif counts use the actual cycle list", {
 })
 
 test_that("Youden ties select the highest threshold deterministically", {
-  scores <- 6:1
-  labels <- c(1, 0, 1, 0, 1, 0)
-  expect_equal(select_best_binary_threshold(scores, labels)$threshold, 6)
+  expect_equal(select_best_binary_threshold(10:1, rep(c(1, 0), 5))$threshold, 10)
+})
+
+test_that("single-class candidate pools do not turn empty predictions positive", {
+  empty <- data.frame(regulator = character(), target = character(), weight = numeric())
+  truth <- data.frame(regulator = "A", target = "B")
+  zero <- transform(truth, weight = 0)
+  binary_metrics <- c("Precision", "Recall", "F1", "Accuracy", "JI", "SI")
+  for (pred in list(empty, zero)) {
+    metrics <- suppressWarnings(calculate_metrics(pred, truth, tf_edges = TRUE)$metrics)
+    expect_equal(metrics$Value[metrics$Metric %in% binary_metrics], rep(0, 6))
+    expect_equal(metrics$Value[metrics$Metric == "EPR"], 0)
+    expect_true(is.na(metrics$Value[metrics$Metric == "AUROC"]))
+    both <- rbind(truth, data.frame(regulator = "B", target = "A"))
+    metrics <- suppressWarnings(calculate_metrics(pred, both)$metrics)
+    expect_equal(metrics$Value[metrics$Metric %in% binary_metrics], rep(0, 6))
+  }
+  expect_false(any(select_best_binary_threshold(c(2, 1), c(0, 0))$predicted_positive))
+  expect_false(any(select_best_binary_threshold(c(2, 1), c(1, 1))$predicted_positive))
+  expect_length(select_best_binary_threshold(numeric(), integer())$predicted_positive, 0)
+})
+
+test_that("control characters in endpoints do not collide in R edge matching", {
+  expect_length(metric_edge_ids(character(), character()), 0)
+  expect_equal(
+    metric_edge_ids("\u03b1\r\u03b2", "\u03b3"),
+    metric_edge_ids(factor("\u03b1\r\u03b2"), factor("\u03b3"))
+  )
+  for (separator in c("\r", "\n", "|||", ":")) {
+    truth <- data.frame(
+      regulator = c(paste0("a", separator, "b"), "a"),
+      target = c("c", paste0("b", separator, "c"))
+    )
+    pred <- transform(truth[1, , drop = FALSE], weight = 5)
+    expect_equal(calculate_ji(pred, truth)$metrics$Value, 0.5)
+    expect_equal(calculate_ji(pred, truth, tf_edges = TRUE)$metrics$Value, 0.5)
+    expect_equal(calculate_epr(pred, truth)$metrics$Value, 6)
+    expect_equal(calculate_epr(pred, truth, tf_edges = TRUE)$metrics$Value, 3)
+    expect_equal(
+      calculate_signed_epr(pred, transform(truth, type = "+"))$metrics$Value,
+      c(6, NA_real_)
+    )
+    other <- transform(truth[2, , drop = FALSE], weight = 5)
+    expect_equal(
+      calculate_stability_jaccard(list(pred, other), truth)$metrics$Value,
+      c(0, 0)
+    )
+    expect_equal(
+      calculate_stability_spearman(list(pred, other), truth)$metrics$Value,
+      c(-0.091, 0)
+    )
+  }
+})
+
+test_that("path statistics retain original endpoints containing control characters", {
+  skip_if_not_installed("igraph")
+  truth <- data.frame(
+    regulator = c("a\rb", "x", "a"),
+    target = c("x", "c", "b\rc")
+  )
+  pred <- data.frame(regulator = "a\rb", target = "c", weight = 5)
+  metrics <- calculate_path_stats(pred, truth)$metrics
+  expect_equal(metrics$Value[metrics$Metric == "2"], 1)
+  expect_equal(metrics$Value[metrics$Metric == "numTP"], 0)
+  expect_equal(metrics$Value[metrics$Metric == "numFP_withPath"], 1)
+  expect_equal(metrics$Value[metrics$Metric == "numFP_noPath"], 0)
 })
 
 test_that("signed EPR distinguishes missing truth from empty predictions", {
