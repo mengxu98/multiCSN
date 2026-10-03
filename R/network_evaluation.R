@@ -221,15 +221,15 @@ calculate_auc_from_pred_data <- function(
 }
 
 binary_counts_from_pred_data <- function(pred_data) {
-  counts <- as.vector(
-    table(
-      pred_data$predictor_binary,
-      pred_data$true_label,
-      dnn = c("Predicted", "Actual")
-    )
+  counts <- table(
+    factor(pred_data$predictor_binary, levels = c(0, 1)),
+    factor(pred_data$true_label, levels = c(0, 1)),
+    dnn = c("Predicted", "Actual")
   )
-  names(counts) <- c("TN", "FN", "FP", "TP")
-  counts
+  c(
+    TN = as.numeric(counts["0", "0"]), FP = as.numeric(counts["1", "0"]),
+    FN = as.numeric(counts["0", "1"]), TP = as.numeric(counts["1", "1"])
+  )
 }
 
 calculate_all_metrics_from_pred_data <- function(
@@ -512,8 +512,8 @@ compute_network_scores <- function(network_table, ground_truth, tf_edges = FALSE
   true_label <- factor(gold$label, levels = c(0, 1))
 
   pred_binary_edges <- gold[threshold_result$predicted_positive, c("regulator", "target"), drop = FALSE]
-  pred_edge_ids <- paste(pred_binary_edges$regulator, pred_binary_edges$target, sep = "-")
-  true_edge_ids <- paste(truth$regulator, truth$target, sep = "-")
+  pred_edge_ids <- paste(pred_binary_edges$regulator, pred_binary_edges$target, sep = "\r")
+  true_edge_ids <- paste(truth$regulator, truth$target, sep = "\r")
 
   list(
     gold = gold,
@@ -592,6 +592,9 @@ select_best_binary_threshold <- function(scores, labels) {
     youden = -Inf,
     predicted_positive = rep(FALSE, length(scores))
   )
+  best_numerator <- -Inf
+  n_positive <- as.double(sum(labels == 1))
+  n_negative <- as.double(sum(labels == 0))
 
   for (threshold in thresholds) {
     predicted_positive <- scores >= threshold
@@ -607,7 +610,9 @@ select_best_binary_threshold <- function(scores, labels) {
       youden <- -Inf
     }
 
-    if (youden > best$youden) {
+    numerator <- as.double(tp) * n_negative - as.double(fp) * n_positive
+    if (numerator > best_numerator) {
+      best_numerator <- numerator
       best <- list(
         threshold = threshold,
         youden = youden,
@@ -724,6 +729,9 @@ calculate_auprc <- function(
 #' @description Calculates the Early Precision Ratio (EPR) on the fixed candidate universe.
 #' EPR compares the precision among the top-ranked predicted edges to the
 #' precision expected from a random predictor over the same candidate edge pool.
+#' All non-zero predictions tied at the reference edge-count cutoff are retained;
+#' the precision denominator is the actual selected count. Empty or all-zero
+#' predictions have EPR zero. Saved score precision is retained.
 #' @param network_table A data frame of predicted network structure
 #' @param ground_truth A data frame of ground truth network
 #' @param tf_edges Whether to restrict the candidate universe to regulator-to-gene edges
@@ -746,32 +754,28 @@ calculate_epr <- function(
   true_edges <- unique(paste(truth$regulator, truth$target, sep = "\r"))
   n_true <- length(true_edges)
   n_possible <- if (isTRUE(tf_edges)) {
-    length(unique(truth$regulator)) * max(n_genes - 1L, 0L)
+    as.double(length(unique(truth$regulator))) * max(n_genes - 1L, 0L)
   } else {
-    n_genes * max(n_genes - 1L, 0L)
+    as.double(n_genes) * max(n_genes - 1L, 0L)
   }
 
   if (n_true == 0 || n_possible == 0) {
     value <- NA_real_
   } else {
     pred <- normalize_signed_predicted_edges(network_table)
-    if (tf_edges) {
-      tf_genes <- unique(truth$regulator)
-      pred <- pred[
-        pred$regulator %in% tf_genes &
-          pred$target %in% universe_genes, ,
-        drop = FALSE
-      ]
-      pred <- select_top_ranked_from_normalized(pred, top_k = n_true)
-    } else {
-      pred <- select_top_ranked_from_normalized(pred, top_k = n_true)
+    regulators <- if (isTRUE(tf_edges)) unique(truth$regulator) else universe_genes
+    pred <- pred[pred$regulator %in% regulators & pred$target %in% universe_genes &
+      pred$abs_weight > 0, , drop = FALSE]
+    if (nrow(pred)) {
+      cutoff <- pred$abs_weight[[min(nrow(pred), n_true)]]
+      pred <- pred[pred$abs_weight >= cutoff, , drop = FALSE]
     }
 
     if (!nrow(pred)) {
       value <- 0
     } else {
       pred_ids <- paste(pred$regulator, pred$target, sep = "\r")
-      eprec <- length(intersect(pred_ids, true_edges)) / n_true
+      eprec <- length(intersect(pred_ids, true_edges)) / nrow(pred)
       value <- safe_metric_divide(
         eprec,
         n_true / n_possible,
@@ -976,6 +980,8 @@ calculate_signed_epr <- function(network_table, ground_truth) {
   all_genes <- unique(c(truth$regulator, truth$target))
   n_possible <- length(all_genes) * max(length(all_genes) - 1, 0)
   pred <- normalize_signed_predicted_edges(network_table)
+  pred <- pred[pred$regulator %in% all_genes & pred$target %in% all_genes &
+    pred$abs_weight > 0, , drop = FALSE]
 
   signed_epr_one <- function(true_ids, opposite_ids) {
     k <- length(unique(true_ids))
@@ -986,7 +992,7 @@ calculate_signed_epr <- function(network_table, ground_truth) {
     pred_ids <- paste(pred$regulator, pred$target, sep = "\r")
     candidates <- pred[!(pred_ids %in% opposite_ids), , drop = FALSE]
     if (!nrow(candidates)) {
-      return(NA_real_)
+      return(0)
     }
 
     maxk <- min(nrow(candidates), k)
@@ -1132,7 +1138,7 @@ calculate_motif_ratios <- function(
     feedback_loops <- 0
     if (igraph::ecount(graph) > 0) {
       cycles <- igraph::simple_cycles(graph, min = 3, max = 3)
-      feedback_loops <- length(cycles)
+      feedback_loops <- length(cycles$vertices)
     }
 
     c(
