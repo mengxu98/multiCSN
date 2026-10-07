@@ -46,3 +46,9 @@ calculate_metrics(
 ## Value
 
 A list with metrics and an optional plot.
+
+## Details
+
+Binary summaries use a Youden-optimal threshold. When the candidate pool
+contains only one class, Youden is undefined and no positive calls are
+made.

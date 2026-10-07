@@ -58,6 +58,5 @@ plot_rewiring(
 
 ## Value
 
-A drawable plot object. When ComplexHeatmap is available, the function
-returns a grid grob captured from the drawn heatmap; otherwise it
-returns a `ggplot` object.
+A grid grob for heatmaps, or a drawable plot object for set-overlap
+views.

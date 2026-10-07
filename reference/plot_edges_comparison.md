@@ -1,6 +1,6 @@
 # Plot Edges Comparison
 
-Creates a scatter plot comparing predicted, ground truth, and
+Creates a heatmap and count summary of predicted, ground truth, and
 overlapping edges between two gene regulatory networks.
 
 ## Usage
@@ -33,4 +33,4 @@ plot_edges_comparison(
 
 ## Value
 
-A ggplot object visualizing edge overlap between the two networks.
+A patchwork combining a ComplexHeatmap edge matrix and edge-count bars.

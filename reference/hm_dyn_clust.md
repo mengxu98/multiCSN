@@ -48,4 +48,4 @@ hm_dyn_clust(
 
 ## Value
 
-heatmaps
+A ComplexHeatmap heatmap object.

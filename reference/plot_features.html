@@ -58,9 +58,7 @@
 <span>  view <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ranking"</span>, <span class="st">"dynamics"</span><span class="op">)</span>,</span>
 <span>  scale_value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zscore"</span>, <span class="st">"raw"</span><span class="op">)</span>,</span>
 <span>  x_text_angle <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  engine <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"ComplexHeatmap"</span>, <span class="st">"ggplot"</span><span class="op">)</span>,</span>
-<span>  cell_width <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cell_height <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cell_size <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cluster_rows <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  cluster_columns <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  return_grob <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -122,19 +120,9 @@ to standardize each feature across states, or <code>"raw"</code> for raw scores.
 choose automatically from the number and length of state labels.</p></dd>
 
 
-<dt id="arg-engine">engine<a class="anchor" aria-label="anchor" href="#arg-engine"></a></dt>
-<dd><p>Heatmap engine for dynamics view: <code>"auto"</code>,
-<code>"ComplexHeatmap"</code>, or <code>"ggplot"</code>. Default is <code>"auto"</code>.</p></dd>
-
-
-<dt id="arg-cell-width">cell_width<a class="anchor" aria-label="anchor" href="#arg-cell-width"></a></dt>
-<dd><p>Width of each heatmap cell in mm (for ComplexHeatmap).
-If <code>NULL</code>, auto-calculated from number of columns.</p></dd>
-
-
-<dt id="arg-cell-height">cell_height<a class="anchor" aria-label="anchor" href="#arg-cell-height"></a></dt>
-<dd><p>Height of each heatmap cell in mm (for ComplexHeatmap).
-If <code>NULL</code>, auto-calculated from number of rows.</p></dd>
+<dt id="arg-cell-size">cell_size<a class="anchor" aria-label="anchor" href="#arg-cell-size"></a></dt>
+<dd><p>Side length of each square heatmap cell in mm or an absolute
+grid unit. If <code>NULL</code>, choose automatically from the matrix dimensions.</p></dd>
 
 
 <dt id="arg-cluster-rows">cluster_rows<a class="anchor" aria-label="anchor" href="#arg-cluster-rows"></a></dt>

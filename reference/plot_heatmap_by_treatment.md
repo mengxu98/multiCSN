@@ -54,4 +54,4 @@ plot_heatmap_by_treatment(
 
 ## Value
 
-pheatmap
+A ComplexHeatmap heatmap object.

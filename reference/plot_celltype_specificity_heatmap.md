@@ -45,4 +45,4 @@ plot_celltype_specificity_heatmap(
 
 ## Value
 
-A `ggplot` object.
+A patchwork-compatible ComplexHeatmap plot.

@@ -62,9 +62,14 @@ plot_network_heatmap(
 
   Convert edge tables to matrices.
 
-- show_names, heatmap_size_lock:
+- show_names:
 
-  Logical display controls.
+  Logical display control.
+
+- heatmap_size_lock:
+
+  Use the requested dimensions as square-cell bounds. If `FALSE`, choose
+  the square-cell size automatically.
 
 - show_names_position:
 
@@ -72,7 +77,7 @@ plot_network_heatmap(
 
 - heatmap_size, heatmap_height, heatmap_width:
 
-  Heatmap dimensions.
+  Heatmap body bounds in cm. Cell width and height are always equal.
 
 - heatmap_title:
 

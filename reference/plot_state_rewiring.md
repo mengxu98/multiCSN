@@ -58,4 +58,5 @@ plot_state_rewiring(
 
 ## Value
 
-A `ggplot` object.
+A grid grob for heatmaps, or a drawable plot object for set-overlap
+views.

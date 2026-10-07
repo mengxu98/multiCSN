@@ -18,9 +18,7 @@ plot_features(
   view = c("ranking", "dynamics"),
   scale_value = c("zscore", "raw"),
   x_text_angle = NULL,
-  engine = c("auto", "ComplexHeatmap", "ggplot"),
-  cell_width = NULL,
-  cell_height = NULL,
+  cell_size = NULL,
   cluster_rows = FALSE,
   cluster_columns = FALSE,
   return_grob = FALSE
@@ -80,20 +78,10 @@ plot_features(
   Column-label angle for dynamics heatmaps. If `NULL`, choose
   automatically from the number and length of state labels.
 
-- engine:
+- cell_size:
 
-  Heatmap engine for dynamics view: `"auto"`, `"ComplexHeatmap"`, or
-  `"ggplot"`. Default is `"auto"`.
-
-- cell_width:
-
-  Width of each heatmap cell in mm (for ComplexHeatmap). If `NULL`,
-  auto-calculated from number of columns.
-
-- cell_height:
-
-  Height of each heatmap cell in mm (for ComplexHeatmap). If `NULL`,
-  auto-calculated from number of rows.
+  Side length of each square heatmap cell in mm or an absolute grid
+  unit. If `NULL`, choose automatically from the matrix dimensions.
 
 - cluster_rows:
 

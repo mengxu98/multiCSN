@@ -88,4 +88,4 @@ hm_dyn(
 
 ## Value
 
-heatmap list
+A ComplexHeatmap heatmap object.

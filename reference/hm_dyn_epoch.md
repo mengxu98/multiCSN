@@ -43,4 +43,4 @@ hm_dyn_epoch(
 
 ## Value
 
-heatmaps
+A ComplexHeatmap heatmap object.

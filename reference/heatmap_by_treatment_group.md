@@ -65,4 +65,4 @@ heatmap_by_treatment_group(
 
 ## Value
 
-pheatmap
+A ComplexHeatmap heatmap object.
