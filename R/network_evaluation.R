@@ -1441,16 +1441,8 @@ plot_edges_comparison <- function(
   pred_edges <- network_table[, c("regulator", "target")]
   true_edges <- ground_truth[, c("regulator", "target")]
 
-  pred_edge_ids <- paste(
-    pred_edges$regulator,
-    pred_edges$target,
-    sep = "-"
-  )
-  true_edge_ids <- paste(
-    true_edges$regulator,
-    true_edges$target,
-    sep = "-"
-  )
+  pred_edge_ids <- metric_edge_ids(pred_edges$regulator, pred_edges$target)
+  true_edge_ids <- metric_edge_ids(true_edges$regulator, true_edges$target)
   overlap_edges <- intersect(
     pred_edge_ids,
     true_edge_ids
@@ -1478,12 +1470,8 @@ plot_edges_comparison <- function(
   )
 
   if (length(overlap_edges) > 0) {
-    overlap_data <- data.frame(
-      regulator = sub("-.*", "", overlap_edges),
-      target = sub(".*-", "", overlap_edges),
-      type = "Overlapping",
-      stringsAsFactors = FALSE
-    )
+    overlap_data <- pred_edges[match(overlap_edges, pred_edge_ids), , drop = FALSE]
+    overlap_data$type <- "Overlapping"
     edge_plot_data <- rbind(edge_plot_data, overlap_data)
   }
 
