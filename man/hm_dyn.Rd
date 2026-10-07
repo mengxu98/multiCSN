@@ -54,7 +54,7 @@ hm_dyn(
 \item{height}{height}
 }
 \value{
-heatmap list
+A ComplexHeatmap heatmap object.
 }
 \description{
 plots results of findDynGenes

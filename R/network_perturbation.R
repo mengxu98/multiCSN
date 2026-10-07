@@ -504,8 +504,9 @@ setMethod(
         row.names = col_names
       )
 
-      h <- pheatmap::pheatmap(
+      h <- square_heatmap_cells(ComplexHeatmap::pheatmap(
         heatmap_data,
+        name = "z-score",
         scale = "row",
         clustering_method = "ward.D2",
         show_rownames = FALSE,
@@ -519,7 +520,7 @@ setMethod(
             Perturbed = "#9933CC"
           )
         )
-      )
+      ))
     } else {
       heatmap_data <- cbind(
         orig_expr[, top_genes],
@@ -539,8 +540,9 @@ setMethod(
       colnames(heatmap_data) <- col_names
       rownames(column_anno) <- col_names
 
-      h <- pheatmap::pheatmap(
+      h <- square_heatmap_cells(ComplexHeatmap::pheatmap(
         heatmap_data,
+        name = "z-score",
         scale = "row",
         clustering_method = "ward.D2",
         show_rownames = FALSE,
@@ -553,7 +555,7 @@ setMethod(
             Perturbed = "#9933CC"
           )
         )
-      )
+      ))
     }
 
     traj_data <- data.frame(

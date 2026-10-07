@@ -17,6 +17,7 @@ inferCSN(
   lag_steps = NULL,
   cores = 1,
   verbose = TRUE,
+  method = c("greedy_l0", "L0", "L0L1", "L0L2"),
   ...
 )
 
@@ -80,6 +81,7 @@ inferCSN(
   lag_steps = NULL,
   cores = 1,
   verbose = TRUE,
+  method = c("greedy_l0", "L0", "L0L1", "L0L2"),
   ...
 )
 }
@@ -108,8 +110,9 @@ For \code{Seurat} objects, a single column name is treated as \code{pseudotime_c
 
 \item{r_squared_threshold}{Threshold of \eqn{R^2} used when formatting \code{Network} / \code{Seurat} results.}
 
-\item{method}{The sole supported regression method, \code{"greedy_l0"}
-(via \code{\link[inferCSN:fit_greedy_l0]{inferCSN::fit_greedy_l0()}}).}
+\item{method}{For matrix input, \code{"greedy_l0"} (default) or the optional
+L0Learn penalties \code{"L0"}, \code{"L0L1"}, and \code{"L0L2"}.
+The \code{Network} and \code{Seurat} methods support only \code{"greedy_l0"}.}
 
 \item{gene_cor_threshold}{Threshold for TF-target gene correlation.}
 

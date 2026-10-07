@@ -1184,22 +1184,12 @@ plot_key_tf_multiome <- function(tf_scores, top_n = 12) {
     heat_df$component,
     levels = component_labels[component_cols]
   )
-  p_heat <- ggplot2::ggplot(
-    heat_df,
-    ggplot2::aes(x = component, y = gene, fill = value)
-  ) +
-    ggplot2::geom_tile(color = "grey92") +
-    ggplot2::scale_fill_gradient2(
-      low = "#2166AC",
-      mid = "white",
-      high = "#B2182B"
-    ) +
-    thisplot::theme_this() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(title = "Score components", x = NULL, y = NULL, fill = "z")
+  p_heat <- heatmap_panel(
+    heatmap_table_matrix(heat_df, "gene", "component", "value"),
+    name = "z",
+    col = c("#2166AC", "white", "#B2182B"),
+    title = "Score components"
+  )
 
   p <- p_rank | p_heat
   return(p)
@@ -2563,7 +2553,7 @@ compare_celltype_rewiring <- function(
 #'   \code{"binary_rewiring_score"}, and \code{"regulon_jaccard"}.
 #' @param weight_column Weight column used when exporting networks.
 #'
-#' @return A \code{ggplot} object.
+#' @return A patchwork-compatible ComplexHeatmap plot.
 #' @export
 plot_celltype_specificity_heatmap <- function(
   object,
@@ -2616,22 +2606,13 @@ plot_celltype_specificity_heatmap <- function(
   low_color <- if (metric == "rewiring_score") "white" else "#08306B"
   high_color <- if (metric == "rewiring_score") "#B22222" else "white"
 
-  p <- ggplot2::ggplot(
-    plot_df,
-    ggplot2::aes(x = pair_label, y = regulator, fill = !!rlang::sym(metric))
-  ) +
-    ggplot2::geom_tile(color = "grey85") +
-    ggplot2::scale_fill_gradient(
-      low = low_color,
-      high = high_color,
-      na.value = "grey95"
-    ) +
-    thisplot::theme_this() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(x = "Cell type pair", y = "TF", fill = metric)
+  p <- heatmap_panel(
+    heatmap_table_matrix(plot_df, "regulator", "pair_label", metric),
+    name = metric,
+    col = c(low_color, high_color),
+    row_title = "TF",
+    column_title = "Cell type pair"
+  )
 
   return(p)
 }
@@ -3572,12 +3553,8 @@ plot_network_summary <- function(
 #'
 #' @param x_text_angle Column-label angle for dynamics heatmaps. If \code{NULL},
 #'   choose automatically from the number and length of state labels.
-#' @param engine Heatmap engine for dynamics view: \code{"auto"},
-#'   \code{"ComplexHeatmap"}, or \code{"ggplot"}. Default is \code{"auto"}.
-#' @param cell_width Width of each heatmap cell in mm (for ComplexHeatmap).
-#'   If \code{NULL}, auto-calculated from number of columns.
-#' @param cell_height Height of each heatmap cell in mm (for ComplexHeatmap).
-#'   If \code{NULL}, auto-calculated from number of rows.
+#' @param cell_size Side length of each square heatmap cell in mm or an absolute
+#'   grid unit. If \code{NULL}, choose automatically from the matrix dimensions.
 #' @param cluster_rows Logical, whether to cluster rows in dynamics heatmap.
 #'   Default is \code{FALSE}.
 #' @param cluster_columns Logical, whether to cluster columns in dynamics heatmap.
@@ -3600,9 +3577,7 @@ plot_features <- function(
   view = c("ranking", "dynamics"),
   scale_value = c("zscore", "raw"),
   x_text_angle = NULL,
-  engine = c("auto", "ComplexHeatmap", "ggplot"),
-  cell_width = NULL,
-  cell_height = NULL,
+  cell_size = NULL,
   cluster_rows = FALSE,
   cluster_columns = FALSE,
   return_grob = FALSE
@@ -3611,16 +3586,6 @@ plot_features <- function(
   method <- match.arg(method)
   view <- match.arg(view)
   scale_value <- match.arg(scale_value)
-  engine <- match.arg(engine)
-
-  if (identical(engine, "auto")) {
-    if (requireNamespace("ComplexHeatmap", quietly = TRUE) &&
-        requireNamespace("circlize", quietly = TRUE)) {
-      engine <- "ComplexHeatmap"
-    } else {
-      engine <- "ggplot"
-    }
-  }
 
   if (is.null(data)) {
     if (is.null(object)) {
@@ -3717,157 +3682,108 @@ plot_features <- function(
         sub <- plot_df[plot_df$gene == g, , drop = FALSE]
         st_idx <- match(as.character(sub$state_id), state_levels)
         vals <- sub$score_plot
-        if (length(vals) == 0 || all(is.na(vals))) return(1)
+        if (length(vals) == 0 || all(is.na(vals))) {
+          return(1)
+        }
         st_idx[which.max(vals)]
       }, numeric(1))
       max_vals <- vapply(top_genes, function(g) {
         sub <- plot_df[plot_df$gene == g, , drop = FALSE]
         vals <- sub$score_plot
-        if (length(vals) == 0 || all(is.na(vals))) return(0)
+        if (length(vals) == 0 || all(is.na(vals))) {
+          return(0)
+        }
         max(vals, na.rm = TRUE)
       }, numeric(1))
       top_genes <- top_genes[order(peaks, -max_vals)]
     }
 
-    if (identical(engine, "ComplexHeatmap")) {
-      mat_plot <- matrix(
-        NA_real_,
-        nrow = length(top_genes),
-        ncol = length(state_levels),
-        dimnames = list(top_genes, state_levels)
-      )
-      idx <- cbind(
-        match(as.character(plot_df$gene), top_genes),
-        match(as.character(plot_df$state_id), state_levels)
-      )
-      valid <- !is.na(idx[, 1]) & !is.na(idx[, 2])
-      mat_plot[idx[valid, , drop = FALSE]] <- plot_df$score_plot[valid]
+    mat_plot <- matrix(
+      NA_real_,
+      nrow = length(top_genes),
+      ncol = length(state_levels),
+      dimnames = list(top_genes, state_levels)
+    )
+    idx <- cbind(
+      match(as.character(plot_df$gene), top_genes),
+      match(as.character(plot_df$state_id), state_levels)
+    )
+    valid <- !is.na(idx[, 1]) & !is.na(idx[, 2])
+    mat_plot[idx[valid, , drop = FALSE]] <- plot_df$score_plot[valid]
 
-      n_row <- nrow(mat_plot)
-      n_col <- ncol(mat_plot)
+    n_col <- ncol(mat_plot)
 
-      c_w <- cell_width %ss% (if (n_col <= 4) 18 else if (n_col <= 8) 15 else max(8, 100 / n_col))
-      c_h <- cell_height %ss% (if (n_row <= 6) 12 else if (n_row <= 15) 9 else max(5, 100 / n_row))
-      cell_w_unit <- if (grid::is.unit(c_w)) c_w else grid::unit(c_w, "mm")
-      cell_h_unit <- if (grid::is.unit(c_h)) c_h else grid::unit(c_h, "mm")
-      ht_w <- n_col * cell_w_unit
-      ht_h <- n_row * cell_h_unit
-
-      if (scale_value == "zscore") {
-        lim <- max(abs(mat_plot), na.rm = TRUE)
-        lim <- if (is.finite(lim) && lim > 0) min(max(lim, 1.5), 3) else 2
-        lim <- round(lim, 1)
+    if (scale_value == "zscore") {
+      lim <- max(abs(mat_plot), na.rm = TRUE)
+      lim <- if (is.finite(lim) && lim > 0) min(max(lim, 1.5), 3) else 2
+      lim <- round(lim, 1)
+      col_fun <- circlize::colorRamp2(c(-lim, 0, lim), c("#2166AC", "white", "#B2182B"))
+      legend_at <- c(-lim, 0, lim)
+    } else {
+      vmin <- min(mat_plot, na.rm = TRUE)
+      vmax <- max(mat_plot, na.rm = TRUE)
+      if (is.finite(vmin) && vmin < 0) {
+        lim <- max(abs(vmin), abs(vmax))
         col_fun <- circlize::colorRamp2(c(-lim, 0, lim), c("#2166AC", "white", "#B2182B"))
-        legend_at <- c(-lim, 0, lim)
+        legend_at <- round(c(-lim, 0, lim), 2)
       } else {
-        vmin <- min(mat_plot, na.rm = TRUE)
-        vmax <- max(mat_plot, na.rm = TRUE)
-        if (is.finite(vmin) && vmin < 0) {
-          lim <- max(abs(vmin), abs(vmax))
-          col_fun <- circlize::colorRamp2(c(-lim, 0, lim), c("#2166AC", "white", "#B2182B"))
-          legend_at <- round(c(-lim, 0, lim), 2)
-        } else {
-          col_fun <- circlize::colorRamp2(
-            seq(vmin, vmax, length.out = 5),
-            grDevices::colorRampPalette(c("#F7F7F7", "#FDDBC7", "#D6604D", "#B2182B"))(5)
-          )
-          legend_at <- round(seq(vmin, vmax, length.out = 3), 2)
-        }
-      }
-
-      if (is.null(x_text_angle)) {
-        max_chars <- max(nchar(as.character(state_levels)), na.rm = TRUE)
-        x_text_angle <- if (n_col <= 6 && max_chars <= 12) 0 else 45
-      }
-      col_rot <- x_text_angle
-      col_centered <- (col_rot == 0)
-
-      ht <- ComplexHeatmap::Heatmap(
-        mat_plot,
-        name = if (scale_value == "zscore") "z-score" else value_column,
-        col = col_fun,
-        width = ht_w,
-        height = ht_h,
-        cluster_rows = cluster_rows,
-        cluster_columns = cluster_columns,
-        rect_gp = grid::gpar(col = "white", lwd = 1.2),
-        row_names_side = "left",
-        column_names_side = "bottom",
-        column_names_rot = col_rot,
-        column_names_centered = col_centered,
-        column_title = "State",
-        column_title_side = "bottom",
-        column_title_gp = grid::gpar(fontsize = 11, fontfamily = "sans"),
-        row_title = "TF",
-        row_title_side = "left",
-        row_title_gp = grid::gpar(fontsize = 11, fontfamily = "sans"),
-        row_names_gp = grid::gpar(fontsize = 10, fontfamily = "sans"),
-        column_names_gp = grid::gpar(fontsize = 10, fontfamily = "sans"),
-        heatmap_legend_param = list(
-          title = if (scale_value == "zscore") "z-score" else value_column,
-          title_gp = grid::gpar(fontsize = 9, fontface = "bold", fontfamily = "sans"),
-          labels_gp = grid::gpar(fontsize = 8, fontfamily = "sans"),
-          at = legend_at,
-          direction = "vertical",
-          title_position = "topleft"
+        col_fun <- circlize::colorRamp2(
+          seq(vmin, vmax, length.out = 5),
+          grDevices::colorRampPalette(c("#F7F7F7", "#FDDBC7", "#D6604D", "#B2182B"))(5)
         )
-      )
-
-      g_ht <- grid::grid.grabExpr(
-        ComplexHeatmap::draw(ht, padding = grid::unit(c(2, 2, 2, 2), "mm")),
-        wrap = TRUE
-      )
-
-      if (isTRUE(return_grob)) {
-        attr(g_ht, "Heatmap") <- ht
-        return(g_ht)
+        legend_at <- round(seq(vmin, vmax, length.out = 3), 2)
       }
-      p <- patchwork::wrap_elements(full = g_ht)
-      attr(p, "grob") <- g_ht
-      attr(p, "Heatmap") <- ht
-      return(p)
     }
-
-    plot_df$state_id <- factor(plot_df$state_id, levels = unique(state_levels))
-    plot_df$gene <- factor(plot_df$gene, levels = rev(top_genes))
 
     if (is.null(x_text_angle)) {
-      max_chars <- max(nchar(as.character(unique(plot_df$state_id))), na.rm = TRUE)
-      n_states <- length(unique(plot_df$state_id))
-      x_text_angle <- if (n_states <= 6 && max_chars <= 12) 0 else 45
+      max_chars <- max(nchar(as.character(state_levels)), na.rm = TRUE)
+      x_text_angle <- if (n_col <= 6 && max_chars <= 12) 0 else 45
     }
-    x_hjust <- if (x_text_angle == 0) 0.5 else 1
-    x_vjust <- if (x_text_angle == 0) 0.5 else 1
+    col_rot <- x_text_angle
+    col_centered <- (col_rot == 0)
 
-    p <- ggplot2::ggplot(
-      plot_df,
-      ggplot2::aes(x = state_id, y = gene, fill = score_plot)
-    ) +
-      ggplot2::geom_tile(color = "grey90", linewidth = 0.3) +
-      ggplot2::scale_fill_gradient2(
-        low = "#2166AC",
-        mid = "white",
-        high = "#B2182B"
-      ) +
-      thisplot::theme_this() +
-      ggplot2::theme(
-        axis.text.x = ggplot2::element_text(
-          angle = x_text_angle,
-          hjust = x_hjust,
-          vjust = x_vjust
-        ),
-        panel.grid = ggplot2::element_blank()
-      ) +
-      ggplot2::labs(
-        x = "State",
-        y = "TF",
-        fill = if (scale_value == "zscore") "z-score" else value_column
+    ht <- ComplexHeatmap::Heatmap(
+      mat_plot,
+      name = if (scale_value == "zscore") "z-score" else value_column,
+      col = col_fun,
+      cluster_rows = cluster_rows,
+      cluster_columns = cluster_columns,
+      rect_gp = grid::gpar(col = "white", lwd = 1.2),
+      row_names_side = "left",
+      column_names_side = "bottom",
+      column_names_rot = col_rot,
+      column_names_centered = col_centered,
+      column_title = "State",
+      column_title_side = "bottom",
+      column_title_gp = grid::gpar(fontsize = 11, fontfamily = "sans"),
+      row_title = "TF",
+      row_title_side = "left",
+      row_title_gp = grid::gpar(fontsize = 11, fontfamily = "sans"),
+      row_names_gp = grid::gpar(fontsize = 10, fontfamily = "sans"),
+      column_names_gp = grid::gpar(fontsize = 10, fontfamily = "sans"),
+      heatmap_legend_param = list(
+        title = if (scale_value == "zscore") "z-score" else value_column,
+        title_gp = grid::gpar(fontsize = 9, fontface = "bold", fontfamily = "sans"),
+        labels_gp = grid::gpar(fontsize = 8, fontfamily = "sans"),
+        at = legend_at,
+        direction = "vertical",
+        title_position = "topleft"
       )
+    )
+
+    ht <- square_heatmap_cells(ht, cell_size)
+    g_ht <- grid::grid.grabExpr(
+      ComplexHeatmap::draw(ht, padding = grid::unit(c(2, 2, 2, 2), "mm")),
+      wrap = TRUE
+    )
+
     if (isTRUE(return_grob)) {
-      g <- ggplot2::ggplotGrob(p)
-      attr(g, "ggplot") <- p
-      return(g)
+      attr(g_ht, "Heatmap") <- ht
+      return(g_ht)
     }
+    p <- patchwork::wrap_elements(full = g_ht)
+    attr(p, "grob") <- g_ht
+    attr(p, "Heatmap") <- ht
     return(p)
   }
 
@@ -3980,9 +3896,7 @@ plot_features <- function(
 #'   \code{thisplot::palette_colors()} via \code{multicsn_palette_colors()}.
 #' @param palcolor Optional named color vector overriding state/group colors.
 #'
-#' @return A drawable plot object. When \pkg{ComplexHeatmap} is available,
-#'   the function returns a grid grob captured from the drawn heatmap;
-#'   otherwise it returns a \code{ggplot} object.
+#' @return A grid grob for heatmaps, or a drawable plot object for set-overlap views.
 #' @export
 plot_rewiring <- function(
   object,
@@ -4053,203 +3967,168 @@ plot_rewiring <- function(
       return(p)
     }
 
-    if (
-      requireNamespace("ComplexHeatmap", quietly = TRUE) &&
-        requireNamespace("circlize", quietly = TRUE)
-    ) {
-      cell_counts[!is.finite(cell_counts)] <- 0
-      names(cell_counts) <- state_ids
-      tf_counts[!is.finite(tf_counts)] <- 0
-      gene_counts[!is.finite(gene_counts)] <- 0
-      state_fill_gp <- grid::gpar(fill = unname(state_colors), col = "black")
-      positive_axis_at <- function(x) {
-        xmax <- max(x, na.rm = TRUE)
-        if (!is.finite(xmax) || xmax <= 0) {
-          return(numeric(0))
-        }
-        brks <- pretty(c(0, xmax), n = 3)
-        brks <- brks[brks > 0 & brks <= xmax]
-        if (length(brks) == 0) {
-          brks <- xmax
-        }
-        brks <- sort(unique(brks))
-        brks
+    cell_counts[!is.finite(cell_counts)] <- 0
+    names(cell_counts) <- state_ids
+    tf_counts[!is.finite(tf_counts)] <- 0
+    gene_counts[!is.finite(gene_counts)] <- 0
+    state_fill_gp <- grid::gpar(fill = unname(state_colors), col = "black")
+    positive_axis_at <- function(x) {
+      xmax <- max(x, na.rm = TRUE)
+      if (!is.finite(xmax) || xmax <= 0) {
+        return(numeric(0))
       }
-      cells_axis <- positive_axis_at(cell_counts)
-      tf_axis <- positive_axis_at(tf_counts)
-      gene_axis <- positive_axis_at(gene_counts)
-
-      top_anno <- ComplexHeatmap::columnAnnotation(
-        "Cells count" = ComplexHeatmap::anno_barplot(
-          cell_counts,
-          baseline = 0,
-          bar_width = 0.5,
-          gp = state_fill_gp,
-          border = TRUE,
-          height = grid::unit(1.8, "cm"),
-          axis_param = list(
-            at = cells_axis,
-            labels = format(cells_axis, scientific = FALSE, big.mark = ",")
-          )
-        ),
-        " " = ComplexHeatmap::anno_simple(
-          seq_along(state_ids),
-          col = structure(
-            unname(state_colors),
-            names = as.character(seq_along(state_ids))
-          ),
-          height = grid::unit(0.15, "cm")
-        ),
-        height = grid::unit(2, "cm"),
-        gap = grid::unit(0.2, "cm"),
-        annotation_name_gp = grid::gpar(fontsize = 7)
-      )
-
-      right_anno <- ComplexHeatmap::rowAnnotation(
-        "TFs count" = ComplexHeatmap::anno_barplot(
-          tf_counts,
-          baseline = 0,
-          gp = state_fill_gp,
-          border = TRUE,
-          width = grid::unit(1.6, "cm"),
-          axis_param = list(
-            at = tf_axis,
-            labels = format(tf_axis, scientific = FALSE, big.mark = ",")
-          )
-        ),
-        "Target genes count" = ComplexHeatmap::anno_barplot(
-          gene_counts,
-          baseline = 0,
-          gp = state_fill_gp,
-          border = TRUE,
-          width = grid::unit(1.6, "cm"),
-          axis_param = list(
-            at = gene_axis,
-            labels = format(gene_axis, scientific = FALSE, big.mark = ",")
-          )
-        ),
-        " " = ComplexHeatmap::anno_simple(
-          seq_along(state_ids),
-          col = structure(
-            unname(state_colors),
-            names = as.character(seq_along(state_ids))
-          ),
-          width = grid::unit(0.15, "cm")
-        ),
-        annotation_name_gp = grid::gpar(fontsize = 7)
-      )
-
-      col_fun <- circlize::colorRamp2(
-        c(0, 0.25, 0.5, 0.75, 1),
-        grDevices::colorRampPalette(c("white", "#2177B8"))(5)
-      )
-      heatmap_size <- grid::unit(max(3.2, length(state_ids) * 0.8), "cm")
-      ht <- ComplexHeatmap::Heatmap(
-        sim_mat,
-        name = "Jaccard\nsimilarity",
-        col = col_fun,
-        cluster_rows = FALSE,
-        cluster_columns = FALSE,
-        na_col = "white",
-        show_row_names = TRUE,
-        show_column_names = TRUE,
-        rect_gp = grid::gpar(col = "gray50", lwd = 0.6),
-        width = heatmap_size,
-        height = heatmap_size,
-        cell_fun = function(j, i, x, y, width, height, fill) {
-          val <- sim_mat[i, j]
-          if (is.na(val)) {
-            grid::grid.rect(
-              x = x,
-              y = y,
-              width = width,
-              height = height,
-              gp = grid::gpar(fill = "white", col = NA, lwd = 0)
-            )
-          } else {
-            grid::grid.rect(
-              x = x,
-              y = y,
-              width = width,
-              height = height,
-              gp = grid::gpar(fill = NA, col = "gray80", lwd = 0.5)
-            )
-            text_col <- if (val > 0.5) "white" else "gray40"
-            grid::grid.text(
-              sprintf("%.2f", val),
-              x,
-              y,
-              gp = grid::gpar(fontsize = 8, col = text_col)
-            )
-          }
-        },
-        row_names_gp = grid::gpar(fontsize = 8),
-        column_names_gp = grid::gpar(fontsize = 10),
-        column_names_rot = 45,
-        top_annotation = top_anno,
-        right_annotation = right_anno,
-        heatmap_legend_param = list(
-          title = "Jaccard\nsimilarity",
-          title_gp = grid::gpar(fontsize = 10),
-          at = c(0, 0.25, 0.5, 0.75, 1),
-          labels = c("0.00", "0.25", "0.50", "0.75", "1.00"),
-          legend_height = grid::unit(4, "cm")
-        ),
-        row_title = NULL
-      )
-      legend_list <- list()
-      legend_list[[length(legend_list) + 1L]] <- ComplexHeatmap::Legend(
-        title = "States",
-        title_gp = grid::gpar(fontsize = 10),
-        at = names(state_colors),
-        labels = names(state_colors),
-        legend_gp = grid::gpar(fill = unname(state_colors)),
-        ncol = if (length(state_colors) > 9) 2 else 1
-      )
-      grob <- grid::grid.grabExpr(
-        ComplexHeatmap::draw(
-          ht,
-          annotation_legend_list = legend_list,
-          newpage = FALSE
-        ),
-        wrap = TRUE
-      )
-      grid::grid.newpage()
-      grid::grid.draw(grob)
-      attr(grob, "heatmap_object") <- ht
-      return(invisible(grob))
+      brks <- pretty(c(0, xmax), n = 3)
+      brks <- brks[brks > 0 & brks <= xmax]
+      if (length(brks) == 0) {
+        brks <- xmax
+      }
+      brks <- sort(unique(brks))
+      brks
     }
+    cells_axis <- positive_axis_at(cell_counts)
+    tf_axis <- positive_axis_at(tf_counts)
+    gene_axis <- positive_axis_at(gene_counts)
 
-    sim_df <- as.data.frame(as.table(sim_mat), stringsAsFactors = FALSE)
-    colnames(sim_df) <- c("state_from", "state_to", "similarity")
-    p <- ggplot2::ggplot(
-      sim_df,
-      ggplot2::aes(x = state_to, y = state_from, fill = similarity)
-    ) +
-      ggplot2::geom_tile(color = "gray80", linewidth = 0.35) +
-      ggplot2::geom_text(
-        ggplot2::aes(
-          label = sprintf("%.2f", similarity),
-          color = similarity > 0.5
+    top_anno <- ComplexHeatmap::columnAnnotation(
+      "Cells count" = ComplexHeatmap::anno_barplot(
+        cell_counts,
+        baseline = 0,
+        bar_width = 0.5,
+        gp = state_fill_gp,
+        border = TRUE,
+        height = grid::unit(1.8, "cm"),
+        axis_param = list(
+          at = cells_axis,
+          labels = format(cells_axis, scientific = FALSE, big.mark = ",")
+        )
+      ),
+      " " = ComplexHeatmap::anno_simple(
+        seq_along(state_ids),
+        col = structure(
+          unname(state_colors),
+          names = as.character(seq_along(state_ids))
         ),
-        size = 3
-      ) +
-      ggplot2::scale_fill_gradientn(
-        colors = grDevices::colorRampPalette(c("white", "#2177B8"))(5),
-        values = c(0, 0.25, 0.5, 0.75, 1),
-        limits = c(0, 1)
-      ) +
-      ggplot2::scale_color_manual(
-        values = c("TRUE" = "white", "FALSE" = "gray40"),
-        guide = "none"
-      ) +
-      thisplot::theme_this() +
-      ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-        panel.grid = ggplot2::element_blank()
-      ) +
-      ggplot2::labs(x = NULL, y = NULL, fill = "Jaccard\nsimilarity")
-    return(p)
+        height = grid::unit(0.15, "cm")
+      ),
+      height = grid::unit(2, "cm"),
+      gap = grid::unit(0.2, "cm"),
+      annotation_name_gp = grid::gpar(fontsize = 7)
+    )
+
+    right_anno <- ComplexHeatmap::rowAnnotation(
+      "TFs count" = ComplexHeatmap::anno_barplot(
+        tf_counts,
+        baseline = 0,
+        gp = state_fill_gp,
+        border = TRUE,
+        width = grid::unit(1.6, "cm"),
+        axis_param = list(
+          at = tf_axis,
+          labels = format(tf_axis, scientific = FALSE, big.mark = ",")
+        )
+      ),
+      "Target genes count" = ComplexHeatmap::anno_barplot(
+        gene_counts,
+        baseline = 0,
+        gp = state_fill_gp,
+        border = TRUE,
+        width = grid::unit(1.6, "cm"),
+        axis_param = list(
+          at = gene_axis,
+          labels = format(gene_axis, scientific = FALSE, big.mark = ",")
+        )
+      ),
+      " " = ComplexHeatmap::anno_simple(
+        seq_along(state_ids),
+        col = structure(
+          unname(state_colors),
+          names = as.character(seq_along(state_ids))
+        ),
+        width = grid::unit(0.15, "cm")
+      ),
+      annotation_name_gp = grid::gpar(fontsize = 7)
+    )
+
+    col_fun <- circlize::colorRamp2(
+      c(0, 0.25, 0.5, 0.75, 1),
+      grDevices::colorRampPalette(c("white", "#2177B8"))(5)
+    )
+    heatmap_size <- grid::unit(max(3.2, length(state_ids) * 0.8), "cm")
+    ht <- ComplexHeatmap::Heatmap(
+      sim_mat,
+      name = "Jaccard\nsimilarity",
+      col = col_fun,
+      cluster_rows = FALSE,
+      cluster_columns = FALSE,
+      na_col = "white",
+      show_row_names = TRUE,
+      show_column_names = TRUE,
+      rect_gp = grid::gpar(col = "gray50", lwd = 0.6),
+      width = heatmap_size,
+      height = heatmap_size,
+      cell_fun = function(j, i, x, y, width, height, fill) {
+        val <- sim_mat[i, j]
+        if (is.na(val)) {
+          grid::grid.rect(
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            gp = grid::gpar(fill = "white", col = NA, lwd = 0)
+          )
+        } else {
+          grid::grid.rect(
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            gp = grid::gpar(fill = NA, col = "gray80", lwd = 0.5)
+          )
+          text_col <- if (val > 0.5) "white" else "gray40"
+          grid::grid.text(
+            sprintf("%.2f", val),
+            x,
+            y,
+            gp = grid::gpar(fontsize = 8, col = text_col)
+          )
+        }
+      },
+      row_names_gp = grid::gpar(fontsize = 8),
+      column_names_gp = grid::gpar(fontsize = 10),
+      column_names_rot = 45,
+      top_annotation = top_anno,
+      right_annotation = right_anno,
+      heatmap_legend_param = list(
+        title = "Jaccard\nsimilarity",
+        title_gp = grid::gpar(fontsize = 10),
+        at = c(0, 0.25, 0.5, 0.75, 1),
+        labels = c("0.00", "0.25", "0.50", "0.75", "1.00"),
+        legend_height = grid::unit(4, "cm")
+      ),
+      row_title = NULL
+    )
+    legend_list <- list()
+    legend_list[[length(legend_list) + 1L]] <- ComplexHeatmap::Legend(
+      title = "States",
+      title_gp = grid::gpar(fontsize = 10),
+      at = names(state_colors),
+      labels = names(state_colors),
+      legend_gp = grid::gpar(fill = unname(state_colors)),
+      ncol = if (length(state_colors) > 9) 2 else 1
+    )
+    ht <- square_heatmap_cells(ht)
+    grob <- grid::grid.grabExpr(
+      ComplexHeatmap::draw(
+        ht,
+        annotation_legend_list = legend_list,
+        newpage = FALSE
+      ),
+      wrap = TRUE
+    )
+    grid::grid.newpage()
+    grid::grid.draw(grob)
+    attr(grob, "heatmap_object") <- ht
+    return(invisible(grob))
   }
 
   if (!identical(plot_type, "heatmap")) {
@@ -4329,187 +4208,157 @@ plot_rewiring <- function(
     metric
   )
 
-  if (
-    requireNamespace("ComplexHeatmap", quietly = TRUE) &&
-      requireNamespace("circlize", quietly = TRUE)
-  ) {
-    plot_df$pair_label_chr <- as.character(plot_df$pair_label)
-    plot_df$regulator_chr <- as.character(plot_df$regulator)
-    plot_df$metric_value <- plot_df[[metric]]
-    plot_df$metric_missing <- is.na(plot_df$metric_value)
-    heatmap_mat <- stats::xtabs(
-      stats::as.formula("metric_value ~ regulator_chr + pair_label_chr"),
-      data = plot_df
-    )
-    heatmap_mat <- heatmap_mat[
-      rev(regulator_order$regulator),
-      pair_levels,
-      drop = FALSE
-    ]
-    missing_mask <- stats::xtabs(
-      metric_missing ~ regulator_chr + pair_label_chr,
-      data = plot_df
-    )
-    heatmap_mat[missing_mask > 0] <- NA_real_
+  plot_df$pair_label_chr <- as.character(plot_df$pair_label)
+  plot_df$regulator_chr <- as.character(plot_df$regulator)
+  plot_df$metric_value <- plot_df[[metric]]
+  plot_df$metric_missing <- is.na(plot_df$metric_value)
+  heatmap_mat <- stats::xtabs(
+    stats::as.formula("metric_value ~ regulator_chr + pair_label_chr"),
+    data = plot_df
+  )
+  heatmap_mat <- heatmap_mat[
+    rev(regulator_order$regulator),
+    pair_levels,
+    drop = FALSE
+  ]
+  missing_mask <- stats::xtabs(
+    metric_missing ~ regulator_chr + pair_label_chr,
+    data = plot_df
+  )
+  heatmap_mat[missing_mask > 0] <- NA_real_
 
-    row_summary <- stats::aggregate(
-      plot_df[[metric]],
-      by = list(regulator = plot_df$regulator),
-      FUN = function(x) {
-        x <- x[is.finite(x)]
-        if (length(x) == 0) {
-          return(0)
-        }
-        mean(x)
+  row_summary <- stats::aggregate(
+    plot_df[[metric]],
+    by = list(regulator = plot_df$regulator),
+    FUN = function(x) {
+      x <- x[is.finite(x)]
+      if (length(x) == 0) {
+        return(0)
       }
-    )
-    row_summary$x[!is.finite(row_summary$x)] <- 0
-    row_summary <- row_summary[
-      match(rev(regulator_order$regulator), row_summary$regulator), ,
-      drop = FALSE
-    ]
-    row_bar <- matrix(row_summary$x, ncol = 1)
-    rownames(row_bar) <- row_summary$regulator
-
-    pair_summary <- rewiring$state_pairs
-    pair_summary$pair_label <- paste(
-      pair_summary$state_from,
-      pair_summary$state_to,
-      sep = " -> "
-    )
-    pair_bar_col <- if (
-      metric %in% c("rewiring_score", "binary_rewiring_score")
-    ) {
-      "mean_tf_rewiring_score"
-    } else {
-      "mean_tf_weighted_regulon_jaccard"
+      mean(x)
     }
-    if (metric == "regulon_jaccard") {
-      pair_bar_col <- "mean_tf_regulon_jaccard"
-    }
-    if (!pair_bar_col %in% colnames(pair_summary)) {
-      pair_bar_col <- "edge_rewiring_score"
-    }
-    pair_summary <- pair_summary[
-      match(pair_levels, pair_summary$pair_label), ,
-      drop = FALSE
-    ]
-    pair_bar <- pair_summary[[pair_bar_col]]
-    pair_bar[!is.finite(pair_bar)] <- 0
-    names(pair_bar) <- pair_levels
+  )
+  row_summary$x[!is.finite(row_summary$x)] <- 0
+  row_summary <- row_summary[
+    match(rev(regulator_order$regulator), row_summary$regulator), ,
+    drop = FALSE
+  ]
+  row_bar <- matrix(row_summary$x, ncol = 1)
+  rownames(row_bar) <- row_summary$regulator
 
-    top_anno <- ComplexHeatmap::columnAnnotation(
-      "Mean score" = ComplexHeatmap::anno_barplot(
-        pair_bar,
-        baseline = 0,
-        bar_width = 0.5,
-        gp = grid::gpar(fill = "#E59586", col = NA),
-        border = FALSE,
-        height = grid::unit(2, "cm"),
-        axis_param = list(
-          at = c(0, 0.25, 0.5, 0.75, 1),
-          labels = c("0.00", "0.25", "0.50", "0.75", "1.00")
-        )
-      ),
-      annotation_name_gp = grid::gpar(fontsize = 7)
-    )
-
-    right_anno <- ComplexHeatmap::rowAnnotation(
-      "Mean score" = ComplexHeatmap::anno_barplot(
-        row_bar,
-        baseline = 0,
-        gp = grid::gpar(fill = "#E59586", col = NA),
-        border = FALSE,
-        width = grid::unit(2, "cm"),
-        axis_param = list(
-          at = c(0, 0.25, 0.5, 0.75, 1),
-          labels = c("0.00", "0.25", "0.50", "0.75", "1.00")
-        )
-      ),
-      annotation_name_gp = grid::gpar(fontsize = 7)
-    )
-
-    col_fun <- circlize::colorRamp2(
-      c(0, 0.25, 0.5, 0.75, 1),
-      grDevices::colorRampPalette(c("white", "#E59586"))(5)
-    )
-    ht <- ComplexHeatmap::Heatmap(
-      heatmap_mat,
-      name = fill_title,
-      cluster_rows = FALSE,
-      cluster_columns = FALSE,
-      col = col_fun,
-      na_col = "white",
-      rect_gp = grid::gpar(col = "gray50", lwd = 0.6),
-      row_names_side = "left",
-      row_names_gp = grid::gpar(fontsize = 8),
-      column_names_gp = grid::gpar(fontsize = 10),
-      column_names_rot = 45,
-      cell_fun = function(j, i, x, y, width, height, fill) {
-        val <- heatmap_mat[i, j]
-        if (is.na(val)) {
-          grid::grid.rect(
-            x = x,
-            y = y,
-            width = width,
-            height = height,
-            gp = grid::gpar(fill = "white", col = NA, lwd = 0)
-          )
-        } else {
-          grid::grid.rect(
-            x = x,
-            y = y,
-            width = width,
-            height = height,
-            gp = grid::gpar(fill = NA, col = "gray80", lwd = 0.5)
-          )
-        }
-      },
-      top_annotation = top_anno,
-      right_annotation = right_anno,
-      heatmap_legend_param = list(
-        title = fill_title,
-        title_gp = grid::gpar(fontsize = 10),
-        at = c(0, 0.25, 0.5, 0.75, 1),
-        labels = c("0.00", "0.25", "0.50", "0.75", "1.00"),
-        legend_height = grid::unit(4, "cm")
-      )
-    )
-    grob <- grid::grid.grabExpr(
-      ComplexHeatmap::draw(ht, newpage = FALSE),
-      wrap = TRUE
-    )
-    grid::grid.newpage()
-    grid::grid.draw(grob)
-    attr(grob, "heatmap_object") <- ht
-    return(invisible(grob))
+  pair_summary <- rewiring$state_pairs
+  pair_summary$pair_label <- paste(
+    pair_summary$state_from,
+    pair_summary$state_to,
+    sep = " -> "
+  )
+  pair_bar_col <- if (
+    metric %in% c("rewiring_score", "binary_rewiring_score")
+  ) {
+    "mean_tf_rewiring_score"
+  } else {
+    "mean_tf_weighted_regulon_jaccard"
   }
+  if (metric == "regulon_jaccard") {
+    pair_bar_col <- "mean_tf_regulon_jaccard"
+  }
+  if (!pair_bar_col %in% colnames(pair_summary)) {
+    pair_bar_col <- "edge_rewiring_score"
+  }
+  pair_summary <- pair_summary[
+    match(pair_levels, pair_summary$pair_label), ,
+    drop = FALSE
+  ]
+  pair_bar <- pair_summary[[pair_bar_col]]
+  pair_bar[!is.finite(pair_bar)] <- 0
+  names(pair_bar) <- pair_levels
 
-  p <- ggplot2::ggplot(
-    plot_df,
-    ggplot2::aes(x = pair_label, y = regulator, fill = !!rlang::sym(metric))
-  ) +
-    ggplot2::geom_tile(
-      color = "#E6E6E6",
-      linewidth = 0.35,
-      width = 0.95,
-      height = 0.95
-    ) +
-    ggplot2::scale_fill_gradient(
-      low = "white",
-      high = "#E59586",
-      na.value = "white",
-      limits = c(0, 1)
-    ) +
-    thisplot::theme_this() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-      legend.key.height = grid::unit(1.8, "cm"),
-      legend.key.width = grid::unit(0.55, "cm")
-    ) +
-    ggplot2::labs(x = "Adjacent state pair", y = "TF", fill = fill_title)
+  top_anno <- ComplexHeatmap::columnAnnotation(
+    "Mean score" = ComplexHeatmap::anno_barplot(
+      pair_bar,
+      baseline = 0,
+      bar_width = 0.5,
+      gp = grid::gpar(fill = "#E59586", col = NA),
+      border = FALSE,
+      height = grid::unit(2, "cm"),
+      axis_param = list(
+        at = c(0, 0.25, 0.5, 0.75, 1),
+        labels = c("0.00", "0.25", "0.50", "0.75", "1.00")
+      )
+    ),
+    annotation_name_gp = grid::gpar(fontsize = 7)
+  )
 
-  return(p)
+  right_anno <- ComplexHeatmap::rowAnnotation(
+    "Mean score" = ComplexHeatmap::anno_barplot(
+      row_bar,
+      baseline = 0,
+      gp = grid::gpar(fill = "#E59586", col = NA),
+      border = FALSE,
+      width = grid::unit(2, "cm"),
+      axis_param = list(
+        at = c(0, 0.25, 0.5, 0.75, 1),
+        labels = c("0.00", "0.25", "0.50", "0.75", "1.00")
+      )
+    ),
+    annotation_name_gp = grid::gpar(fontsize = 7)
+  )
+
+  col_fun <- circlize::colorRamp2(
+    c(0, 0.25, 0.5, 0.75, 1),
+    grDevices::colorRampPalette(c("white", "#E59586"))(5)
+  )
+  ht <- ComplexHeatmap::Heatmap(
+    heatmap_mat,
+    name = fill_title,
+    cluster_rows = FALSE,
+    cluster_columns = FALSE,
+    col = col_fun,
+    na_col = "white",
+    rect_gp = grid::gpar(col = "gray50", lwd = 0.6),
+    row_names_side = "left",
+    row_names_gp = grid::gpar(fontsize = 8),
+    column_names_gp = grid::gpar(fontsize = 10),
+    column_names_rot = 45,
+    cell_fun = function(j, i, x, y, width, height, fill) {
+      val <- heatmap_mat[i, j]
+      if (is.na(val)) {
+        grid::grid.rect(
+          x = x,
+          y = y,
+          width = width,
+          height = height,
+          gp = grid::gpar(fill = "white", col = NA, lwd = 0)
+        )
+      } else {
+        grid::grid.rect(
+          x = x,
+          y = y,
+          width = width,
+          height = height,
+          gp = grid::gpar(fill = NA, col = "gray80", lwd = 0.5)
+        )
+      }
+    },
+    top_annotation = top_anno,
+    right_annotation = right_anno,
+    heatmap_legend_param = list(
+      title = fill_title,
+      title_gp = grid::gpar(fontsize = 10),
+      at = c(0, 0.25, 0.5, 0.75, 1),
+      labels = c("0.00", "0.25", "0.50", "0.75", "1.00"),
+      legend_height = grid::unit(4, "cm")
+    )
+  )
+  ht <- square_heatmap_cells(ht)
+  grob <- grid::grid.grabExpr(
+    ComplexHeatmap::draw(ht, newpage = FALSE),
+    wrap = TRUE
+  )
+  grid::grid.newpage()
+  grid::grid.draw(grob)
+  attr(grob, "heatmap_object") <- ht
+  return(invisible(grob))
 }
 
 #' @title Plot single-TF case study across ordered states
@@ -4705,22 +4554,13 @@ plot_tf_case_study <- function(
       levels = state_levels
     )
 
-    p_targets <- ggplot2::ggplot(
-      target_plot_df,
-      ggplot2::aes(x = state_id, y = target, fill = abs_weight)
-    ) +
-      ggplot2::geom_tile(color = "grey90") +
-      ggplot2::scale_fill_gradient(low = "white", high = "#B2182B") +
-      thisplot::theme_this() +
-      ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
-      ) +
-      ggplot2::labs(
-        title = paste0(tf, ": target strength by state"),
-        x = "State",
-        y = "Target",
-        fill = "Abs weight"
-      )
+    p_targets <- heatmap_panel(
+      heatmap_table_matrix(target_plot_df, "target", "state_id", "abs_weight"),
+      name = "Abs weight",
+      title = paste0(tf, ": target strength by state"),
+      row_title = "Target",
+      column_title = "State"
+    )
   } else {
     p_targets <- ggplot2::ggplot() +
       ggplot2::theme_void() +
@@ -4910,32 +4750,12 @@ build_state_edge_overlap_plot <- function(
     network = network,
     state_ids = state_ids
   )
-  ggplot2::ggplot(
-    overlap_df,
-    ggplot2::aes(x = state_from, y = state_to, fill = edge_jaccard)
-  ) +
-    ggplot2::geom_tile(color = "grey88") +
-    ggplot2::geom_text(
-      ggplot2::aes(label = sprintf("%.2f", edge_jaccard)),
-      size = 3.2,
-      color = "grey10"
-    ) +
-    ggplot2::scale_fill_gradient(
-      low = "white",
-      high = "#2166AC",
-      limits = c(0, 1)
-    ) +
-    thisplot::theme_this() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(
-      title = "Pairwise edge overlap",
-      x = NULL,
-      y = NULL,
-      fill = "Jaccard"
-    )
+  mat <- heatmap_table_matrix(overlap_df, "state_to", "state_from", "edge_jaccard")
+  heatmap_panel(mat,
+    name = "Jaccard", col = c("white", "#2166AC"),
+    limits = c(0, 1), title = "Pairwise edge overlap",
+    cell_labels = matrix(sprintf("%.2f", mat), nrow(mat))
+  )
 }
 
 build_adjacent_rewiring_summary_plot <- function(rewiring_result) {
@@ -5057,27 +4877,13 @@ build_rewiring_heatmap_plot <- function(
   low_color <- if (metric == "rewiring_score") "white" else "#08306B"
   high_color <- if (metric == "rewiring_score") "#B22222" else "white"
 
-  ggplot2::ggplot(
-    plot_df,
-    ggplot2::aes(x = pair_label, y = regulator, fill = !!rlang::sym(metric))
-  ) +
-    ggplot2::geom_tile(color = "grey85") +
-    ggplot2::scale_fill_gradient(
-      low = low_color,
-      high = high_color,
-      na.value = "grey95"
-    ) +
-    thisplot::theme_this() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(
-      title = "TF rewiring across adjacent states",
-      x = NULL,
-      y = "TF",
-      fill = metric
-    )
+  heatmap_panel(
+    heatmap_table_matrix(plot_df, "regulator", "pair_label", metric),
+    name = metric,
+    col = c(low_color, high_color),
+    title = "TF rewiring across adjacent states",
+    row_title = "TF"
+  )
 }
 
 build_tf_dynamics_heatmap_plot <- function(
@@ -5168,27 +4974,14 @@ build_tf_dynamics_heatmap_plot <- function(
   plot_df$state_id <- factor(plot_df$state_id, levels = unique(state_levels))
   plot_df$gene <- factor(plot_df$gene, levels = rev(top_genes))
 
-  ggplot2::ggplot(
-    plot_df,
-    ggplot2::aes(x = state_id, y = gene, fill = score_plot)
-  ) +
-    ggplot2::geom_tile(color = "grey90") +
-    ggplot2::scale_fill_gradient2(
-      low = "#2166AC",
-      mid = "white",
-      high = "#B2182B"
-    ) +
-    thisplot::theme_this() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(
-      title = "TF activity dynamics",
-      x = "State",
-      y = "TF",
-      fill = if (scale_value == "zscore") "z-score" else value_column
-    )
+  heatmap_panel(
+    heatmap_table_matrix(plot_df, "gene", "state_id", "score_plot"),
+    name = if (scale_value == "zscore") "z-score" else value_column,
+    col = c("#2166AC", "white", "#B2182B"),
+    title = "TF activity dynamics",
+    row_title = "TF",
+    column_title = "State"
+  )
 }
 
 #' @title Plot manuscript Figure 2 rewiring overview
@@ -5423,27 +5216,14 @@ plot_key_tf_summary_figure <- function(
       as.numeric(scale(x))
     }
   )
-  p_expression <- ggplot2::ggplot(
-    expr_plot,
-    ggplot2::aes(x = state_id, y = gene, fill = expression_z)
-  ) +
-    ggplot2::geom_tile(color = "grey90") +
-    ggplot2::scale_fill_gradient2(
-      low = "#2166AC",
-      mid = "white",
-      high = "#B2182B"
-    ) +
-    thisplot::theme_this() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(
-      title = "Selected TF expression by state",
-      x = "State",
-      y = "TF",
-      fill = "Expr z"
-    )
+  p_expression <- heatmap_panel(
+    heatmap_table_matrix(expr_plot, "gene", "state_id", "expression_z"),
+    name = "Expr z",
+    col = c("#2166AC", "white", "#B2182B"),
+    title = "Selected TF expression by state",
+    row_title = "TF",
+    column_title = "State"
+  )
 
   rew_sel <- purrr::imap_dfr(rewiring$tf_rewiring, function(df, nm) {
     if (is.null(df) || nrow(df) == 0) {
@@ -5464,23 +5244,13 @@ plot_key_tf_summary_figure <- function(
     ))
     rew_sel$pair_label <- factor(rew_sel$pair_label, levels = pair_levels)
     rew_sel$regulator <- factor(rew_sel$regulator, levels = rev(tfs))
-    p_rewiring_sel <- ggplot2::ggplot(
-      rew_sel,
-      ggplot2::aes(x = pair_label, y = regulator, fill = rewiring_score)
-    ) +
-      ggplot2::geom_tile(color = "grey90") +
-      ggplot2::scale_fill_gradient(low = "white", high = "#B2182B") +
-      thisplot::theme_this() +
-      ggplot2::theme(
-        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-        panel.grid = ggplot2::element_blank()
-      ) +
-      ggplot2::labs(
-        title = "Selected TF rewiring",
-        x = "Adjacent state pair",
-        y = "TF",
-        fill = "Rewiring"
-      )
+    p_rewiring_sel <- heatmap_panel(
+      heatmap_table_matrix(rew_sel, "regulator", "pair_label", "rewiring_score"),
+      name = "Rewiring",
+      title = "Selected TF rewiring",
+      row_title = "TF",
+      column_title = "Adjacent state pair"
+    )
   } else {
     p_rewiring_sel <- ggplot2::ggplot() +
       ggplot2::theme_void() +
@@ -5531,7 +5301,7 @@ plot_state_network_summary <- function(
 #'
 #' @inheritParams plot_rewiring
 #'
-#' @return A \code{ggplot} object.
+#' @return A grid grob for heatmaps, or a drawable plot object for set-overlap views.
 #' @export
 plot_state_rewiring <- function(
   object,

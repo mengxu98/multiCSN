@@ -585,7 +585,7 @@ cor_and_add_action <- function(
 #' @param fontSize heatmap font size
 #' @param anno_colors annotation colors
 #'
-#' @return pheatmap
+#' @return A ComplexHeatmap heatmap object.
 #'
 #' @export
 heatmap_by_treatment_group <- function(
@@ -658,8 +658,9 @@ heatmap_by_treatment_group <- function(
   gaps <- cumsum(gaps)
   gaps <- gaps[-length(gaps)]
 
-  pheatmap::pheatmap(
+  square_heatmap_cells(ComplexHeatmap::pheatmap(
     value,
+    name = if (toScale) "z-score" else "Expression",
     cluster_rows = F,
     cluster_cols = F,
     show_colnames = F,
@@ -669,7 +670,7 @@ heatmap_by_treatment_group <- function(
     gaps_col = gaps,
     annotation_names_row = F,
     fontsize = fontSize
-  )
+  ))
 }
 
 #' Useful plotting function to plot heatmap with pre-split matrix
@@ -683,7 +684,7 @@ heatmap_by_treatment_group <- function(
 #' @param fontSize heatmap font size
 #' @param anno_colors annotation colors
 #'
-#' @return pheatmap
+#' @return A ComplexHeatmap heatmap object.
 #'
 #' @export
 plot_heatmap_by_treatment <- function(
@@ -754,8 +755,9 @@ plot_heatmap_by_treatment <- function(
   rowgaps <- cumsum(rowgaps)
   rowgaps <- rowgaps[-length(rowgaps)]
 
-  pheatmap::pheatmap(
+  square_heatmap_cells(ComplexHeatmap::pheatmap(
     value,
+    name = if (toScale) "z-score" else "Expression",
     cluster_rows = F,
     cluster_cols = F,
     show_colnames = F,
@@ -767,7 +769,7 @@ plot_heatmap_by_treatment <- function(
     gaps_row = rowgaps,
     annotation_names_row = F,
     fontsize = fontSize
-  )
+  ))
 }
 
 #' Function that orders genes based on peak expression

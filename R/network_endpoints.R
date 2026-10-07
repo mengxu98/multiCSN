@@ -89,7 +89,8 @@ read_network_endpoints <- function(root, endpoints = NULL, direction = FALSE,
 read_endpoint_table <- function(path) {
   if (grepl("[.]gz$", path)) {
     return(data.table::as.data.table(utils::read.delim(
-      gzfile(path), sep = "\t", check.names = FALSE, stringsAsFactors = FALSE
+      gzfile(path),
+      sep = "\t", check.names = FALSE, stringsAsFactors = FALSE
     )))
   }
   data.table::fread(path)

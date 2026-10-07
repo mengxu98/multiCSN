@@ -31,7 +31,7 @@ hm_dyn_clust(
 '}
 }
 \value{
-heatmaps
+A ComplexHeatmap heatmap object.
 }
 \description{
 plots results of findDynGenes

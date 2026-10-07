@@ -26,7 +26,8 @@ make_screen <- function(replicates = paste0("rep", 1:3), targets = c("A", "B"),
 test_that("pseudobulk aggregation sums cells into paired samples", {
   screen <- make_screen()
   aggregated <- pseudobulk_perturbation(
-    list(RNA = screen$counts), screen$sample_info, targets = c("A", "B"), verbose = FALSE
+    list(RNA = screen$counts), screen$sample_info,
+    targets = c("A", "B"), verbose = FALSE
   )
   metadata <- aggregated$sample_metadata
   expect_identical(nrow(metadata), 9L)
@@ -58,20 +59,23 @@ test_that("pseudobulk aggregation validates its inputs", {
   screen <- make_screen()
   expect_error(
     pseudobulk_perturbation(screen$counts, screen$sample_info[, c("cell_id", "replicate")],
-                            verbose = FALSE),
+      verbose = FALSE
+    ),
     "sample_info must have columns"
   )
   missing_cells <- screen$sample_info
   expect_error(
     pseudobulk_perturbation(
-      list(RNA = screen$counts[, -1]), missing_cells, targets = c("A", "B"), verbose = FALSE
+      list(RNA = screen$counts[, -1]), missing_cells,
+      targets = c("A", "B"), verbose = FALSE
     ),
     "lacks 1 annotated cell"
   )
   duplicated_cells <- rbind(screen$sample_info, screen$sample_info[1, , drop = FALSE])
   expect_error(
     pseudobulk_perturbation(
-      list(RNA = screen$counts), duplicated_cells, targets = c("A", "B"), verbose = FALSE
+      list(RNA = screen$counts), duplicated_cells,
+      targets = c("A", "B"), verbose = FALSE
     ),
     "duplicated cell identifiers"
   )
@@ -95,7 +99,8 @@ test_that("pseudobulk aggregation validates its inputs", {
   mixed_counts <- cbind(screen$counts, extra)
   expect_error(
     pseudobulk_perturbation(
-      list(RNA = mixed_counts), mixed_timepoint, targets = c("A", "B"), verbose = FALSE
+      list(RNA = mixed_counts), mixed_timepoint,
+      targets = c("A", "B"), verbose = FALSE
     ),
     "maps to several timepoints"
   )
@@ -105,12 +110,14 @@ test_that("paired effect fitting recovers the spiked perturbation effect", {
   skip_if_not_installed("edgeR")
   screen <- make_screen()
   aggregated <- pseudobulk_perturbation(
-    list(RNA = screen$counts), screen$sample_info, targets = c("A", "B"), verbose = FALSE
+    list(RNA = screen$counts), screen$sample_info,
+    targets = c("A", "B"), verbose = FALSE
   )
   output <- file.path(tempdir(), "perturbation-effects")
   unlink(output, recursive = TRUE)
   fitted <- fit_perturbation_effects(
-    aggregated$pseudobulk, aggregated$sample_metadata, targets = c("A", "B"),
+    aggregated$pseudobulk, aggregated$sample_metadata,
+    targets = c("A", "B"),
     output_dir = output, verbose = FALSE
   )
   expect_identical(nrow(fitted$summary), 2L)
@@ -133,7 +140,8 @@ test_that("paired effect fitting recovers the spiked perturbation effect", {
   expect_true(effect$FDR[effect$feature == "f1"] < 0.05)
   expect_gt(fitted$summary$significant_up_fdr_0_05[fitted$summary$target == "A"], 0L)
   in_memory <- fit_perturbation_effects(
-    aggregated$pseudobulk, aggregated$sample_metadata, targets = "A", verbose = FALSE
+    aggregated$pseudobulk, aggregated$sample_metadata,
+    targets = "A", verbose = FALSE
   )
   expect_true(is.data.frame(in_memory$effects$RNA[["day_7__A"]]))
   expect_identical(in_memory$summary$output_file, NA_character_)

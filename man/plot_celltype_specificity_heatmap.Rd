@@ -29,7 +29,7 @@ plot_celltype_specificity_heatmap(
 \item{weight_column}{Weight column used when exporting networks.}
 }
 \value{
-A \code{ggplot} object.
+A patchwork-compatible ComplexHeatmap plot.
 }
 \description{
 Plot cell type rewiring heatmap

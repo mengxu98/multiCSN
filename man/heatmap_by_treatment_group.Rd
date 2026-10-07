@@ -39,7 +39,7 @@ heatmap_by_treatment_group(
 \item{anno_colors}{annotation colors}
 }
 \value{
-pheatmap
+A ComplexHeatmap heatmap object.
 }
 \description{
 Useful plotting function to plot heatmap of module expression across time with pre-split matrix

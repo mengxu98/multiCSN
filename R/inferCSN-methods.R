@@ -135,7 +135,9 @@ setMethod(
 #' @param peak_cor_threshold Threshold for binding peak - target gene correlation.
 #' @param aggregate_rna_col aggregate_rna_col
 #' @param aggregate_peaks_col aggregate_peaks_col
-#' @param method The sole supported regression method, \code{"greedy_l0"}.
+#' @param method For matrix input, \code{"greedy_l0"} (default) or the optional
+#'   L0Learn penalties \code{"L0"}, \code{"L0L1"}, and \code{"L0L2"}.
+#'   The \code{Network} and \code{Seurat} methods support only \code{"greedy_l0"}.
 #' @param interaction_term The interaction variable to use in the model between TF and binding site.
 #' * \code{'+'} for additive interaction.
 #' * \code{':'} for 'multiplicative' interaction.

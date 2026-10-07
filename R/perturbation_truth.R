@@ -220,7 +220,9 @@ fit_perturbation_effects <- function(pseudobulk, sample_metadata, targets = NULL
       slug <- paste(gsub(" ", "_", task$timepoint, fixed = TRUE), task$target, sep = "__")
       output_path <- NULL
       if (!is.null(output_dir)) {
-        subdir <- if (is.null(output_subdirs)) modality else {
+        subdir <- if (is.null(output_subdirs)) {
+          modality
+        } else {
           value <- output_subdirs[[modality]]
           if (is.null(value) || !nzchar(value)) modality else value
         }

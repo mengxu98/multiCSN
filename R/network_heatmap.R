@@ -917,7 +917,7 @@ get_legend <- function(plot_list) {
 #' @param geneAnn geneAnn
 #' @param dynRes dynRes
 #'
-#' @return heatmaps
+#' @return A ComplexHeatmap heatmap object.
 #'
 #' @export
 hm_dyn_clust <- function(
@@ -975,8 +975,9 @@ hm_dyn_clust <- function(
 
   val_col <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(n = 11, name = "Spectral")))(25)
 
-  pheatmap::pheatmap(
+  square_heatmap_cells(ComplexHeatmap::pheatmap(
     value,
+    name = if (toScale) "z-score" else "Expression",
     cluster_cols = FALSE, cluster_rows = FALSE, color = val_col,
     show_colnames = FALSE, annotation_row = geneX,
     annotation_col = xx,
@@ -984,7 +985,7 @@ hm_dyn_clust <- function(
     annotation_names_row = FALSE,
     annotation_colors = anno_colors,
     fontsize_row = fontsize_row
-  )
+  ))
 }
 
 #' plots results of findDynGenes
@@ -1005,7 +1006,7 @@ hm_dyn_clust <- function(
 #' @param width width
 #' @param height height
 #'
-#' @return heatmap list
+#' @return A ComplexHeatmap heatmap object.
 #'
 #' @export
 hm_dyn <- function(
@@ -1088,82 +1089,41 @@ hm_dyn <- function(
   val_col <- grDevices::colorRampPalette(
     rev(RColorBrewer::brewer.pal(n = 11, name = "Spectral"))
   )(25)
-  if (is.data.frame(geneAnn)) {
-    cat("right spot\n")
-    if (is.null(colors)) {
-      pheatmap::pheatmap(
-        value,
-        cluster_rows = cRow,
-        cluster_cols = cCol,
-        color = val_col,
-        show_colnames = FALSE,
-        annotation_row = geneAnn,
-        show_rownames = show_rownames,
-        annotation_col = xx,
-        annotation_names_col = FALSE,
-        annotation_colors = anno_colors,
-        fontsize_row = fontsize_row,
-        filename = filename,
-        width = width,
-        height = height
-      )
-    } else {
-      pheatmap::pheatmap(
-        value,
-        cluster_rows = cRow,
-        cluster_cols = cCol,
-        color = val_col,
-        show_colnames = FALSE,
-        annotation_row = geneAnn,
-        show_rownames = show_rownames,
-        annotation_col = xx,
-        annotation_names_col = FALSE,
-        annotation_colors = colors,
-        fontsize_row = fontsize_row,
-        filename = filename,
-        width = width,
-        height = height
-      )
+  ht <- square_heatmap_cells(ComplexHeatmap::pheatmap(
+    value,
+    name = if (toScale) "z-score" else "Expression",
+    cluster_rows = cRow, cluster_cols = cCol,
+    color = val_col, show_colnames = FALSE, show_rownames = show_rownames,
+    annotation_row = if (is.data.frame(geneAnn)) geneAnn else NA,
+    annotation_names_row = is.data.frame(geneAnn),
+    annotation_col = xx, annotation_names_col = FALSE,
+    annotation_colors = colors %ss% anno_colors, fontsize_row = fontsize_row,
+    border_color = if (is.data.frame(geneAnn)) "grey60" else NA
+  ))
+  if (!is.na(filename)) {
+    device <- switch(tolower(sub("^.*[.]", "", filename)),
+      pdf = grDevices::pdf,
+      png = grDevices::png,
+      jpeg = grDevices::jpeg,
+      jpg = grDevices::jpeg,
+      tiff = grDevices::tiff,
+      tif = grDevices::tiff,
+      bmp = grDevices::bmp,
+      stop("hm_dyn: filename must end in pdf, png, jpeg, tiff, or bmp.", call. = FALSE)
+    )
+    device_args <- list(filename,
+      width = if (is.na(width)) 7 else width,
+      height = if (is.na(height)) 7 else height
+    )
+    if (!identical(device, grDevices::pdf)) {
+      device_args$units <- "in"
+      device_args$res <- 300
     }
-  } else {
-    if (is.null(colors)) {
-      pheatmap::pheatmap(
-        value,
-        cluster_rows = cRow,
-        cluster_cols = cCol,
-        color = val_col,
-        show_colnames = FALSE,
-        annotation_names_row = FALSE,
-        show_rownames = show_rownames,
-        annotation_col = xx,
-        annotation_names_col = FALSE,
-        annotation_colors = anno_colors,
-        fontsize_row = fontsize_row,
-        border_color = NA,
-        filename = filename,
-        width = width,
-        height = height
-      )
-    } else {
-      pheatmap::pheatmap(
-        value,
-        cluster_rows = cRow,
-        cluster_cols = cCol,
-        color = val_col,
-        show_colnames = FALSE,
-        annotation_names_row = FALSE,
-        show_rownames = show_rownames,
-        annotation_col = xx,
-        annotation_names_col = FALSE,
-        annotation_colors = colors,
-        fontsize_row = fontsize_row,
-        border_color = NA,
-        filename = filename,
-        width = width,
-        height = height
-      )
-    }
+    do.call(device, device_args)
+    on.exit(grDevices::dev.off(), add = TRUE)
+    ComplexHeatmap::draw(ht)
   }
+  ht
 }
 
 
@@ -1176,7 +1136,7 @@ hm_dyn <- function(
 #' @param toScale toScale
 #' @param fontsize_row fontsize_row
 #' '
-#' @return heatmaps
+#' @return A ComplexHeatmap heatmap object.
 #'
 #' @export
 hm_dyn_epoch <- function(
@@ -1257,8 +1217,9 @@ hm_dyn_epoch <- function(
     cat(g_gaps[i], "\n")
   }
 
-  pheatmap::pheatmap(
+  square_heatmap_cells(ComplexHeatmap::pheatmap(
     value,
+    name = if (toScale) "z-score" else "Expression",
     cluster_cols = FALSE, cluster_rows = FALSE, color = val_col,
     show_colnames = FALSE, annotation_row = geneX,
     annotation_col = xx,
@@ -1266,5 +1227,5 @@ hm_dyn_epoch <- function(
     annotation_names_row = FALSE,
     annotation_colors = anno_colors,
     fontsize_row = fontsize_row, gaps_row = g_gaps
-  )
+  ))
 }

@@ -45,7 +45,8 @@ classify_edge_transitions <- function(previous, next_state, keys,
   data.table::setnames(next_state, direction_column, "next_direction")
   merged <- merge(previous, next_state, by = keys, all = TRUE, sort = FALSE)
   data.table::set(
-    merged, j = "topology_class",
+    merged,
+    j = "topology_class",
     value = data.table::fifelse(
       is.na(merged$previous_direction), labels[["gained"]],
       data.table::fifelse(

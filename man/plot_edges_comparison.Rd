@@ -22,9 +22,9 @@ and `target` columns.}
 overlap, and total edges.}
 }
 \value{
-A ggplot object visualizing edge overlap between the two networks.
+A patchwork combining a ComplexHeatmap edge matrix and edge-count bars.
 }
 \description{
-Creates a scatter plot comparing predicted, ground truth, and
+Creates a heatmap and count summary of predicted, ground truth, and
   overlapping edges between two gene regulatory networks.
 }

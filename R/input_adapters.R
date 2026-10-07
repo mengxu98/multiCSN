@@ -97,7 +97,9 @@ split_peak_identifiers <- function(peaks) {
   take <- function(index, pattern, coordinate_delimiter) {
     matched <- regexpr(pattern, peaks[index], perl = TRUE)
     valid <- which(matched > 1L)
-    if (!length(valid)) return(invisible(NULL))
+    if (!length(valid)) {
+      return(invisible(NULL))
+    }
     chosen <- index[valid]
     boundary <- as.integer(matched[valid])
     suffix <- substring(peaks[chosen], boundary + 1L)

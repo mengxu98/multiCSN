@@ -2,9 +2,12 @@
 #'
 #' @inheritParams inferCSN::network_format
 #' @param switch_matrix Convert edge tables to matrices.
-#' @param show_names,heatmap_size_lock Logical display controls.
+#' @param show_names Logical display control.
+#' @param heatmap_size_lock Use the requested dimensions as square-cell bounds.
+#'   If \code{FALSE}, choose the square-cell size automatically.
 #' @param show_names_position Name placement for multiple heatmaps.
-#' @param heatmap_size,heatmap_height,heatmap_width Heatmap dimensions.
+#' @param heatmap_size,heatmap_height,heatmap_width Heatmap body bounds in cm.
+#'   Cell width and height are always equal.
 #' @param heatmap_title Heatmap title.
 #' @param heatmap_title_color Optional title colors. Default `NULL` preserves
 #'   the default text color. Otherwise, supply one color per input network,
@@ -126,9 +129,11 @@ plot_network_heatmap <- function(
     !is.matrix(network_table)
   n_heatmaps <- if (is_network_list) length(network_table) else 1L
   if (!is.null(heatmap_title_color) &&
-      length(heatmap_title_color) != n_heatmaps) {
-    stop("heatmap_title_color must contain one color per input network (",
-         n_heatmaps, "), including ground truth if present.")
+    length(heatmap_title_color) != n_heatmaps) {
+    stop(
+      "heatmap_title_color must contain one color per input network (",
+      n_heatmaps, "), including ground truth if present."
+    )
   }
   if (is.null(row_anno)) {
     row_anno <- !is_network_list
@@ -1059,6 +1064,89 @@ network_heatmap_truth_cell_legend <- function(
   )
 }
 
+heatmap_table_matrix <- function(data, row, column, value) {
+  row_values <- data[[row]]
+  column_values <- data[[column]]
+  rows <- if (is.factor(row_values)) rev(levels(droplevels(row_values))) else rev(unique(as.character(row_values)))
+  columns <- if (is.factor(column_values)) levels(droplevels(column_values)) else unique(as.character(column_values))
+  mat <- matrix(NA_real_, length(rows), length(columns), dimnames = list(rows, columns))
+  index <- cbind(match(as.character(row_values), rows), match(as.character(column_values), columns))
+  valid <- !is.na(index[, 1L]) & !is.na(index[, 2L])
+  mat[index[valid, , drop = FALSE]] <- data[[value]][valid]
+  mat
+}
+
+square_heatmap_cells <- function(ht, cell_size = NULL) {
+  gaps <- lapply(c("row", "column"), function(axis) {
+    split <- ht@matrix_param[[paste0(axis, "_split")]]
+    slices <- if (is.null(split)) 1L else if (is.data.frame(split)) nrow(unique(split)) else split
+    gap <- ht@matrix_param[[paste0(axis, "_gap")]]
+    if (slices <= 1L) grid::unit(0, "mm") else sum(rep(gap, length.out = slices - 1L))
+  })
+  if (is.null(cell_size)) {
+    bounds <- numeric()
+    for (i in seq_along(gaps)) {
+      dimension <- ht@matrix_param[[c("height", "width")[[i]]]]
+      if (grid::unitType(dimension) %in% c("mm", "cm", "inches", "points", "bigpts")) {
+        bounds <- c(bounds, grid::convertUnit(dimension - gaps[[i]], "mm", valueOnly = TRUE) / dim(ht@matrix)[[i]])
+      }
+    }
+    cell_size <- if (length(bounds)) min(bounds) else min(8, 80 / max(dim(ht@matrix)))
+  }
+  if (!grid::is.unit(cell_size)) cell_size <- grid::unit(cell_size, "mm")
+  if (!all(grid::unitType(cell_size) %in% c("mm", "cm", "inches", "points", "bigpts", "picas", "dida", "cicero"))) {
+    stop("cell_size must use absolute physical units.", call. = FALSE)
+  }
+  edge <- grid::convertUnit(cell_size, "mm", valueOnly = TRUE)
+  if (length(edge) != 1L || !is.finite(edge) || edge <= 0) {
+    stop("cell_size must be a positive physical length.", call. = FALSE)
+  }
+  cell_size <- grid::unit(edge, "mm")
+  ht@matrix_param$height <- nrow(ht@matrix) * cell_size + gaps[[1L]]
+  ht@matrix_param$width <- ncol(ht@matrix) * cell_size + gaps[[2L]]
+  ht
+}
+
+heatmap_panel <- function(mat, name, col = c("white", "#B2182B"),
+                          limits = NULL, title = NULL, row_title = NULL,
+                          column_title = NULL, cell_labels = NULL, ...) {
+  if (is.numeric(mat) && !is.function(col)) {
+    if (is.null(limits)) {
+      values <- mat[is.finite(mat)]
+      limits <- if (length(values)) range(values) else c(0, 1)
+      if (length(col) == 3L) limits <- c(-1, 1) * max(1, abs(limits))
+      if (diff(limits) == 0) limits <- limits + c(-0.5, 0.5)
+    }
+    col <- circlize::colorRamp2(seq(limits[1], limits[2], length.out = length(col)), col)
+  }
+  cell_fun <- if (is.null(cell_labels)) {
+    NULL
+  } else {
+    function(j, i, x, y, width, height, fill) {
+      label <- cell_labels[i, j]
+      if (!is.na(label)) grid::grid.text(label, x, y, gp = grid::gpar(fontsize = 9))
+    }
+  }
+  ht <- ComplexHeatmap::Heatmap(
+    mat,
+    name = name, col = col, na_col = "grey95",
+    cluster_rows = FALSE, cluster_columns = FALSE,
+    row_names_side = "left", column_names_rot = 45,
+    row_names_gp = grid::gpar(fontsize = 10),
+    column_names_gp = grid::gpar(fontsize = 10),
+    rect_gp = grid::gpar(col = "grey90", lwd = 0.6),
+    row_title = row_title, column_title = column_title,
+    column_title_side = "bottom", cell_fun = cell_fun, ...
+  )
+  ht <- square_heatmap_cells(ht)
+  grob <- grid::grid.grabExpr(ComplexHeatmap::draw(ht, newpage = FALSE), wrap = TRUE)
+  plot <- patchwork::wrap_elements(plot = grob)
+  if (!is.null(title)) plot <- plot + ggplot2::ggtitle(title)
+  attr(plot, "Heatmap") <- ht
+  attr(plot, "grob") <- grob
+  plot
+}
+
 network_heatmap_cell_border_fun <- function(border_matrix = NULL, lwd = 1.2) {
   if (is.null(border_matrix)) {
     return(NULL)
@@ -1088,10 +1176,6 @@ print.multicsn_heatmap_grid <- function(x, ...) {
 }
 
 register_multicsn_heatmap_grid_draw_method <- function() {
-  if (!requireNamespace("ComplexHeatmap", quietly = TRUE)) {
-    return(invisible(FALSE))
-  }
-
   methods::setOldClass(c("multicsn_heatmap_grid", "gTree", "grob", "gDesc"))
   methods::setMethod(
     ComplexHeatmap::draw,
@@ -1367,5 +1451,5 @@ build_network_heatmap <- function(
     cell_fun = cell_fun
   )
 
-  return(p)
+  return(square_heatmap_cells(p))
 }

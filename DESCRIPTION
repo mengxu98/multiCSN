@@ -13,6 +13,10 @@ BugReports: https://github.com/mengxu98/multiCSN/issues
 Depends:
     R (>= 4.1.0)
 Imports:
+    ComplexHeatmap,
+    circlize,
+    grid,
+    grDevices,
     GenomicRanges,
     inferCSN (>= 1.2.5),
     IRanges,
@@ -44,8 +48,6 @@ Suggests:
     edgeR,
     motifmatchr,
     testthat (>= 3.0.0),
-    ComplexHeatmap,
-    circlize,
     cli,
     dplyr,
     FNN,
@@ -53,7 +55,6 @@ Suggests:
     GenomeInfoDb,
     gganimate,
     gtools,
-    grDevices,
     network,
     igraph,
     plotly,
@@ -71,7 +72,6 @@ Suggests:
     plyr,
     reshape2,
     viridis,
-    pheatmap,
     tidyselect,
     uwot,
     RColorBrewer,
@@ -90,7 +90,7 @@ Suggests:
     proxy,
     RANN
 Remotes:
-    mengxu98/inferCSN@eca4097c1310ea03b1591a009cd09afafc013659,
+    mengxu98/inferCSN@191a9242c9e0d526c9e12856e6fc522fe0da0864,
     mengxu98/thisplot,
     mengxu98/thisutils@bb62888fbf17e5988d71012677df3c47693290b2
 Config/Needs/website: mengxu98/thistemplate
