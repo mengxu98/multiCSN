@@ -53,11 +53,15 @@ plot_network_heatmap(
 
 \item{switch_matrix}{Convert edge tables to matrices.}
 
-\item{show_names, heatmap_size_lock}{Logical display controls.}
+\item{show_names}{Logical display control.}
+
+\item{heatmap_size_lock}{Use the requested dimensions as square-cell bounds.
+If \code{FALSE}, choose the square-cell size automatically.}
 
 \item{show_names_position}{Name placement for multiple heatmaps.}
 
-\item{heatmap_size, heatmap_height, heatmap_width}{Heatmap dimensions.}
+\item{heatmap_size, heatmap_height, heatmap_width}{Heatmap body bounds in cm.
+Cell width and height are always equal.}
 
 \item{heatmap_title}{Heatmap title.}
 

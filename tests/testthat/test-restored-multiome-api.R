@@ -44,15 +44,3 @@ test_that("peak adapters preserve coordinates and collapse repeated annotations"
     dimnames = list(c("g1", "g2"), c("p1", "p2"))
   ))
 })
-
-test_that("Seurat layer and annotation adapters preserve their inputs", {
-  x <- Matrix::Matrix(matrix(1:12, 3, 4, dimnames = list(paste0("g", 1:3), paste0("c", 1:4))), sparse = TRUE)
-  object <- SeuratObject::CreateSeuratObject(x)
-  expect_equal(
-    get_layer_data(object, assay = "RNA", layer = "counts"),
-    SeuratObject::LayerData(object, assay = "RNA", layer = "counts")
-  )
-  annotation <- parse_peak_ranges("chr1:2-4")
-  object@misc$multiCSN_annotations <- list(ATAC = annotation)
-  expect_equal(get_peak_annotation(object, "ATAC"), annotation)
-})

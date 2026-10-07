@@ -20,4 +20,7 @@ A list containing the metric
 Calculates the Early Precision Ratio (EPR) on the fixed candidate universe.
 EPR compares the precision among the top-ranked predicted edges to the
 precision expected from a random predictor over the same candidate edge pool.
+All non-zero predictions tied at the reference edge-count cutoff are retained;
+the precision denominator is the actual selected count. Empty or all-zero
+predictions have EPR zero. Saved score precision is retained.
 }

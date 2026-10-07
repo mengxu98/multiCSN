@@ -1,4 +1,3 @@
-
 #' @title Inferring Cell-Specific Gene Regulatory Network
 #'
 #' @useDynLib multiCSN, .registration = TRUE

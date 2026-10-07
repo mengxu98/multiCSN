@@ -33,7 +33,7 @@ plot_heatmap_by_treatment(
 \item{fontSize}{heatmap font size}
 }
 \value{
-pheatmap
+A ComplexHeatmap heatmap object.
 }
 \description{
 Useful plotting function to plot heatmap with pre-split matrix

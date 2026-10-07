@@ -38,7 +38,7 @@ or target-gene sets.}
 \item{palcolor}{Optional named color vector overriding state/group colors.}
 }
 \value{
-A \code{ggplot} object.
+A grid grob for heatmaps, or a drawable plot object for set-overlap views.
 }
 \description{
 Plot adjacent-state TF rewiring heatmap

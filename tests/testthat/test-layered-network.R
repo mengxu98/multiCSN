@@ -52,18 +52,23 @@ test_that("layered candidate construction matches the reference selection", {
   genes <- c("g1", "g2", "g3")
   cells <- paste0("c", seq_len(30))
   peak_tf_gate <- Matrix::Matrix(
-    matrix(as.numeric(runif(length(peaks) * 3) > 0.6), nrow = length(peaks),
-           dimnames = list(peaks, c("tf1", "tf2", "tf3"))),
+    matrix(as.numeric(runif(length(peaks) * 3) > 0.6),
+      nrow = length(peaks),
+      dimnames = list(peaks, c("tf1", "tf2", "tf3"))
+    ),
     sparse = TRUE
   )
   peaks2gene <- Matrix::Matrix(
     matrix(rep(c(1, 0, 1, 0), length.out = length(peaks) * length(genes)),
-           nrow = length(genes), dimnames = list(genes, peaks)),
+      nrow = length(genes), dimnames = list(genes, peaks)
+    ),
     sparse = TRUE
   )
   gene_by_cell <- Matrix::Matrix(
-    matrix(rpois(length(genes) * length(cells), 1), nrow = length(genes),
-           dimnames = list(genes, cells)),
+    matrix(rpois(length(genes) * length(cells), 1),
+      nrow = length(genes),
+      dimnames = list(genes, cells)
+    ),
     sparse = TRUE
   )
   candidate <- multiCSN:::layered_candidate_functions(
@@ -103,18 +108,23 @@ test_that("region-gene layer matches the naive per-target reference", {
   cells <- paste0("c", seq_len(40))
   set.seed(7)
   peak_by_cell <- Matrix::Matrix(
-    matrix(rpois(length(peaks) * length(cells), 0.8), nrow = length(peaks),
-           dimnames = list(peaks, cells)),
+    matrix(rpois(length(peaks) * length(cells), 0.8),
+      nrow = length(peaks),
+      dimnames = list(peaks, cells)
+    ),
     sparse = TRUE
   )
   gene_by_cell <- Matrix::Matrix(
-    matrix(rpois(length(genes) * length(cells), 1.5), nrow = length(genes),
-           dimnames = list(genes, cells)),
+    matrix(rpois(length(genes) * length(cells), 1.5),
+      nrow = length(genes),
+      dimnames = list(genes, cells)
+    ),
     sparse = TRUE
   )
   peaks2gene <- Matrix::Matrix(
     matrix(rep(c(1, 0, 1), length.out = length(peaks) * length(genes)),
-           nrow = length(genes), dimnames = list(genes, peaks)),
+      nrow = length(genes), dimnames = list(genes, peaks)
+    ),
     sparse = TRUE
   )
   settings <- list(
@@ -193,13 +203,17 @@ test_that("checkpoints round-trip without changing the layered fit", {
   set.seed(41)
   cells <- paste0("c", seq_len(20))
   responses <- paste0("t", seq_len(6))
-  design <- matrix(rnorm(length(cells) * 3), nrow = length(cells),
-                   dimnames = list(cells, paste0("tf", seq_len(3))))
+  design <- matrix(rnorm(length(cells) * 3),
+    nrow = length(cells),
+    dimnames = list(cells, paste0("tf", seq_len(3)))
+  )
   design <- sweep(design, 2L, colMeans(design), "-")
   design <- sweep(design, 2L, sqrt(colSums(design^2) / (nrow(design) - 1L)), "/")
   response <- Matrix::Matrix(
-    matrix(rpois(length(responses) * length(cells), 2), nrow = length(responses),
-           dimnames = list(responses, cells)),
+    matrix(rpois(length(responses) * length(cells), 2),
+      nrow = length(responses),
+      dimnames = list(responses, cells)
+    ),
     sparse = TRUE
   )
   settings <- list(
@@ -273,7 +287,8 @@ test_that("PSOCK workers return ordered results", {
 
 test_that("fit_layered_network validates its inputs", {
   x <- Matrix::Matrix(matrix(1:12, 3, 4, dimnames = list(paste0("g", 1:3), paste0("c", 1:4))),
-                      sparse = TRUE)
+    sparse = TRUE
+  )
   object <- SeuratObject::CreateSeuratObject(x)
   expect_error(
     fit_layered_network(object, verbose = FALSE),

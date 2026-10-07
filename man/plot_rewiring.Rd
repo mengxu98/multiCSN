@@ -38,9 +38,7 @@ or target-gene sets.}
 \item{palcolor}{Optional named color vector overriding state/group colors.}
 }
 \value{
-A drawable plot object. When \pkg{ComplexHeatmap} is available,
-  the function returns a grid grob captured from the drawn heatmap;
-  otherwise it returns a \code{ggplot} object.
+A grid grob for heatmaps, or a drawable plot object for set-overlap views.
 }
 \description{
 Plot adjacent-state TF rewiring heatmap

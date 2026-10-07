@@ -27,7 +27,7 @@ plot_tf_peak_overlap_scenic_style(
 \item{top_targets_per_tf}{Number of target genes retained per TF.}
 }
 \value{
-A \code{ggplot} object.
+A patchwork-compatible ComplexHeatmap plot. Cell labels show supporting peak counts.
 }
 \description{
 Plot TF-supported peak overlap across ordered states

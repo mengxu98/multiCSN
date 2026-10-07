@@ -45,16 +45,22 @@ test_that("peak mapping and count projection are one-to-one", {
   wide <- consensus_peak_set(map)
   expect_identical(names(wide), c("chr1:100-200", "chr1:300-400"))
   counts <- Matrix::Matrix(
-    matrix(c(1:4, 5:8), nrow = 4,
-           dimnames = list(c("chr1:100-150", "chr1:300-350", "chr1:140-200", "chr1:340-400"),
-                           c("c1", "c2"))),
+    matrix(c(1:4, 5:8),
+      nrow = 4,
+      dimnames = list(
+        c("chr1:100-150", "chr1:300-350", "chr1:140-200", "chr1:340-400"),
+        c("c1", "c2")
+      )
+    ),
     sparse = TRUE
   )
   projected <- project_counts_to_consensus(counts, rownames(counts), wide)
   expect_identical(rownames(projected), names(wide))
   expect_equal(
     as.matrix(projected),
-    matrix(c(1 + 3, 2 + 4, 5 + 7, 6 + 8), nrow = 2,
-           dimnames = list(names(wide), c("c1", "c2")))
+    matrix(c(1 + 3, 2 + 4, 5 + 7, 6 + 8),
+      nrow = 2,
+      dimnames = list(names(wide), c("c1", "c2"))
+    )
   )
 })
