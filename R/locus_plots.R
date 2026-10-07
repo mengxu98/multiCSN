@@ -257,29 +257,15 @@ plot_tf_peak_overlap_scenic_style <- function(
   heat_df$group <- factor(heat_df$group, levels = rev(names(group_sets)))
   heat_df$state_id <- factor(heat_df$state_id, levels = state_levels)
 
-  ggplot2::ggplot(
-    heat_df,
-    ggplot2::aes(x = state_id, y = group, fill = mean_accessibility)
-  ) +
-    ggplot2::geom_tile(color = "white", linewidth = 0.4) +
-    ggplot2::geom_text(
-      ggplot2::aes(label = n_peaks),
-      size = 3,
-      color = "black"
-    ) +
-    ggplot2::scale_fill_gradient(low = "white", high = "#08519C") +
-    ggplot2::theme_bw() +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
-      panel.grid = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(
-      title = "TF peak-set overlap panel",
-      subtitle = "Fill: mean state accessibility; text: number of supporting peaks",
-      x = "State",
-      y = "Peak-set group",
-      fill = "ATAC"
-    )
+  heatmap_panel(
+    heatmap_table_matrix(heat_df, "group", "state_id", "mean_accessibility"),
+    name = "ATAC",
+    col = c("white", "#08519C"),
+    title = "TF peak-set overlap panel",
+    row_title = "Peak-set group",
+    column_title = "State",
+    cell_labels = heatmap_table_matrix(heat_df, "group", "state_id", "n_peaks")
+  )
 }
 
 ensure_state_group_column <- function(

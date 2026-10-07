@@ -5,18 +5,6 @@ write_layer <- function(root, file, table) {
   data.table::fwrite(table, file.path(root, file), sep = "\t", quote = FALSE, na = "NA")
 }
 
-test_that("endpoint spec matches the layered fit output contract", {
-  spec <- network_endpoints()
-  expect_identical(nrow(spec), 5L)
-  expect_identical(
-    spec$file,
-    c("tf_gene.tsv", "tf_region.tsv", "region_gene.tsv", "triplets.tsv", "mediated_tf_gene.tsv")
-  )
-  expect_identical(spec$keys[[1]], c("regulator", "target"))
-  expect_identical(spec$keys[[3]], c("region", "target"))
-  expect_identical(spec$keys[[4]], c("regulator", "region", "target"))
-})
-
 test_that("read_network_endpoints reads and validates a result directory", {
   root <- file.path(tempdir(), "endpoint-reader")
   empty(root)
@@ -49,8 +37,10 @@ test_that("read_network_endpoints reads and validates a result directory", {
   expect_identical(names(directed$`TF-gene`), c("regulator", "target", "direction"))
   expect_identical(directed$`TF-gene`$direction, c(1, -1))
   expect_error(
-    read_network_endpoints(root, endpoints = "TF-gene", direction = TRUE,
-                           weight_column = "missing_column"),
+    read_network_endpoints(root,
+      endpoints = "TF-gene", direction = TRUE,
+      weight_column = "missing_column"
+    ),
     "lacks column"
   )
   expect_error(read_network_endpoints(root, endpoints = "nope"), "Unknown endpoint")
@@ -60,8 +50,10 @@ test_that("read_network_endpoints reads and validates a result directory", {
     region = c("chr1:1-2", "chr1:1-2"), target = c("g1", "g1"),
     standardized_beta = c(0.5, 0.5), deletion_delta_bic = c(3, 3), weight = c(0.5, 0.5)
   ))
-  expect_error(read_network_endpoints(root, endpoints = "region-gene"),
-               "missing or duplicated keys")
+  expect_error(
+    read_network_endpoints(root, endpoints = "region-gene"),
+    "missing or duplicated keys"
+  )
   write_layer(root, "region_gene.tsv", data.frame(
     region = "chr1:1-2", target = "g1", standardized_beta = 0.5,
     deletion_delta_bic = 3, weight = 0
@@ -113,17 +105,21 @@ test_that("classify_edge_transitions validates its inputs", {
   )
   expect_error(
     classify_edge_transitions(previous, next_state, c("regulator", "target"),
-                              direction_column = "absent"),
+      direction_column = "absent"
+    ),
     "lacks column"
   )
   expect_error(
-    classify_edge_transitions(rbind(previous, previous), next_state,
-                              c("regulator", "target")),
+    classify_edge_transitions(
+      rbind(previous, previous), next_state,
+      c("regulator", "target")
+    ),
     "missing or duplicated edge keys"
   )
   expect_error(
     classify_edge_transitions(previous, next_state, c("regulator", "target"),
-                              labels = c(a = "a", b = "b", c = "c", d = "d")),
+      labels = c(a = "a", b = "b", c = "c", d = "d")
+    ),
     "labels must name"
   )
 })

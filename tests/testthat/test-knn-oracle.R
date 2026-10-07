@@ -32,6 +32,8 @@ test_that("KNN has exact neighbor identities when distances are not tied", {
   diag(d) <- Inf
   expected <- t(apply(d, 1, order))[, 1:2, drop = FALSE]
   one <- multiCSN:::build_nn2(x, k = 2, mode = "out")
+  expect_true(igraph::is_igraph(one$graph_knn))
+  expect_equal(dim(one$dist), c(nrow(x), 2L))
   expect_equal(one$idx, unname(expected))
   expect_equal(igraph::ecount(one$graph_knn), 2L * nrow(x))
   expect_false(any(igraph::which_loop(one$graph_knn)))

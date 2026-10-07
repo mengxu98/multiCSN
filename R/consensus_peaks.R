@@ -93,7 +93,8 @@ project_counts_to_consensus <- function(counts, peaks = rownames(counts), consen
     stop("Peak identifiers and count rows disagree.", call. = FALSE)
   }
   index <- map_peaks_to_consensus(
-    peaks, consensus, type = type, require_one_to_one = require_one_to_one
+    peaks, consensus,
+    type = type, require_one_to_one = require_one_to_one
   )
   projection <- Matrix::sparseMatrix(
     i = index, j = seq_along(index), x = 1,

@@ -17,9 +17,7 @@ plot_features(
   view = c("ranking", "dynamics"),
   scale_value = c("zscore", "raw"),
   x_text_angle = NULL,
-  engine = c("auto", "ComplexHeatmap", "ggplot"),
-  cell_width = NULL,
-  cell_height = NULL,
+  cell_size = NULL,
   cluster_rows = FALSE,
   cluster_columns = FALSE,
   return_grob = FALSE
@@ -53,14 +51,8 @@ to standardize each feature across states, or \code{"raw"} for raw scores.}
 \item{x_text_angle}{Column-label angle for dynamics heatmaps. If \code{NULL},
 choose automatically from the number and length of state labels.}
 
-\item{engine}{Heatmap engine for dynamics view: \code{"auto"},
-\code{"ComplexHeatmap"}, or \code{"ggplot"}. Default is \code{"auto"}.}
-
-\item{cell_width}{Width of each heatmap cell in mm (for ComplexHeatmap).
-If \code{NULL}, auto-calculated from number of columns.}
-
-\item{cell_height}{Height of each heatmap cell in mm (for ComplexHeatmap).
-If \code{NULL}, auto-calculated from number of rows.}
+\item{cell_size}{Side length of each square heatmap cell in mm or an absolute
+grid unit. If \code{NULL}, choose automatically from the matrix dimensions.}
 
 \item{cluster_rows}{Logical, whether to cluster rows in dynamics heatmap.
 Default is \code{FALSE}.}

@@ -114,7 +114,9 @@ layered_checkpoint <- function(root, name, ...) {
 }
 
 layered_prepare_checkpoint <- function(root, inputs, settings) {
-  if (is.null(root)) return(invisible(NULL))
+  if (is.null(root)) {
+    return(invisible(NULL))
+  }
   dir.create(root, recursive = TRUE, showWarnings = FALSE)
   manifest <- file.path(root, "layered_checkpoint_identity.rds")
   if (!file.exists(manifest)) {
@@ -158,8 +160,8 @@ layered_prepare_checkpoint <- function(root, inputs, settings) {
 }
 
 layered_candidate_functions <- function(gene_by_cell, peaks2gene, peak_tf_gate,
-                                         features, regulators, min_detected,
-                                         endpoint = c("tf_gene", "tf_region")) {
+                                        features, regulators, min_detected,
+                                        endpoint = c("tf_gene", "tf_region")) {
   endpoint <- match.arg(endpoint)
   peaks2gene_rows <- row_compressed_matrix(peaks2gene)
   gate_rows <- row_compressed_matrix(peak_tf_gate)
@@ -203,8 +205,8 @@ layered_candidate_functions <- function(gene_by_cell, peaks2gene, peak_tf_gate,
 }
 
 fit_layered_shared_design <- function(design, response, response_names,
-                                       candidate_function, endpoint, settings,
-                                       checkpoint_root = NULL) {
+                                      candidate_function, endpoint, settings,
+                                      checkpoint_root = NULL) {
   n_obs <- nrow(design)
   gram <- crossprod(design)
   response_stats <- layered_response_statistics(response, n_obs)
@@ -298,7 +300,7 @@ fit_layered_shared_design <- function(design, response, response_names,
 }
 
 fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2gene,
-                                     settings, checkpoint_root = NULL) {
+                                    settings, checkpoint_root = NULL) {
   n_obs <- ncol(gene_by_cell)
   peak_rows <- row_compressed_matrix(peak_by_cell)
   domain_rows <- row_compressed_matrix(peaks2gene)
@@ -356,7 +358,8 @@ fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2
         if (is.finite(y_scale) && y_scale > 0) {
           raw_xty <- as.numeric(Matrix::crossprod(candidate_block, y))
           xty <- matrix(
-            (raw_xty - n_obs * means * y_mean) / (scales * y_scale), ncol = 1L
+            (raw_xty - n_obs * means * y_mean) / (scales * y_scale),
+            ncol = 1L
           )
           fit <- inferCSN::fit_greedy_l0_batch(
             gram = gram, xty = xty, response_ss = n_obs - 1,
@@ -424,15 +427,17 @@ fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2
 }
 
 layered_inputs <- function(object, cell_group, cells, regulators, targets,
-                            min_peak_cells, upstream, downstream, tf_region_scope,
-                            renormalize, sort_regulators, verbose) {
+                           min_peak_cells, upstream, downstream, tf_region_scope,
+                           renormalize, sort_regulators, verbose) {
   params <- Params(object)
   rna_assay <- params$rna_assay
   peak_assay <- params$peak_assay
   if (is.null(peak_assay)) {
     stop("A layered multi-omic fit requires a chromatin accessibility assay.", call. = FALSE)
   }
-  catalogue <- if (is.null(cell_group)) NULL else {
+  catalogue <- if (is.null(cell_group)) {
+    NULL
+  } else {
     get_attribute(object, celltypes = cell_group, attribute = "cells")
   }
   selected <- if (is.null(cells)) catalogue else as.character(cells)
@@ -648,7 +653,8 @@ layered_store <- function(object, fit, network_name, cell_group, settings) {
       value$edges, value$accounting, value$regulators, value$targets, layer_name
     )
     object <- multicsn_set_network_entry(
-      object, network = layer_name, celltype = cell_group, value = network
+      object,
+      network = layer_name, celltype = cell_group, value = network
     )
   }
   object
@@ -767,8 +773,10 @@ fit_layered_network <- function(object,
   fit <- fit_layered_core(inputs, settings)
   result <- c(
     fit,
-    list(settings = settings, cells = inputs$cells, targets = inputs$features,
-         regulators = inputs$regulators)
+    list(
+      settings = settings, cells = inputs$cells, targets = inputs$features,
+      regulators = inputs$regulators
+    )
   )
   if (isTRUE(store)) {
     result$object <- layered_store(

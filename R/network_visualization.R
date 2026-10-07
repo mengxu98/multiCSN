@@ -132,7 +132,8 @@ plot_static_networks <- function(
     regulator_network$name %in% regulators
   )
   node_network <- regulator_network[
-    !duplicated(regulator_network[, c("x", "y", "name")]), , drop = FALSE
+    !duplicated(regulator_network[, c("x", "y", "name")]), ,
+    drop = FALSE
   ]
   label_names <- if (is.null(label_nodes)) {
     node_network$name
@@ -146,7 +147,8 @@ plot_static_networks <- function(
   }
 
   node_colors <- thisplot::palette_colors(
-    c("Regulator", "Target"), palette = palette, palcolor = palcolor
+    c("Regulator", "Target"),
+    palette = palette, palcolor = palcolor
   )
   reg_col <- node_colors[["Regulator"]]
   tgt_col <- node_colors[["Target"]]
@@ -766,7 +768,8 @@ setMethod(
     }
 
     node_colors <- thisplot::palette_colors(
-      c("Regulator", "Target"), palette = palette, palcolor = palcolor
+      c("Regulator", "Target"),
+      palette = palette, palcolor = palcolor
     )
     reg_col <- if (!is.null(regulator_color)) {
       regulator_color
@@ -806,7 +809,9 @@ setMethod(
     }
     label_df_fun <- function(df) {
       sub_df <- df[nzchar(as.character(df$label_genes)), , drop = FALSE]
-      if (nrow(sub_df) == 0) return(sub_df)
+      if (nrow(sub_df) == 0) {
+        return(sub_df)
+      }
       sub_df[!duplicated(sub_df[, c("x", "y", "label_genes")]), , drop = FALSE]
     }
 

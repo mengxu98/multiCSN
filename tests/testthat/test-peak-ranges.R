@@ -74,8 +74,10 @@ test_that("one unusually delimited peak does not disable the fast path", {
   parsed <- multiCSN:::split_peak_identifiers(mixed)
   expect_false(anyNA(parsed$chromosome))
   expect_identical(parsed$chromosome, c(rep("chr1", 100L), "chr1:extra"))
-  expect_identical(as.integer(IRanges::start(parse_peak_ranges(mixed))),
-                   c(seq_len(100L), 101L))
+  expect_identical(
+    as.integer(IRanges::start(parse_peak_ranges(mixed))),
+    c(seq_len(100L), 101L)
+  )
 })
 
 test_that("mixed delimiter batches match the original peak grammar", {
@@ -91,7 +93,9 @@ test_that("mixed delimiter batches match the original peak grammar", {
   reference <- t(vapply(peaks, function(peak) {
     for (pattern in multiCSN:::.peak_identifier_patterns) {
       matched <- regmatches(peak, regexec(pattern, peak, perl = TRUE))[[1L]]
-      if (length(matched) == 4L) return(matched[2:4])
+      if (length(matched) == 4L) {
+        return(matched[2:4])
+      }
     }
     stop("The fixture contains an invalid peak identifier")
   }, character(3)))

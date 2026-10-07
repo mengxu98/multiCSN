@@ -4,8 +4,15 @@
 #include <unordered_set>
 #include <string>
 #include <vector>
+#include <cmath>
 
 using namespace Rcpp;
+
+// Length-prefix the first endpoint so arbitrary punctuation cannot merge edges.
+static std::string metric_edge_key(const std::string &reg, const std::string &tar)
+{
+    return std::to_string(reg.size()) + ":" + reg + tar;
+}
 
 // [[Rcpp::export]]
 DataFrame prepare_calculate_metrics(DataFrame network_table, DataFrame ground_truth)
@@ -40,7 +47,7 @@ DataFrame prepare_calculate_metrics(DataFrame network_table, DataFrame ground_tr
             gt_genes.push_back(tar);
         }
 
-        std::string key = reg + "|||" + tar;
+        std::string key = metric_edge_key(reg, tar);
         truth_map.insert(key);
     }
 
@@ -67,10 +74,10 @@ DataFrame prepare_calculate_metrics(DataFrame network_table, DataFrame ground_tr
             continue;
         if (!gt_gene_set.count(reg) || !gt_gene_set.count(tar))
             continue;
-        if (NumericVector::is_na(network_weight[i]))
+        if (!std::isfinite(network_weight[i]))
             continue;
 
-        std::string key = reg + "|||" + tar;
+        std::string key = metric_edge_key(reg, tar);
         double weight = network_weight[i];
         auto it = pred_weights.find(key);
         if (it == pred_weights.end() || weight > it->second)
@@ -96,7 +103,7 @@ DataFrame prepare_calculate_metrics(DataFrame network_table, DataFrame ground_tr
             if (i == j)
                 continue;
 
-            std::string key = gt_genes[i] + "|||" + gt_genes[j];
+            std::string key = metric_edge_key(gt_genes[i], gt_genes[j]);
             double weight = 0.0;
             auto pred_it = pred_weights.find(key);
             if (pred_it != pred_weights.end())
@@ -177,7 +184,7 @@ List prepare_metric_vectors(DataFrame network_table, DataFrame ground_truth)
             gt_genes.push_back(tar);
         }
 
-        truth_map.insert(reg + "|||" + tar);
+        truth_map.insert(metric_edge_key(reg, tar));
     }
 
     if (gt_genes.size() < 2)
@@ -199,10 +206,10 @@ List prepare_metric_vectors(DataFrame network_table, DataFrame ground_truth)
             continue;
         if (!gt_gene_set.count(reg) || !gt_gene_set.count(tar))
             continue;
-        if (NumericVector::is_na(network_weight[i]))
+        if (!std::isfinite(network_weight[i]))
             continue;
 
-        std::string key = reg + "|||" + tar;
+        std::string key = metric_edge_key(reg, tar);
         double weight = network_weight[i];
         auto it = pred_weights.find(key);
         if (it == pred_weights.end() || weight > it->second)
@@ -223,7 +230,7 @@ List prepare_metric_vectors(DataFrame network_table, DataFrame ground_truth)
             if (i == j)
                 continue;
 
-            std::string key = gt_genes[i] + "|||" + gt_genes[j];
+            std::string key = metric_edge_key(gt_genes[i], gt_genes[j]);
             auto pred_it = pred_weights.find(key);
             out_weight[idx] = pred_it != pred_weights.end() ? pred_it->second : 0.0;
             out_label[idx] = truth_map.count(key) > 0 ? 1 : 0;

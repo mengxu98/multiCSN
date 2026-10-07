@@ -28,7 +28,7 @@ hm_dyn_epoch(
 '}
 }
 \value{
-heatmaps
+A ComplexHeatmap heatmap object.
 }
 \description{
 heatmap
