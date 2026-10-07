@@ -243,9 +243,9 @@ data("example_matrix", package = "inferCSN")
 network_table_1 <- inferCSN(
   example_matrix
 )
-#> ℹ [2026-10-07 06:04:43] Inferring network for <matrix/array>...
-#> ✔ [2026-10-07 06:04:43] Inferring network done
-#> ℹ [2026-10-07 06:04:43] Network information:
+#> ℹ [2026-10-07 07:30:19] Inferring network for <matrix/array>...
+#> ✔ [2026-10-07 07:30:19] Inferring network done
+#> ℹ [2026-10-07 07:30:19] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -253,9 +253,9 @@ network_table_2 <- inferCSN(
   example_matrix,
   cores = 2
 )
-#> ℹ [2026-10-07 06:04:43] Inferring network for <matrix/array>...
-#> ✔ [2026-10-07 06:04:43] Inferring network done
-#> ℹ [2026-10-07 06:04:43] Network information:
+#> ℹ [2026-10-07 07:30:19] Inferring network for <matrix/array>...
+#> ✔ [2026-10-07 07:30:19] Inferring network done
+#> ℹ [2026-10-07 07:30:19] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -279,9 +279,9 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g4")
 )
-#> ℹ [2026-10-07 06:04:43] Inferring network for <matrix/array>...
-#> ✔ [2026-10-07 06:04:43] Inferring network done
-#> ℹ [2026-10-07 06:04:43] Network information:
+#> ℹ [2026-10-07 07:30:19] Inferring network for <matrix/array>...
+#> ✔ [2026-10-07 07:30:19] Inferring network done
+#> ℹ [2026-10-07 07:30:19] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     4          2       2
 #>   regulator target weight
@@ -294,11 +294,11 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g0")
 )
-#> ℹ [2026-10-07 06:04:43] Inferring network for <matrix/array>...
-#> ! [2026-10-07 06:04:43] Ignoring 1 requested targets absent from `object`: g0
+#> ℹ [2026-10-07 07:30:19] Inferring network for <matrix/array>...
+#> ! [2026-10-07 07:30:19] Ignoring 1 requested targets absent from `object`: g0
 #> Warning: Ignoring 1 requested targets absent from `object`: g0
-#> ✔ [2026-10-07 06:04:43] Inferring network done
-#> ℹ [2026-10-07 06:04:43] Network information:
+#> ✔ [2026-10-07 07:30:19] Inferring network done
+#> ℹ [2026-10-07 07:30:19] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     2          2       1
 #>   regulator target weight
