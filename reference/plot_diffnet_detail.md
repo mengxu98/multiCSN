@@ -31,7 +31,7 @@ plot_diffnet_detail(
 
 - order:
 
-  the order in which to plot epochs, or which epochs to plot
+  the order in which to plot states, or which states to plot
 
 - compute_betweenness:
 

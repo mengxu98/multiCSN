@@ -1,6 +1,6 @@
-# Returns cuts to define epochs
+# Returns cuts to define states
 
-Returns cuts to define epochs via clustering
+Returns cuts to define states via clustering
 
 ## Usage
 
@@ -8,7 +8,7 @@ Returns cuts to define epochs via clustering
 find_cuts_by_clustering(
   matrix,
   dynamic_object,
-  num_epochs,
+  num_states,
   limit_to = NULL,
   method = "kmeans",
   p_value = 0.05
@@ -23,15 +23,15 @@ find_cuts_by_clustering(
 
 - dynamic_object:
 
-  result of running findDynGenes or define_epochs
+  result of running findDynGenes or define_states
 
-- num_epochs:
+- num_states:
 
-  the number of epochs
+  the number of states
 
 - limit_to:
 
-  vector of genes on which to base epoch cuts, for example, limiting to
+  vector of genes on which to base state cuts, for example, limiting to
   TFs
 
 - method:
@@ -44,4 +44,4 @@ find_cuts_by_clustering(
 
 ## Value
 
-vector of pseudotimes at which to cut data into epochs
+vector of pseudotimes at which to cut data into states

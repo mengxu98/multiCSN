@@ -48,7 +48,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_targets_with_top_regulators_detail</span><span class="op">(</span></span>
 <span>  <span class="va">network</span>,</span>
 <span>  <span class="va">targets</span>,</span>
-<span>  <span class="va">epochs_list</span>,</span>
+<span>  <span class="va">states_list</span>,</span>
 <span>  weight_column <span class="op">=</span> <span class="st">"weight"</span>,</span>
 <span>  gene_ranks <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  regulators_num <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -64,15 +64,15 @@
 
 
 <dl><dt id="arg-network">network<a class="anchor" aria-label="anchor" href="#arg-network"></a></dt>
-<dd><p>the result of running epochGRN</p></dd>
+<dd><p>the result of running split_network_by_states</p></dd>
 
 
 <dt id="arg-targets">targets<a class="anchor" aria-label="anchor" href="#arg-targets"></a></dt>
 <dd><p>targets</p></dd>
 
 
-<dt id="arg-epochs-list">epochs_list<a class="anchor" aria-label="anchor" href="#arg-epochs-list"></a></dt>
-<dd><p>result of running assign_epochs</p></dd>
+<dt id="arg-states-list">states_list<a class="anchor" aria-label="anchor" href="#arg-states-list"></a></dt>
+<dd><p>result of running assign_genes_to_states</p></dd>
 
 
 <dt id="arg-weight-column">weight_column<a class="anchor" aria-label="anchor" href="#arg-weight-column"></a></dt>
@@ -88,11 +88,11 @@
 
 
 <dt id="arg-network-order">network_order<a class="anchor" aria-label="anchor" href="#arg-network-order"></a></dt>
-<dd><p>which epochs or transitions to plot</p></dd>
+<dd><p>which states or transitions to plot</p></dd>
 
 
 <dt id="arg-fixed-layout">fixed_layout<a class="anchor" aria-label="anchor" href="#arg-fixed-layout"></a></dt>
-<dd><p>whether or not to fix node positions across epoch networks</p></dd>
+<dd><p>whether or not to fix node positions across state networks</p></dd>
 
 
 <dt id="arg-layout-alg">layout_alg<a class="anchor" aria-label="anchor" href="#arg-layout-alg"></a></dt>

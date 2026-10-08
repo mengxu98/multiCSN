@@ -9,7 +9,7 @@ reconstruction weight, colored by expression and interaction type
 plot_targets_with_top_regulators_detail(
   network,
   targets,
-  epochs_list,
+  states_list,
   weight_column = "weight",
   gene_ranks = NULL,
   regulators_num = 5,
@@ -24,15 +24,15 @@ plot_targets_with_top_regulators_detail(
 
 - network:
 
-  the result of running epochGRN
+  the result of running split_network_by_states
 
 - targets:
 
   targets
 
-- epochs_list:
+- states_list:
 
-  result of running assign_epochs
+  result of running assign_genes_to_states
 
 - weight_column:
 
@@ -48,11 +48,11 @@ plot_targets_with_top_regulators_detail(
 
 - network_order:
 
-  which epochs or transitions to plot
+  which states or transitions to plot
 
 - fixed_layout:
 
-  whether or not to fix node positions across epoch networks
+  whether or not to fix node positions across state networks
 
 - layout_alg:
 

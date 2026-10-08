@@ -127,9 +127,9 @@ A ggplot2 object
 ``` r
 data(example_matrix, package = "inferCSN")
 network_table <- inferCSN::inferCSN(example_matrix)
-#> ℹ [2026-10-07 07:30:28] Inferring network for <matrix/array>...
-#> ✔ [2026-10-07 07:30:28] Inferring network done
-#> ℹ [2026-10-07 07:30:28] Network information:
+#> ℹ [2026-10-08 08:48:51] Inferring network for <matrix/array>...
+#> ✔ [2026-10-08 08:48:51] Inferring network done
+#> ℹ [2026-10-08 08:48:51] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 plot_static_networks(

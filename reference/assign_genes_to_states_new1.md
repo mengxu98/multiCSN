@@ -5,7 +5,7 @@ Assigns genes to states
 ## Usage
 
 ``` r
-assign_network(
+assign_genes_to_states_new1(
   matrix,
   dynamic_object,
   method = "active_expression",
@@ -35,11 +35,11 @@ assign_network(
 
 - p_value:
 
-  pval threshold if gene is dynamically expressed
+  p value threshold if gene is dynamically expressed
 
 - pThresh_DE:
 
-  pval if gene is differentially expressed. Ignored if method is
+  p value if gene is differentially expressed. Ignored if method is
   active_expression.
 
 - active_thresh:

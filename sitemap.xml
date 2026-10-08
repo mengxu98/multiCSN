@@ -32,9 +32,9 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/add_interaction_type.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/add_type.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/aggregate_assay.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/assign_epochs.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/assign_epochs_new1.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/assign_epochs_simple.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_new1.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_simple.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/assign_network.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/biglist_compute_betweenness_degree.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/calculate_accuracy.html</loc></url>
@@ -64,7 +64,7 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/compare_celltype_rewiring.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/compare_state_rewiring.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/compileDynGenes.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/compile_epochs.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/compile_states.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/compute_JI_topregs.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/compute_betweenness_degree.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/compute_frobenius_distance.html</loc></url>
@@ -72,8 +72,8 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/consensus_peak_set.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/cor_and_add_action.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/create_seurat_object.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/define_epochs.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/define_epochs_new.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/define_states.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/define_states_new.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/density_points.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/diffnet_community_detection.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/dynamic_difference_network.html</loc></url>
@@ -82,7 +82,6 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/dynamic_windowing.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/edge_uniqueness.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/embedPerturbation.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/epochGRN.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/export_csn.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/expression_ksmooth.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/extract_genes_transition.html</loc></url>
@@ -110,7 +109,7 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/heatmap_by_treatment_group.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/hm_dyn.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/hm_dyn_clust.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/hm_dyn_epoch.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/hm_dyn_state.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/index.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/inferCSN.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/initiate_object.html</loc></url>
@@ -182,8 +181,9 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/select_key_targets.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/select_key_tfs.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/simulate_csn_data.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/split_epochs_by_group.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/split_epochs_by_pseudotime.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/split_network_by_states.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/split_states_by_group.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/split_states_by_pseudotime.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/state_dynamic.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/static_shortest_path.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/strongest_mediated_projection.html</loc></url>

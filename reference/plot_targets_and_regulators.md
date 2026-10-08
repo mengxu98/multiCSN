@@ -1,8 +1,8 @@
-# Updated plot of top regulators given targets in dynamic networks based on a weight column. Top regulators computed for each epoch, but maintained in plot across epochs if present in epoch subnetwork.
+# Updated plot of top regulators given targets in dynamic networks based on a weight column. Top regulators computed for each state, but maintained in plot across states if present in state subnetwork.
 
 Updated plot of top regulators given targets in dynamic networks based
-on a weight column. Top regulators computed for each epoch, but
-maintained in plot across epochs if present in epoch subnetwork.
+on a weight column. Top regulators computed for each state, but
+maintained in plot across states if present in state subnetwork.
 
 ## Usage
 
@@ -10,7 +10,7 @@ maintained in plot across epochs if present in epoch subnetwork.
 plot_targets_and_regulators(
   network,
   targets,
-  epochs = NULL,
+  states = NULL,
   weight_column = "weight",
   gene_ranks = NULL,
   regulators_num = 5,
@@ -29,15 +29,15 @@ plot_targets_and_regulators(
 
 - network:
 
-  the result of running epochGRN
+  the result of running split_network_by_states
 
 - targets:
 
   targets
 
-- epochs:
+- states:
 
-  result of running assign_epochs
+  result of running assign_genes_to_states
 
 - weight_column:
 
@@ -53,11 +53,11 @@ plot_targets_and_regulators(
 
 - network_order:
 
-  which epochs or transitions to plot
+  which states or transitions to plot
 
 - fixed_layout:
 
-  whether or not to fix node positions across epoch networks
+  whether or not to fix node positions across state networks
 
 - declutter:
 
@@ -67,7 +67,7 @@ plot_targets_and_regulators(
 - show_expression:
 
   if TRUE, size and shade of node indicates mean expression in a given
-  epoch.
+  state.
 
 - node_size:
 

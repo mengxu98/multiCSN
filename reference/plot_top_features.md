@@ -21,7 +21,7 @@ plot_top_features(
 
 - network_list:
 
-  the result of running epochGRN
+  the result of running split_network_by_states
 
 - gene_ranks:
 
@@ -45,7 +45,7 @@ plot_top_features(
 
 - network_order:
 
-  which epochs or transitions to plot
+  which states or transitions to plot
 
 - method:
 

@@ -40,7 +40,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.1" id="multicsn-001">multiCSN 0.0.1<a class="anchor" aria-label="anchor" href="#multicsn-001"></a></h2>
-<ul><li><p>Initial release.</p></li>
+<ul><li><p>Trajectory partitions, gene assignments, subnetworks, and heatmap annotations now use state terminology consistently, with default IDs such as state_1. Existing saved assignments are normalized when read by the new interfaces.</p></li>
+<li><p>Initial release.</p></li>
 <li><p>Removed the unused dynamic_genes and dynamic_genes_new interfaces, their legacy GAM implementation, and the gam dependency. Use scop::RunDynamicFeatures directly; state inference already uses this path.</p></li>
 <li><p>XGBoost fitting uses xgb.train with DMatrix input and maps nthread = -1 to the native all-thread setting, avoiding removed high-level API arguments.</p></li>
 </ul></div>

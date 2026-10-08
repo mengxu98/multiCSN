@@ -122,8 +122,8 @@ More functions and usages about
   : Plot network graph
 - [`plot_targets_and_regulators()`](https://mengxu98.github.io/multiCSN/reference/plot_targets_and_regulators.md)
   : Updated plot of top regulators given targets in dynamic networks
-  based on a weight column. Top regulators computed for each epoch, but
-  maintained in plot across epochs if present in epoch subnetwork.
+  based on a weight column. Top regulators computed for each state, but
+  maintained in plot across states if present in state subnetwork.
 - [`plot_targets_with_top_regulators_detail()`](https://mengxu98.github.io/multiCSN/reference/plot_targets_with_top_regulators_detail.md)
   : quick plot of top regulators given targets in dynamic networks based
   on reconstruction weight, colored by expression and interaction type
@@ -138,7 +138,7 @@ More functions and usages about
   : plots results of findDynGenes
 - [`hm_dyn_clust()`](https://mengxu98.github.io/multiCSN/reference/hm_dyn_clust.md)
   : plots results of findDynGenes
-- [`hm_dyn_epoch()`](https://mengxu98.github.io/multiCSN/reference/hm_dyn_epoch.md)
+- [`hm_dyn_state()`](https://mengxu98.github.io/multiCSN/reference/hm_dyn_state.md)
   : heatmap
 
 ### Plotting functions
@@ -284,10 +284,10 @@ More functions and usages about
   : Get network TFs
 - [`Params()`](https://mengxu98.github.io/multiCSN/reference/Params.md)
   : Get parameters
-- [`define_epochs()`](https://mengxu98.github.io/multiCSN/reference/define_epochs.md)
-  : Define epochs
-- [`define_epochs_new()`](https://mengxu98.github.io/multiCSN/reference/define_epochs_new.md)
-  : Define epochs
+- [`define_states()`](https://mengxu98.github.io/multiCSN/reference/define_states.md)
+  : Define states
+- [`define_states_new()`](https://mengxu98.github.io/multiCSN/reference/define_states_new.md)
+  : Define states
 - [`density_points()`](https://mengxu98.github.io/multiCSN/reference/density_points.md)
   : Partition pseudotime states by density intersections
 - [`diffnet_community_detection()`](https://mengxu98.github.io/multiCSN/reference/diffnet_community_detection.md)
@@ -304,29 +304,29 @@ More functions and usages about
   targets in a dynamic network
 - [`edge_uniqueness()`](https://mengxu98.github.io/multiCSN/reference/edge_uniqueness.md)
   : Edge uniqueness across multiple GRNs
-- [`epochGRN()`](https://mengxu98.github.io/multiCSN/reference/epochGRN.md)
-  : Divides grnDF into epochs, filters interactions between genes not in
-  same or consecutive epochs
-- [`compile_epochs()`](https://mengxu98.github.io/multiCSN/reference/compile_epochs.md)
-  : compile_epochs
+- [`split_network_by_states()`](https://mengxu98.github.io/multiCSN/reference/split_network_by_states.md)
+  : Divides grnDF into states, filters interactions between genes not in
+  same or consecutive states
+- [`compile_states()`](https://mengxu98.github.io/multiCSN/reference/compile_states.md)
+  : compile_states
 - [`get_network_graph()`](https://mengxu98.github.io/multiCSN/reference/get_network_graph.md)
   : Get network graph
 - [`get_tf_network()`](https://mengxu98.github.io/multiCSN/reference/get_tf_network.md)
   : Get TF network
-- [`assign_epochs_simple()`](https://mengxu98.github.io/multiCSN/reference/assign_epochs_simple.md)
-  : Assigns genes to epochs just based on which mean is maximal
-- [`assign_epochs()`](https://mengxu98.github.io/multiCSN/reference/assign_epochs.md)
-  : Assigns genes to epochs
-- [`assign_epochs_new1()`](https://mengxu98.github.io/multiCSN/reference/assign_epochs_new1.md)
-  : Assigns genes to epochs
+- [`assign_genes_to_states_simple()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_simple.md)
+  : Assigns genes to states just based on which mean is maximal
+- [`assign_genes_to_states()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states.md)
+  : Assigns genes to states
+- [`assign_genes_to_states_new1()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_new1.md)
+  : Assigns genes to states
 - [`assign_network()`](https://mengxu98.github.io/multiCSN/reference/assign_network.md)
-  : Assigns genes to epochs
+  : Assigns genes to states
 - [`subnets()`](https://mengxu98.github.io/multiCSN/reference/subnets.md)
   : Function to assign nodes to communities via Louvain clustering
-- [`split_epochs_by_group()`](https://mengxu98.github.io/multiCSN/reference/split_epochs_by_group.md)
-  : Splits data into epochs manually
-- [`split_epochs_by_pseudotime()`](https://mengxu98.github.io/multiCSN/reference/split_epochs_by_pseudotime.md)
-  : Splits data into epochs
+- [`split_states_by_group()`](https://mengxu98.github.io/multiCSN/reference/split_states_by_group.md)
+  : Splits data into states manually
+- [`split_states_by_pseudotime()`](https://mengxu98.github.io/multiCSN/reference/split_states_by_pseudotime.md)
+  : Splits data into states
 - [`biglist_compute_betweenness_degree()`](https://mengxu98.github.io/multiCSN/reference/biglist_compute_betweenness_degree.md)
   : Computes betweenness and degree of each regulator for each network
   in a list of networks
@@ -345,7 +345,7 @@ More functions and usages about
 - [`find_communities()`](https://mengxu98.github.io/multiCSN/reference/find_communities.md)
   : find_communities
 - [`find_cuts_by_clustering()`](https://mengxu98.github.io/multiCSN/reference/find_cuts_by_clustering.md)
-  : Returns cuts to define epochs
+  : Returns cuts to define states
 - [`find_cuts_by_similarity()`](https://mengxu98.github.io/multiCSN/reference/find_cuts_by_similarity.md)
   : find_cuts_by_similarity
 - [`find_modules()`](https://mengxu98.github.io/multiCSN/reference/find_modules.md)

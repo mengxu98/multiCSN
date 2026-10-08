@@ -37,12 +37,12 @@ plot_detail_network(
 
 - network_order:
 
-  the network_order in which to plot epochs, or which epochs to plot
+  the network_order in which to plot states, or which states to plot
 
 - communities:
 
   community assignments or the result of running find_commumities. The
-  names in this object should match the names of the epoch networks in
+  names in this object should match the names of the state networks in
   network. If NULL, it will be automatically run.
 
 - compute_betweenness:

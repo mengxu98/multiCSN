@@ -5,7 +5,7 @@ Assigns genes to states
 ## Usage
 
 ``` r
-assign_network(
+assign_genes_to_states(
   matrix,
   dynamic_object,
   method = "active_expression",

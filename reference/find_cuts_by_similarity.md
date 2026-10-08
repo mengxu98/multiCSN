@@ -1,6 +1,6 @@
 # find_cuts_by_similarity
 
-Returns cuts to define epochs via sliding window comparison
+Returns cuts to define states via sliding window comparison
 
 ## Usage
 
@@ -22,7 +22,7 @@ find_cuts_by_similarity(
 
 - dynamic_object:
 
-  result of running findDynGenes or define_epochs
+  result of running findDynGenes or define_states
 
 - winSize:
 
@@ -30,7 +30,7 @@ find_cuts_by_similarity(
 
 - limit_to:
 
-  vector of genes on which to base epoch cuts, for example, limiting to
+  vector of genes on which to base state cuts, for example, limiting to
   TFs
 
 - p_value:
@@ -39,4 +39,4 @@ find_cuts_by_similarity(
 
 ## Value
 
-vector of pseudotimes at which to cut data into epochs
+vector of pseudotimes at which to cut data into states

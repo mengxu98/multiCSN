@@ -18,7 +18,7 @@ plot_dynamic_network(
 
 - network:
 
-  the result of running epochGRN
+  the result of running split_network_by_states
 
 - regulators:
 
@@ -30,7 +30,7 @@ plot_dynamic_network(
 
 - network_order:
 
-  which epochs or transitions to plot
+  which states or transitions to plot
 
 - weight_threshold:
 

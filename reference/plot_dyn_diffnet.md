@@ -24,7 +24,7 @@ plot_dyn_diffnet(grn, tfs, only_TFs = TRUE, order = NULL)
 
 - order:
 
-  the order in which to plot epochs, or which epochs to plot
+  the order in which to plot states, or which states to plot
 
 ## Value
 

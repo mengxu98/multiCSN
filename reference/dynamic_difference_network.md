@@ -7,7 +7,7 @@ Compute a dynamic difference network
 ``` r
 dynamic_difference_network(
   edgeDF,
-  epochs,
+  states,
   condition,
   type,
   diff_thresh = 3,
@@ -21,9 +21,9 @@ dynamic_difference_network(
 
   the result of running edge_uniqueness
 
-- epochs:
+- states:
 
-  list of epoch gene assignments
+  list of state gene assignments
 
 - condition:
 
