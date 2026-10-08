@@ -50,26 +50,16 @@ Suggests:
     testthat (>= 3.0.0),
     cli,
     dplyr,
-    FNN,
-    gatepoints,
     GenomeInfoDb,
     gganimate,
-    gtools,
     network,
     igraph,
     plotly,
     precrec,
-    pROC,
-    progress,
     scales,
     slingshot,
-    bayestestR,
-    cowplot,
-    gmodels,
     gridExtra,
     irlba,
-    pbapply,
-    plyr,
     reshape2,
     viridis,
     tidyselect,
@@ -80,19 +70,14 @@ Suggests:
     pals,
     tibble,
     tidyr,
-    stringi,
     stringr,
     fields,
-    ggExtra,
-    ggpubr,
-    modeltools,
-    topicmodels,
     proxy,
     RANN
 Remotes:
-    mengxu98/inferCSN@191a9242c9e0d526c9e12856e6fc522fe0da0864,
+    mengxu98/inferCSN,
     mengxu98/thisplot,
-    mengxu98/thisutils@bb62888fbf17e5988d71012677df3c47693290b2
+    mengxu98/thisutils
 Config/Needs/website: mengxu98/thistemplate
 Config/testthat/edition: 3
 Encoding: UTF-8

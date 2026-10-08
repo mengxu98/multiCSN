@@ -314,7 +314,7 @@ compileDynGenes <- function(dynReslist) {
   list(genes = genes, cells = cell_df)
 }
 
-#' @title compile_epochs
+#' @title compile_states
 #'
 #' @description
 #'  compile networks based on matching network label in result of running assign_network.
@@ -323,7 +323,8 @@ compileDynGenes <- function(dynReslist) {
 #'
 #' @return a compiled list of network genes
 #' @export
-compile_epochs <- function(networks_list) {
+compile_states <- function(networks_list) {
+  networks_list <- normalize_state_data(networks_list)
   compiled_networks <- list()
 
   for (path in 1:length(networks_list)) {

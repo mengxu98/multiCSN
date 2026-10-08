@@ -1,7 +1,7 @@
 #' @title Inferring Cell-Specific Gene Regulatory Network
 #'
 #' @useDynLib multiCSN, .registration = TRUE
-#' @importFrom Rcpp evalCpp sourceCpp
+#' @importFrom Rcpp evalCpp
 #'
 #' @description
 #' Inferring cell-specific gene regulatory networks from single-cell multiome data.

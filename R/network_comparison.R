@@ -165,7 +165,7 @@ setMethod(
 #'
 #'
 #' @param edgeDF the result of running edge_uniqueness
-#' @param epochs list of epoch gene assignments
+#' @param states list of state gene assignments
 #' @param condition condition of interest, should be one of the treatment (aka network name) or column names in edgeDF
 #' @param type "on" or "off" specifies either finding edges that are active in the condition network but off others or inactive in condition network but active in others
 #' @param diff_thresh edge difference threshold to determine if edge is uniquely on or off
@@ -177,32 +177,33 @@ setMethod(
 #'
 dynamic_difference_network <- function(
   edgeDF,
-  epochs,
+  states,
   condition,
   type,
   diff_thresh = 3,
   condition_thresh = 6
 ) {
+  states <- normalize_state_data(states)
   edgeDF <- edgeDF[edgeDF$diff != 0, ]
 
 
-  epochs <- lapply(epochs, function(x) {
+  states <- lapply(states, function(x) {
     x$mean_expression <- NULL
     x
   })
 
-  temp <- vector(mode = "list", length = length(names(epochs[[1]])))
-  names(temp) <- names(epochs[[1]])
+  temp <- vector(mode = "list", length = length(names(states[[1]])))
+  names(temp) <- names(states[[1]])
 
-  for (e in names(epochs)) {
-    temp <- Map(c, temp, epochs[[e]])
+  for (e in names(states)) {
+    temp <- Map(c, temp, states[[e]])
   }
 
-  epochs <- sapply(temp, unique)
+  states <- sapply(temp, unique)
 
   dynamic_edges <- list()
-  for (epoch in names(epochs)) {
-    dynamic_edges[[epoch]] <- edgeDF[edgeDF$regulator %in% epochs[[epoch]], ]
+  for (state in names(states)) {
+    dynamic_edges[[state]] <- edgeDF[edgeDF$regulator %in% states[[state]], ]
   }
 
   edgeDF <- dynamic_edges
@@ -216,7 +217,7 @@ dynamic_difference_network <- function(
   diffnet <- lapply(diffnet, function(x) x[x$diff > diff_thresh, ])
 
   if (type == "on") {
-    diffnet <- Map(function(x, y) x[x$regulator %in% y, ], diffnet, epochs)
+    diffnet <- Map(function(x, y) x[x$regulator %in% y, ], diffnet, states)
     diffnet <- lapply(diffnet, function(x) x[x[, condition] >= condition_thresh, ])
   } else if (type == "off") {
     diffnet <- lapply(diffnet, function(x) x[x[, condition] < condition_thresh, ])
@@ -792,7 +793,7 @@ biglist_compute_betweenness_degree <- function(
 #' @param grn the dynamic network
 #' @param tfs TFs
 #' @param only_TFs whether or not to only plot TFs and exclude non-regulators
-#' @param order the order in which to plot epochs, or which epochs to plot
+#' @param order the order in which to plot states, or which states to plot
 #'
 #' @return plot
 #'
@@ -875,7 +876,7 @@ plot_dyn_diffnet <- function(
 #' @param grn the dynamic network
 #' @param tfs TFs
 #' @param only_TFs whether or not to only plot TFs and exclude non-regulators
-#' @param order the order in which to plot epochs, or which epochs to plot
+#' @param order the order in which to plot states, or which states to plot
 #' @param compute_betweenness whether or not to fade nodes by betweenness
 #'
 #' @return plot

@@ -13,13 +13,7 @@ csn_get_assay <- function(object, assay = NULL) {
 }
 
 csn_layer_data <- function(object, ...) {
-  if (methods::is(object, "CSNObject")) {
-    return(SeuratObject::LayerData(object@data, ...))
-  }
-  if (methods::is(object, "Seurat")) {
-    return(SeuratObject::LayerData(object, ...))
-  }
-  stop("csn_layer_data: object must be a Seurat or CSNObject object.", call. = FALSE)
+  get_layer_data(object, ...)
 }
 
 #' Aggregate Seurat assay over groups

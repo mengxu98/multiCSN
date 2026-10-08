@@ -15,17 +15,17 @@ find_cuts_by_similarity(
 \arguments{
 \item{matrix}{genes-by-cells expression matrix}
 
-\item{dynamic_object}{result of running findDynGenes or define_epochs}
+\item{dynamic_object}{result of running findDynGenes or define_states}
 
 \item{winSize}{number of cells to each side to compare each cell to}
 
-\item{limit_to}{vector of genes on which to base epoch cuts, for example, limiting to TFs}
+\item{limit_to}{vector of genes on which to base state cuts, for example, limiting to TFs}
 
 \item{p_value}{pval threshold if gene is dynamically expressed}
 }
 \value{
-vector of  pseudotimes at which to cut data into epochs
+vector of  pseudotimes at which to cut data into states
 }
 \description{
-Returns cuts to define epochs via sliding window comparison
+Returns cuts to define states via sliding window comparison
 }

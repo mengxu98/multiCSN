@@ -1,9 +1,9 @@
 #' @title quick plot of dynamic networks
 #'
-#' @param network the result of running epochGRN
+#' @param network the result of running split_network_by_states
 #' @param regulators regulators
 #' @param only_TFs plot only regulator network
-#' @param network_order which epochs or transitions to plot
+#' @param network_order which states or transitions to plot
 #' @param weight_threshold weight_threshold
 #'
 #' @return plot
@@ -16,8 +16,10 @@ plot_dynamic_network <- function(
   network_order = NULL,
   weight_threshold = NULL
 ) {
+  network <- normalize_state_data(network)
   plot_list <- list()
 
+  network_order <- normalize_state_labels(network_order)
   if (!is.null(network_order)) {
     network <- network[network_order]
   }
@@ -99,9 +101,9 @@ plot_dynamic_network <- function(
 #' @param regulators regulators
 #' @param top_edges top_edges
 #' @param only_TFs whether or not to only plot regulators and exclude non-regulators
-#' @param network_order the network_order in which to plot epochs, or which epochs to plot
+#' @param network_order the network_order in which to plot states, or which states to plot
 #' @param communities community assignments or the result of running find_commumities.
-#' The names in this object should match the names of the epoch networks in network.
+#' The names in this object should match the names of the state networks in network.
 #' If NULL, it will be automatically run.
 #' @param compute_betweenness whether or not to fade nodes by igraph::betweenness
 #'
@@ -117,6 +119,8 @@ plot_detail_network <- function(
   communities = NULL,
   compute_betweenness = TRUE
 ) {
+  network <- normalize_state_data(network)
+  communities <- normalize_state_data(communities)
   plot_list <- list()
 
   if (!is.null(communities)) {
@@ -125,6 +129,7 @@ plot_detail_network <- function(
     }
   }
 
+  network_order <- normalize_state_labels(network_order)
   if (!is.null(network_order)) {
     network <- network[network_order]
     if (!is.null(communities)) {
@@ -295,13 +300,13 @@ plot_detail_network <- function(
 
 #' quick plot of top regulators in dynamic networks
 #'
-#' @param network_list the result of running epochGRN
+#' @param network_list the result of running split_network_by_states
 #' @param gene_ranks the result of running compute_pagerank
 #' @param regulators regulators
 #' @param targets targets
 #' @param regulators_num number of top regulators to plot
 #' @param targets_num number of top targets to plot for each regulator
-#' @param network_order which epochs or transitions to plot
+#' @param network_order which states or transitions to plot
 #' @param method Choose method to rank regulators for plot.
 #'  Defaule set to `weight`, mean choose regulators rely weights in network infer by \link[inferCSN]{inferCSN}.
 #'  Also can choose `page_rank`, then will ranking regulators rely the result of \link[igraph]{page_rank}.
@@ -319,18 +324,21 @@ plot_top_features <- function(
   network_order = NULL,
   method = "weight"
 ) {
+  network_list <- normalize_state_data(network_list)
+  gene_ranks <- normalize_state_data(gene_ranks)
   plot_list <- list()
 
+  network_order <- normalize_state_labels(network_order)
   if (!is.null(network_order)) {
     network_list <- network_list[network_order]
   }
 
   common_legend <- NULL
   for (i in seq_len(length(network_list))) {
-    epoch <- names(network_list)[i]
+    state <- names(network_list)[i]
     network_table <- network_list[[i]]
     thisutils::log_message(
-      paste0("Plotting for ", i, "/", length(network_list), " network: ", epoch)
+      paste0("Plotting for ", i, "/", length(network_list), " network: ", state)
     )
 
     if (is.null(regulators)) {
@@ -338,7 +346,7 @@ plot_top_features <- function(
         top_regulators <- network_table$regulator
       } else if (method == "page_rank") {
         if (!is.null(gene_ranks)) {
-          rank <- gene_ranks[[epoch]]
+          rank <- gene_ranks[[state]]
         } else {
           rank <- calculate_gene_rank(network_table)
         }
@@ -459,14 +467,14 @@ plot_top_features <- function(
 
 #' quick plot of top regulators given targets in dynamic networks based on reconstruction weight, colored by expression and interaction type
 #'
-#' @param network the result of running epochGRN
+#' @param network the result of running split_network_by_states
 #' @param targets targets
-#' @param epochs_list result of running assign_epochs
+#' @param states_list result of running assign_genes_to_states
 #' @param weight_column column name containing reconstruction weights to use
 #' @param gene_ranks gene_ranks
 #' @param regulators_num number of top regulators to plot
-#' @param network_order which epochs or transitions to plot
-#' @param fixed_layout whether or not to fix node positions across epoch networks
+#' @param network_order which states or transitions to plot
+#' @param fixed_layout whether or not to fix node positions across state networks
 #' @param layout_alg layout algorithm if fixed_layout. Defaults to FR. Ignored if fixed_layout==FALSE.
 #' @param declutter if TRUE, will only label nodes with active interactions in given network
 #'
@@ -476,7 +484,7 @@ plot_top_features <- function(
 plot_targets_with_top_regulators_detail <- function(
   network,
   targets,
-  epochs_list,
+  states_list,
   weight_column = "weight",
   gene_ranks = NULL,
   regulators_num = 5,
@@ -485,8 +493,12 @@ plot_targets_with_top_regulators_detail <- function(
   layout_alg = "fr",
   declutter = TRUE
 ) {
+  network <- normalize_state_data(network)
+  states_list <- normalize_state_data(states_list)
+  gene_ranks <- normalize_state_data(gene_ranks)
   plot_list <- list()
 
+  network_order <- normalize_state_labels(network_order)
   if (!is.null(network_order)) {
     network <- network[network_order]
   }
@@ -494,9 +506,9 @@ plot_targets_with_top_regulators_detail <- function(
 
   ktgraph <- list()
   for (i in 1:length(network)) {
-    mean_expression <- epochs_list[[i]]$mean_expression
-    epoch <- names(network)[i]
-    network_table <- network[[epoch]]
+    mean_expression <- states_list[[i]]$mean_expression
+    state <- names(network)[i]
+    network_table <- network[[state]]
 
 
     tgs <- as.character(network_table[network_table$target %in% targets, "target"])
@@ -513,7 +525,7 @@ plot_targets_with_top_regulators_detail <- function(
         if (is.null(gene_ranks)) {
           stop("Need to supply gene_ranks.")
         }
-        rank <- gene_ranks[[epoch]]
+        rank <- gene_ranks[[state]]
         regs_of_targets <- as.character(network_table[network_table$target == target, "regulator"])
         rank_regs <- rank[regs_of_targets, ]
         rank_regs <- rank_regs[order(rank_regs$page_rank, decreasing = TRUE), ]
@@ -539,7 +551,7 @@ plot_targets_with_top_regulators_detail <- function(
       }
     }
 
-    ktgraph[[epoch]] <- edges_to_keep
+    ktgraph[[state]] <- edges_to_keep
   }
 
 
@@ -565,12 +577,12 @@ plot_targets_with_top_regulators_detail <- function(
       }
 
       rownames(agg_vtcs) <- agg_vtcs$name
-      agg_vtcs$avg_epoch <- NA
+      agg_vtcs$avg_state <- NA
       for (row in rownames(agg_vtcs)) {
-        agg_vtcs[row, "avg_epoch"] <- mean(which(sapply(temp_splits, FUN = function(x) row %in% x)))
+        agg_vtcs[row, "avg_state"] <- mean(which(sapply(temp_splits, FUN = function(x) row %in% x)))
       }
 
-      layout[, 1] <- jitter(agg_vtcs$avg_epoch, factor = 5)
+      layout[, 1] <- jitter(agg_vtcs$avg_state, factor = 5)
     } else {
       layout <- igraph::layout_with_fr(agg)
     }
@@ -580,8 +592,8 @@ plot_targets_with_top_regulators_detail <- function(
 
 
   for (i in 1:length(network)) {
-    epoch <- names(network)[i]
-    edges_to_keep <- ktgraph[[epoch]]
+    state <- names(network)[i]
+    edges_to_keep <- ktgraph[[state]]
 
 
     if (fixed_layout) {
@@ -598,9 +610,9 @@ plot_targets_with_top_regulators_detail <- function(
     net <- igraph::delete_vertices(net, v = igraph::V(net)$name[igraph::V(net)$name == "NA"])
 
 
-    expression_from <- mean_expression[mean_expression$epoch == strsplit(epoch, split = "..", fixed = TRUE)[[1]][1], ]
-    expression_to <- mean_expression[mean_expression$epoch == strsplit(epoch, split = "..", fixed = TRUE)[[1]][2], ]
-    if (strsplit(epoch, split = "..", fixed = TRUE)[[1]][1] == strsplit(epoch, split = "..", fixed = TRUE)[[1]][2]) {
+    expression_from <- mean_expression[mean_expression$state == strsplit(state, split = "..", fixed = TRUE)[[1]][1], ]
+    expression_to <- mean_expression[mean_expression$state == strsplit(state, split = "..", fixed = TRUE)[[1]][2], ]
+    if (strsplit(state, split = "..", fixed = TRUE)[[1]][1] == strsplit(state, split = "..", fixed = TRUE)[[1]][2]) {
       igraph::V(net)$expression <- expression_from$mean_expression[match(igraph::V(net)$name, expression_from$gene)]
     } else {
       igraph::V(net)$expression <- ifelse(igraph::V(net)$name %in% edges_to_keep$regulator, expression_from$mean_expression[match(igraph::V(net)$name, expression_from$gene)], expression_to$mean_expression[match(igraph::V(net)$name, expression_to$gene)])
@@ -654,19 +666,19 @@ plot_targets_with_top_regulators_detail <- function(
 
 
 #' Updated plot of top regulators given targets in dynamic networks based on a weight column.
-#' Top regulators computed for each epoch, but maintained in plot across epochs if present in epoch subnetwork.
+#' Top regulators computed for each state, but maintained in plot across states if present in state subnetwork.
 #'
 #'
-#' @param network the result of running epochGRN
+#' @param network the result of running split_network_by_states
 #' @param targets targets
-#' @param epochs result of running assign_epochs
+#' @param states result of running assign_genes_to_states
 #' @param weight_column column name containing reconstruction weights to use
 #' @param gene_ranks gene_ranks
 #' @param regulators_num number of top regulators to plot
-#' @param network_order which epochs or transitions to plot
-#' @param fixed_layout whether or not to fix node positions across epoch networks
+#' @param network_order which states or transitions to plot
+#' @param fixed_layout whether or not to fix node positions across state networks
 #' @param declutter if TRUE, will only label nodes with active interactions in given network
-#' @param show_expression if TRUE, size and shade of node indicates mean expression in a given epoch.
+#' @param show_expression if TRUE, size and shade of node indicates mean expression in a given state.
 #' @param node_size node_size
 #' @param label_size label_size
 #' @param title_size title_size
@@ -678,7 +690,7 @@ plot_targets_with_top_regulators_detail <- function(
 plot_targets_and_regulators <- function(
   network,
   targets,
-  epochs = NULL,
+  states = NULL,
   weight_column = "weight",
   gene_ranks = NULL,
   regulators_num = 5,
@@ -691,9 +703,13 @@ plot_targets_and_regulators <- function(
   title_size = 10,
   legend_size = 8
 ) {
+  network <- normalize_state_data(network)
+  states <- normalize_state_data(states)
+  gene_ranks <- normalize_state_data(gene_ranks)
   plot_list <- list()
 
 
+  network_order <- normalize_state_labels(network_order)
   if (!is.null(network_order)) {
     network <- network[network_order]
   }
@@ -701,14 +717,13 @@ plot_targets_and_regulators <- function(
 
   ktgraph <- list()
   for (i in 1:length(network)) {
-    if (!is.null(epochs) & ("mean_expression" %in% names(epochs[[i]]))) {
-      message("expression")
-      mean_expression <- epochs[[i]]$mean_expression
+    if (!is.null(states) & ("mean_expression" %in% names(states[[i]]))) {
+      mean_expression <- states[[i]]$mean_expression
     } else {
       show_expression <- FALSE
     }
-    epoch <- names(network)[i]
-    network_table <- network[[epoch]]
+    state <- names(network)[i]
+    network_table <- network[[state]]
 
 
     tgs <- as.character(network_table[network_table$target %in% targets, "target"])
@@ -722,7 +737,7 @@ plot_targets_and_regulators <- function(
     edges_to_keep <- data.frame(regulator = character(), target = character())
     if (!is.null(gene_ranks) & (weight_column %in% colnames(gene_ranks[[1]]))) {
       for (target in tgs) {
-        rank <- gene_ranks[[epoch]]
+        rank <- gene_ranks[[state]]
         regs_of_targets <- as.character(network_table[network_table$target == target, "regulator"])
         rank_regs <- rank[regs_of_targets, ]
         rank_regs <- rank_regs[order(rank_regs[, weight_column], decreasing = TRUE), ]
@@ -761,7 +776,7 @@ plot_targets_and_regulators <- function(
       }
     }
 
-    ktgraph[[epoch]] <- edges_to_keep
+    ktgraph[[state]] <- edges_to_keep
   }
 
 
@@ -777,12 +792,12 @@ plot_targets_and_regulators <- function(
 
 
   for (i in 1:length(network)) {
-    epoch <- names(network)[i]
-    edges_to_keep <- ktgraph[[epoch]]
+    state <- names(network)[i]
+    edges_to_keep <- ktgraph[[state]]
 
 
     to_add <- agg[!(paste(agg$regulator, agg$target) %in% paste(edges_to_keep$regulator, edges_to_keep$target)), ]
-    to_add <- to_add[(paste(to_add$regulator, to_add$target)) %in% (paste(network[[epoch]]$regulator, network[[epoch]]$target)), ]
+    to_add <- to_add[(paste(to_add$regulator, to_add$target)) %in% (paste(network[[state]]$regulator, network[[state]]$target)), ]
     edges_to_keep <- rbind(edges_to_keep, to_add)
 
 
@@ -801,9 +816,9 @@ plot_targets_and_regulators <- function(
 
 
     if (show_expression) {
-      expression_from <- mean_expression[mean_expression$epoch == strsplit(epoch, split = "..", fixed = TRUE)[[1]][1], ]
-      expression_to <- mean_expression[mean_expression$epoch == strsplit(epoch, split = "..", fixed = TRUE)[[1]][2], ]
-      if (strsplit(epoch, split = "..", fixed = TRUE)[[1]][1] == strsplit(epoch, split = "..", fixed = TRUE)[[1]][2]) {
+      expression_from <- mean_expression[mean_expression$state == strsplit(state, split = "..", fixed = TRUE)[[1]][1], ]
+      expression_to <- mean_expression[mean_expression$state == strsplit(state, split = "..", fixed = TRUE)[[1]][2], ]
+      if (strsplit(state, split = "..", fixed = TRUE)[[1]][1] == strsplit(state, split = "..", fixed = TRUE)[[1]][2]) {
         igraph::V(net)$expression <- expression_from$mean_expression[match(igraph::V(net)$name, expression_from$gene)]
       } else {
         igraph::V(net)$expression <- ifelse(igraph::V(net)$name %in% edges_to_keep$regulator, expression_from$mean_expression[match(igraph::V(net)$name, expression_from$gene)], expression_to$mean_expression[match(igraph::V(net)$name, expression_to$gene)])
@@ -913,7 +928,7 @@ get_legend <- function(plot_list) {
 
 #' plots results of findDynGenes
 #'
-#' @inheritParams hm_dyn_epoch
+#' @inheritParams hm_dyn_state
 #' @param geneAnn geneAnn
 #' @param dynRes dynRes
 #'
@@ -929,6 +944,8 @@ hm_dyn_clust <- function(
   toScale = FALSE,
   fontsize_row = 4
 ) {
+  dynRes <- normalize_state_data(dynRes)
+  geneAnn <- normalize_state_data(geneAnn)
   meta_data <- dynRes$cells
   t1 <- meta_data$pseudotime
   names(t1) <- as.vector(meta_data$cell_name)
@@ -964,14 +981,14 @@ hm_dyn_clust <- function(
 
   xcol <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(n = 11, name = "Paired")))(length(groupNames))
   names(xcol) <- groupNames
-  names(row_cols) <- unique(as.vector(geneAnn$epoch))
-  anno_colors <- list(group = xcol, epoch = row_cols)
+  names(row_cols) <- unique(as.vector(geneAnn$state))
+  anno_colors <- list(group = xcol, state = row_cols)
   xx <- data.frame(group = as.factor(grps))
   rownames(xx) <- cells
 
-  geneX <- as.data.frame(geneAnn[, "epoch"])
+  geneX <- as.data.frame(geneAnn[, "state"])
   rownames(geneX) <- rownames(geneAnn)
-  colnames(geneX) <- "epoch"
+  colnames(geneX) <- "state"
 
   val_col <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(n = 11, name = "Spectral")))(25)
 
@@ -1026,6 +1043,9 @@ hm_dyn <- function(
   width = NA,
   height = NA
 ) {
+  dynRes <- normalize_state_data(dynRes)
+  geneAnn <- normalize_state_data(geneAnn)
+  anno_colors <- normalize_state_data(anno_colors)
   colors <- NULL
   if (!is.null(anno_colors)) {
     colors <- anno_colors
@@ -1078,11 +1098,11 @@ hm_dyn <- function(
   )
   xx <- data.frame(group = as.factor(grps), pseudotime = ord1)
 
-  if (!is.null(meta_data$epoch)) {
-    epochs <- as.vector(meta_data$epoch)
-    names(epochs) <- as.vector(meta_data$cells)
-    epochs <- epochs[names(ord1)]
-    xx <- cbind(xx, data.frame(epoch = epochs))
+  if (!is.null(meta_data$state)) {
+    states <- as.vector(meta_data$state)
+    names(states) <- as.vector(meta_data$cells)
+    states <- states[names(ord1)]
+    xx <- cbind(xx, data.frame(state = states))
   }
 
   rownames(xx) <- cells
@@ -1130,7 +1150,7 @@ hm_dyn <- function(
 #' heatmap
 #'
 #' @param matrix expression matrix
-#' @param epochRes result of running findDynGenes
+#' @param state_result result of running findDynGenes
 #' @param row_cols row_cols
 #' @param limits limits
 #' @param toScale toScale
@@ -1139,25 +1159,26 @@ hm_dyn <- function(
 #' @return A ComplexHeatmap heatmap object.
 #'
 #' @export
-hm_dyn_epoch <- function(
+hm_dyn_state <- function(
   matrix,
-  epochRes,
+  state_result,
   row_cols,
   limits = c(0, 10),
   toScale = FALSE,
   fontsize_row = 4
 ) {
-  meta_data <- epochRes$cells
+  state_result <- normalize_state_data(state_result)
+  meta_data <- state_result$cells
   t1 <- meta_data$pseudotime
   names(t1) <- as.vector(meta_data$cell_name)
-  grps <- as.vector(meta_data$epoch)
+  grps <- as.vector(meta_data$state)
   names(grps) <- as.vector(meta_data$cell_name)
   ord1 <- sort(t1)
   matrix <- matrix[, names(ord1)]
   grps <- grps[names(ord1)]
 
 
-  geneTab <- epochRes$genes
+  geneTab <- state_result$genes
   genes <- rownames(geneTab)
 
 
@@ -1186,35 +1207,31 @@ hm_dyn_epoch <- function(
   xcol <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(n = 11, name = "Paired")))(length(groupNames))
   names(xcol) <- groupNames
 
-  names(row_cols) <- unique(as.vector(geneTab$epoch))
-  anno_colors <- list(group = xcol, epoch = row_cols)
+  names(row_cols) <- unique(as.vector(geneTab$state))
+  anno_colors <- list(group = xcol, state = row_cols)
   xx <- data.frame(group = as.factor(grps))
   rownames(xx) <- cells
 
-  geneX <- as.data.frame(geneTab[, "epoch"])
+  geneX <- as.data.frame(geneTab[, "state"])
   rownames(geneX) <- rownames(geneTab)
-  colnames(geneX) <- "epoch"
-
-  cat("OK\n")
+  colnames(geneX) <- "state"
 
   val_col <- grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(n = 11, name = "Spectral")))(25)
 
-  neps <- length(unique(meta_data$epoch))
+  n_states <- length(unique(meta_data$state))
 
-  c_gaps <- rep(0, neps - 1)
-  epTally <- table(meta_data$epoch)
-  c_gaps[1] <- epTally[1]
-  for (i in seq(2, length(epTally) - 1)) {
-    c_gaps[i] <- c_gaps[i - 1] + epTally[i]
-    cat(c_gaps[i], "\n")
+  c_gaps <- rep(0, n_states - 1)
+  state_tally <- table(meta_data$state)
+  c_gaps[1] <- state_tally[1]
+  for (i in seq(2, length(state_tally) - 1)) {
+    c_gaps[i] <- c_gaps[i - 1] + state_tally[i]
   }
 
-  g_gaps <- length(unique(meta_data$epoch))
-  epTally <- table(geneTab$epoch)
-  g_gaps[1] <- epTally[1]
-  for (i in seq(2, length(epTally) - 1)) {
-    g_gaps[i] <- g_gaps[i - 1] + epTally[i]
-    cat(g_gaps[i], "\n")
+  g_gaps <- length(unique(meta_data$state))
+  state_tally <- table(geneTab$state)
+  g_gaps[1] <- state_tally[1]
+  for (i in seq(2, length(state_tally) - 1)) {
+    g_gaps[i] <- g_gaps[i - 1] + state_tally[i]
   }
 
   square_heatmap_cells(ComplexHeatmap::pheatmap(

@@ -19,7 +19,7 @@ plot_diffnet_detail(
 
 \item{only_TFs}{whether or not to only plot TFs and exclude non-regulators}
 
-\item{order}{the order in which to plot epochs, or which epochs to plot}
+\item{order}{the order in which to plot states, or which states to plot}
 
 \item{compute_betweenness}{whether or not to fade nodes by betweenness}
 }

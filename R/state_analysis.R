@@ -282,18 +282,6 @@ make_metric_long_table <- function(tbl, metrics) {
   out
 }
 
-prepare_feature_plot_table <- function(df, feature_col, value_col) {
-  split_df <- split(df, df$state_id)
-  out <- lapply(split_df, function(x) {
-    x <- x[order(x[[value_col]], decreasing = TRUE), , drop = FALSE]
-    x$feature_label <- paste(x$state_id, x[[feature_col]], sep = "___")
-    x$feature_label <- factor(x$feature_label, levels = rev(x$feature_label))
-    x
-  })
-  out <- do.call(rbind, out)
-  rownames(out) <- NULL
-  out
-}
 
 get_ordered_state_levels <- function(state_ids) {
   state_ids <- unique(as.character(state_ids))

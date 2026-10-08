@@ -1,8 +1,7 @@
 #' @import Matrix tidygraph ggplot2 ggraph ggnetwork patchwork
 #' @import thisutils Seurat SeuratObject
-#' @importFrom utils methods
-#' @importFrom stats coef predict family gaussian na.pass
-#' @importFrom methods as is new
+#' @importFrom stats approx ave coef setNames xtabs
+#' @importFrom methods as new
 #' @importClassesFrom Signac Motif
 #' @importClassesFrom GenomicRanges GRanges
 #' @importClassesFrom SeuratObject Seurat
@@ -15,6 +14,8 @@ utils::globalVariables(
     "Actual",
     "Category",
     "Metric",
+    "metric",
+    "is_regulator",
     "P_value",
     "P_value_contrary",
     "Predicted",

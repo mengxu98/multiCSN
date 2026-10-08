@@ -9,13 +9,6 @@ empty_tf_gene_edges <- function() {
   )
 }
 
-empty_tf_region_edges <- function() {
-  data.frame(
-    regulator = character(), region = character(),
-    standardized_beta = numeric(), deletion_delta_bic = numeric(),
-    stringsAsFactors = FALSE
-  )
-}
 
 empty_region_gene_edges <- function() {
   data.frame(

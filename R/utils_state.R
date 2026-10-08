@@ -1,6 +1,53 @@
 #' @include setClass.R
 NULL
 
+normalize_state_labels <- function(labels) {
+  if (is.factor(labels)) {
+    levels(labels) <- normalize_state_labels(levels(labels))
+    return(labels)
+  }
+  if (!is.character(labels)) return(labels)
+  gsub("(^|[.][.])epoch_?([0-9]+)(?=$|[.][.])", "\\1state_\\2", labels, perl = TRUE)
+}
+
+normalize_state_data <- function(data) {
+  if (is.data.frame(data)) {
+    if ("epoch" %in% names(data)) {
+      old <- normalize_state_labels(data[["epoch"]])
+      if ("state" %in% names(data) &&
+          !identical(as.character(normalize_state_labels(data$state)), as.character(old))) {
+        stop("Legacy and current state assignments disagree.", call. = FALSE)
+      }
+      if ("state" %in% names(data)) {
+        data$state <- old
+        data[["epoch"]] <- NULL
+      } else {
+        names(data)[names(data) == "epoch"] <- "state"
+        data$state <- old
+      }
+    }
+    if ("state" %in% names(data)) data$state <- normalize_state_labels(data$state)
+    return(data)
+  }
+  if (!is.list(data)) return(data)
+  legacy_genes <- is.data.frame(data$genes) && "epoch" %in% names(data$genes)
+  for (i in seq_along(data)) data[i] <- list(normalize_state_data(data[[i]]))
+  names(data) <- normalize_state_labels(names(data))
+  if (!is.null(names(data))) names(data)[names(data) == "epoch"] <- "state"
+  if (anyDuplicated(names(data))) {
+    stop("Saved and current state identifiers collide.", call. = FALSE)
+  }
+  if (legacy_genes && is.data.frame(data$cells) && "state" %in% names(data$cells)) {
+    cell_states <- unique(as.character(data$cells$state))
+    gene_states <- as.character(data$genes$state)
+    ids <- sub("^state_", "", cell_states)
+    if (all(grepl("^state_[0-9]+$", cell_states)) && all(gene_states %in% ids)) {
+      data$genes$state <- paste0("state_", gene_states)
+    }
+  }
+  data
+}
+
 .MULTICSN_STATE_SLOT <- "CSNObject"
 .MULTICSN_SCHEMA_VERSION <- "2.0.0"
 

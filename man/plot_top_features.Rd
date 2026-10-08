@@ -16,7 +16,7 @@ plot_top_features(
 )
 }
 \arguments{
-\item{network_list}{the result of running epochGRN}
+\item{network_list}{the result of running split_network_by_states}
 
 \item{gene_ranks}{the result of running compute_pagerank}
 
@@ -28,7 +28,7 @@ plot_top_features(
 
 \item{targets_num}{number of top targets to plot for each regulator}
 
-\item{network_order}{which epochs or transitions to plot}
+\item{network_order}{which states or transitions to plot}
 
 \item{method}{Choose method to rank regulators for plot.
 Defaule set to `weight`, mean choose regulators rely weights in network infer by \link[inferCSN]{inferCSN}.
