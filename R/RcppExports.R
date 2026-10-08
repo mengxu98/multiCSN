@@ -4,7 +4,3 @@
 prepare_calculate_metrics <- function(network_table, ground_truth) {
   .Call(`_multiCSN_prepare_calculate_metrics`, network_table, ground_truth)
 }
-
-prepare_metric_vectors <- function(network_table, ground_truth) {
-  .Call(`_multiCSN_prepare_metric_vectors`, network_table, ground_truth)
-}

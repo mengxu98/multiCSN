@@ -1,3 +1,17 @@
+test_that("distance KNN accepts matrix and dist with identical neighbors", {
+  x <- cbind(c(0, 0.3, 1.7, 4.2, 9.1), c(0, 1.1, 0.2, 2.4, 3))
+  d <- as.matrix(dist(x))
+  diag(d) <- Inf
+  expected <- t(apply(d, 1, order))[, 1:2, drop = FALSE]
+  matrix_result <- multiCSN:::build_knnd(d, k = 2, mode = "out")
+  dist_result <- multiCSN:::build_knnd(dist(x), k = 2, mode = "out")
+  expect_equal(unname(matrix_result$order), unname(expected))
+  expect_identical(matrix_result$order, dist_result$order)
+  expect_equal(igraph::ecount(matrix_result$graph_knn), 2L * nrow(x))
+  expect_false(any(igraph::which_loop(matrix_result$graph_knn)))
+  expect_error(multiCSN:::build_knnd("invalid", k = 2), "matrix or dist")
+})
+
 test_that("KNN agrees with direct distances including ties and small samples", {
   skip_if_not_installed("BiocNeighbors")
   fixtures <- list(

@@ -32,9 +32,9 @@ export(ShortestPaths)
 export(add_interaction_type)
 export(add_type)
 export(aggregate_assay)
-export(assign_epochs)
-export(assign_epochs_new1)
-export(assign_epochs_simple)
+export(assign_genes_to_states)
+export(assign_genes_to_states_new1)
+export(assign_genes_to_states_simple)
 export(assign_network)
 export(biglist_compute_betweenness_degree)
 export(calculate_accuracy)
@@ -61,7 +61,7 @@ export(collapse_peak_gene_domains)
 export(compare_celltype_rewiring)
 export(compare_state_rewiring)
 export(compileDynGenes)
-export(compile_epochs)
+export(compile_states)
 export(compute_JI_topregs)
 export(compute_betweenness_degree)
 export(compute_frobenius_distance)
@@ -69,8 +69,8 @@ export(compute_pagerank)
 export(consensus_peak_set)
 export(cor_and_add_action)
 export(create_seurat_object)
-export(define_epochs)
-export(define_epochs_new)
+export(define_states)
+export(define_states_new)
 export(density_points)
 export(diffnet_community_detection)
 export(dynamic_difference_network)
@@ -79,7 +79,6 @@ export(dynamic_shortest_path_multiple)
 export(dynamic_windowing)
 export(edge_uniqueness)
 export(embedPerturbation)
-export(epochGRN)
 export(export_csn)
 export(expression_ksmooth)
 export(extract_genes_transition)
@@ -107,7 +106,7 @@ export(get_umap)
 export(heatmap_by_treatment_group)
 export(hm_dyn)
 export(hm_dyn_clust)
-export(hm_dyn_epoch)
+export(hm_dyn_state)
 export(inferCSN)
 export(initiate_object)
 export(map_peak_ranges_to_genome)
@@ -171,8 +170,9 @@ export(score_targets)
 export(select_key_targets)
 export(select_key_tfs)
 export(simulate_csn_data)
-export(split_epochs_by_group)
-export(split_epochs_by_pseudotime)
+export(split_network_by_states)
+export(split_states_by_group)
+export(split_states_by_pseudotime)
 export(state_dynamic)
 export(static_shortest_path)
 export(strongest_mediated_projection)
@@ -238,21 +238,16 @@ import(tidygraph)
 importClassesFrom(GenomicRanges,GRanges)
 importClassesFrom(SeuratObject,Seurat)
 importClassesFrom(Signac,Motif)
-importFrom(Rcpp,
-  evalCpp,
-  sourceCpp
-)
+importFrom(Rcpp,evalCpp)
 importFrom(methods,
   as,
-  is,
   new
 )
 importFrom(stats,
+  approx,
+  ave,
   coef,
-  family,
-  gaussian,
-  na.pass,
-  predict
+  setNames,
+  xtabs
 )
-importFrom(utils,methods)
 useDynLib(multiCSN, .registration = TRUE)

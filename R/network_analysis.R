@@ -636,8 +636,9 @@ heatmap_by_treatment_group <- function(
   meta_data <- meta_data[colnames(matrix), ]
 
   meta_data$cell_name <- rownames(meta_data)
-  if ("epoch" %in% colnames(meta_data)) {
-    col_ann <- meta_data[, c("treatment", pseudotime_column, "epoch")]
+  meta_data <- normalize_state_data(meta_data)
+  if ("state" %in% colnames(meta_data)) {
+    col_ann <- meta_data[, c("treatment", pseudotime_column, "state")]
   } else {
     col_ann <- meta_data[, c("treatment", pseudotime_column)]
   }
@@ -809,8 +810,6 @@ order_genes <- function(
 
 find_paths_to <- function(network_table, module) {
   modnet_ig <- igraph::graph_from_data_frame(network_table, directed = TRUE)
-  mods <- igraph::V(modnet_ig)$name
-  mods <- mods[mods != module]
 
   res <- igraph::distances(modnet_ig, to = module, weights = igraph::E(modnet_ig)$edge_length, mode = "out")
   colnames(res) <- c("path_length")

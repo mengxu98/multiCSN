@@ -70,7 +70,7 @@ reference:
   - heatmap_by_treatment_group
   - hm_dyn
   - hm_dyn_clust
-  - hm_dyn_epoch
+  - hm_dyn_state
 
 - subtitle: "Plotting functions"
 - contents:
@@ -154,8 +154,8 @@ reference:
   - NetworkRegions
   - NetworkTFs
   - Params
-  - define_epochs
-  - define_epochs_new
+  - define_states
+  - define_states_new
   - density_points
   - diffnet_community_detection
   - dynamic_windowing
@@ -163,17 +163,17 @@ reference:
   - dynamic_shortest_path
   - dynamic_shortest_path_multiple
   - edge_uniqueness
-  - epochGRN
-  - compile_epochs
+  - split_network_by_states
+  - compile_states
   - get_network_graph
   - get_tf_network
-  - assign_epochs_simple
-  - assign_epochs
-  - assign_epochs_new1
+  - assign_genes_to_states_simple
+  - assign_genes_to_states
+  - assign_genes_to_states_new1
   - assign_network
   - subnets
-  - split_epochs_by_group
-  - split_epochs_by_pseudotime
+  - split_states_by_group
+  - split_states_by_pseudotime
   - biglist_compute_betweenness_degree
   - compute_JI_topregs
   - compute_betweenness_degree

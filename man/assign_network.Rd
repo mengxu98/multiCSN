@@ -2,7 +2,7 @@
 % Please edit documentation in R/dynamic_genes.R
 \name{assign_network}
 \alias{assign_network}
-\title{Assigns genes to epochs}
+\title{Assigns genes to states}
 \usage{
 assign_network(
   matrix,
@@ -18,9 +18,9 @@ assign_network(
 \arguments{
 \item{matrix}{genes-by-cells expression matrix}
 
-\item{dynamic_object}{individual path result of running define_epochs}
+\item{dynamic_object}{individual path result of running define_states}
 
-\item{method}{method of assigning epoch genes, either "active_expression" (looks for active expression in epoch) or "DE" (looks for differentially expressed genes per epoch)}
+\item{method}{method of assigning state genes, either "active_expression" (looks for active expression in state) or "DE" (looks for differentially expressed genes per state)}
 
 \item{p_value}{pval threshold if gene is dynamically expressed}
 
@@ -30,11 +30,11 @@ assign_network(
 
 \item{toScale}{whether or not to scale the data}
 
-\item{forceGenes}{whether or not to rescue orphan dyanmic genes, forcing assignment into epoch with max expression.}
+\item{forceGenes}{whether or not to rescue orphan dyanmic genes, forcing assignment into state with max expression.}
 }
 \value{
-epochs a list detailing genes active in each epoch
+states a list detailing genes active in each state
 }
 \description{
-Assigns genes to epochs
+Assigns genes to states
 }

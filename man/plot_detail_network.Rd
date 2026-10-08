@@ -23,10 +23,10 @@ plot_detail_network(
 
 \item{only_TFs}{whether or not to only plot regulators and exclude non-regulators}
 
-\item{network_order}{the network_order in which to plot epochs, or which epochs to plot}
+\item{network_order}{the network_order in which to plot states, or which states to plot}
 
 \item{communities}{community assignments or the result of running find_commumities.
-The names in this object should match the names of the epoch networks in network.
+The names in this object should match the names of the state networks in network.
 If NULL, it will be automatically run.}
 
 \item{compute_betweenness}{whether or not to fade nodes by igraph::betweenness}

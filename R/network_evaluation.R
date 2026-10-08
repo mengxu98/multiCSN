@@ -393,21 +393,6 @@ select_top_ranked_edges <- function(
   pred[seq_len(maxk), , drop = FALSE]
 }
 
-select_top_ranked_from_normalized <- function(pred, top_k, drop_zero = FALSE) {
-  if (!nrow(pred) || top_k <= 0) {
-    return(pred[0, , drop = FALSE])
-  }
-
-  if (drop_zero) {
-    pred <- pred[pred$abs_weight > 0, , drop = FALSE]
-  }
-  if (!nrow(pred)) {
-    return(pred)
-  }
-
-  maxk <- min(nrow(pred), top_k)
-  pred[seq_len(maxk), , drop = FALSE]
-}
 
 pairwise_summary <- function(values, metric_name, mad_name) {
   values <- values[is.finite(values)]
@@ -468,22 +453,13 @@ compute_network_scores <- function(network_table, ground_truth, tf_edges = FALSE
   gold <- if (!isTRUE(tf_edges)) {
     prepare_calculate_metrics(pred, truth)
   } else {
-    if (isTRUE(tf_edges)) {
-      tf_genes <- sort(unique(truth$regulator))
-      universe <- expand.grid(
-        regulator = tf_genes,
-        target = gt_genes,
-        KEEP.OUT.ATTRS = FALSE,
-        stringsAsFactors = FALSE
-      )
-    } else {
-      universe <- expand.grid(
-        regulator = gt_genes,
-        target = gt_genes,
-        KEEP.OUT.ATTRS = FALSE,
-        stringsAsFactors = FALSE
-      )
-    }
+    tf_genes <- sort(unique(truth$regulator))
+    universe <- expand.grid(
+      regulator = tf_genes,
+      target = gt_genes,
+      KEEP.OUT.ATTRS = FALSE,
+      stringsAsFactors = FALSE
+    )
     universe <- universe[universe$regulator != universe$target, , drop = FALSE]
 
     truth_edge_ids <- metric_edge_ids(

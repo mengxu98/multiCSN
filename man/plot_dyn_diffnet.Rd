@@ -13,7 +13,7 @@ plot_dyn_diffnet(grn, tfs, only_TFs = TRUE, order = NULL)
 
 \item{only_TFs}{whether or not to only plot TFs and exclude non-regulators}
 
-\item{order}{the order in which to plot epochs, or which epochs to plot}
+\item{order}{the order in which to plot states, or which states to plot}
 }
 \value{
 plot

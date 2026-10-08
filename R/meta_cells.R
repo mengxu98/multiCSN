@@ -397,7 +397,7 @@ build_knnd <- function(
   return_neighbors_order = TRUE,
   mode = "all"
 ) {
-  if (!methods::is(D, "matrix") || !methods::is(D, "dist")) {
+  if (!methods::is(D, "matrix") && !methods::is(D, "dist")) {
     stop("D (matrix) must be a matrix or dist!")
   }
 

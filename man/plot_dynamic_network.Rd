@@ -13,13 +13,13 @@ plot_dynamic_network(
 )
 }
 \arguments{
-\item{network}{the result of running epochGRN}
+\item{network}{the result of running split_network_by_states}
 
 \item{regulators}{regulators}
 
 \item{only_TFs}{plot only regulator network}
 
-\item{network_order}{which epochs or transitions to plot}
+\item{network_order}{which states or transitions to plot}
 
 \item{weight_threshold}{weight_threshold}
 }

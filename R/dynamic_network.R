@@ -1,26 +1,27 @@
-#' Define epochs
+#' Define states
 #'
-#' @param dynamic_object results of running findDynGenes, or a list of results of running findDynGenes per path. If list, names should match names of matrix.
+#' @param dynamic_object A trajectory result with a named vector of gene P values in \code{genes} and a cell table in \code{cells}, or a named list of such results. The cell table contains \code{pseudotime} and cell identifiers; group-based partitioning also requires \code{group}.
 #' @param matrix genes-by-cells expression matrix, or a list of expression matrices per path. If list, names should match names of dynamic_object.
-#' @param method method to define epochs. Either "pseudotime", "cell_order", "group", "con_similarity", "kmeans", "hierarchical"
-#' @param num_epochs number of epochs to define. Ignored if epoch_transitions, pseudotime_cuts, or group_assignments are provided.
-#' @param pseudotime_cuts vector of pseudotime cutoffs. If NULL, cuts are set to max(pseudotime)/num_epochs.
-#' @param group_assignments a list of vectors where names(assignment) are epoch names, and vectors contain groups belonging to corresponding epoch
+#' @param method method to define states. Either "pseudotime", "cell_order", "group", "con_similarity", "kmeans", "hierarchical"
+#' @param num_states number of states to define. Ignored when explicit pseudotime cuts or group assignments define the states.
+#' @param pseudotime_cuts vector of pseudotime cutoffs. If NULL, cuts are set to max(pseudotime)/num_states.
+#' @param group_assignments a list of vectors where names(assignment) are state names, and vectors contain groups belonging to corresponding state
 #' @param p_value p_value
 #' @param winSize winSize
 #'
-#' @return updated list of dynamic_object with epoch column included in dynamic_object$cells
+#' @return updated list of dynamic_object with state column included in dynamic_object$cells
 #' @export
-define_epochs <- function(
+define_states <- function(
   dynamic_object,
   matrix,
   method = "pseudotime",
-  num_epochs = 2,
+  num_states = 2,
   pseudotime_cuts = NULL,
   group_assignments = NULL,
   p_value = 0.05,
   winSize = 2
 ) {
+  dynamic_object <- normalize_state_data(dynamic_object)
   if (!is.list(dynamic_object[[1]])) {
     dynamic_object <- list(dynamic_object)
     matrix <- list(matrix)
@@ -32,7 +33,7 @@ define_epochs <- function(
       path <- names(dynamic_object)[path]
     }
     path_dyn <- dynamic_object[[path]]
-    path_dyn$cells$epoch <- NA
+    path_dyn$cells$state <- NA
 
 
     if (method == "pseudotime") {
@@ -40,13 +41,13 @@ define_epochs <- function(
         pseudotime_cuts <- seq(
           min(path_dyn$cells$pseudotime),
           max(path_dyn$cells$pseudotime),
-          (max(path_dyn$cells$pseudotime) - min(path_dyn$cells$pseudotime)) / num_epochs
+          (max(path_dyn$cells$pseudotime) - min(path_dyn$cells$pseudotime)) / num_states
         )
         pseudotime_cuts <- pseudotime_cuts[-length(pseudotime_cuts)]
         pseudotime_cuts <- pseudotime_cuts[-1]
       }
 
-      path_dyn <- split_epochs_by_pseudotime(path_dyn, pseudotime_cuts)
+      path_dyn <- split_states_by_pseudotime(path_dyn, pseudotime_cuts)
     }
 
 
@@ -54,15 +55,15 @@ define_epochs <- function(
       t1 <- path_dyn$cells$pseudotime
       names(t1) <- as.vector(path_dyn$cells$cell_name)
 
-      chunk_size <- floor(length(t1) / num_epochs)
+      chunk_size <- floor(length(t1) / num_states)
 
-      for (i in 1:num_epochs) {
-        if (i == num_epochs) {
-          cells_in_epoch <- names(t1)[(1 + ((i - 1) * chunk_size)):length(t1)]
+      for (i in 1:num_states) {
+        if (i == num_states) {
+          cells_in_state <- names(t1)[(1 + ((i - 1) * chunk_size)):length(t1)]
         } else {
-          cells_in_epoch <- names(t1)[(1 + ((i - 1) * chunk_size)):(i * chunk_size)]
+          cells_in_state <- names(t1)[(1 + ((i - 1) * chunk_size)):(i * chunk_size)]
         }
-        path_dyn$cells$epoch[path_dyn$cells$cell_name %in% cells_in_epoch] <- paste0("epoch", i)
+        path_dyn$cells$state[path_dyn$cells$cell_name %in% cells_in_state] <- paste0("state_", i)
       }
     }
 
@@ -72,13 +73,13 @@ define_epochs <- function(
         stop("Must provide group_assignments for group method.")
       }
 
-      path_dyn <- split_epochs_by_group(path_dyn, group_assignments)
+      path_dyn <- split_states_by_group(path_dyn, group_assignments)
     }
 
 
     if (method == "con_similarity") {
       cuts <- find_cuts_by_similarity(matrix[[path]], path_dyn, winSize = winSize, p_value = p_value)
-      path_dyn <- split_epochs_by_pseudotime(path_dyn, cuts)
+      path_dyn <- split_states_by_pseudotime(path_dyn, cuts)
     }
 
 
@@ -86,17 +87,17 @@ define_epochs <- function(
       cuts <- find_cuts_by_clustering(
         matrix[[path]],
         path_dyn,
-        num_epochs = num_epochs,
+        num_states = num_states,
         method = "kmeans",
         p_value = p_value
       )
-      path_dyn <- split_epochs_by_pseudotime(path_dyn, cuts)
+      path_dyn <- split_states_by_pseudotime(path_dyn, cuts)
     }
 
 
     if (method == "hierarchical") {
-      cuts <- find_cuts_by_clustering(matrix[[path]], path_dyn, num_epochs = num_epochs, method = "hierarchical", p_value = p_value)
-      path_dyn <- split_epochs_by_pseudotime(path_dyn, cuts)
+      cuts <- find_cuts_by_clustering(matrix[[path]], path_dyn, num_states = num_states, method = "hierarchical", p_value = p_value)
+      path_dyn <- split_states_by_pseudotime(path_dyn, cuts)
     }
 
 
@@ -109,56 +110,60 @@ define_epochs <- function(
   new_dynRes
 }
 
-#' Splits data into epochs
+#' Splits data into states
 #'
-#' Splits data into epochs by assigning cells to epochs
+#' Splits data into states by assigning cells to states
 #'
 #' @param dynamic_object result of running findDynGenes or compileDynGenes
 #' @param cuts vector of pseudotime cutoffs
-#' @param epoch_names names of resulting epochs, must have length of length(cuts)+1
+#' @param state_names names of resulting states, must have length of length(cuts)+1
 #'
-#' @return updated dynamic_object with epoch column included in dynamic_object$cells
+#' @return updated dynamic_object with state column included in dynamic_object$cells
 #' @export
-split_epochs_by_pseudotime <- function(dynamic_object, cuts, epoch_names = NULL) {
+split_states_by_pseudotime <- function(dynamic_object, cuts, state_names = NULL) {
+  dynamic_object <- normalize_state_data(dynamic_object)
+  state_names <- normalize_state_labels(state_names)
   sampTab <- dynamic_object$cells
 
   if (max(cuts) > max(sampTab$pseudotime)) {
     stop("Cuts must be within pseudotime.")
   }
 
-  if (!is.null(epoch_names) & (length(epoch_names) != length(cuts) + 1)) {
-    stop("Length of epoch_names must be equal to 1+length(cuts).")
+  if (!is.null(state_names) & (length(state_names) != length(cuts) + 1)) {
+    stop("Length of state_names must be equal to 1+length(cuts).")
   }
 
-  if (is.null(epoch_names)) {
-    epoch_names <- paste0("epoch", (1:(length(cuts) + 1)))
+  if (is.null(state_names)) {
+    state_names <- paste0("state_", seq_len(length(cuts) + 1))
   }
 
   cuts <- c(-0.1, cuts, max(sampTab$pseudotime))
-  sampTab$epoch <- NA
+  sampTab$state <- NA
   for (i in 2:length(cuts)) {
-    sampTab$epoch[(cuts[i - 1] < sampTab$pseudotime) & (sampTab$pseudotime <= cuts[i])] <- epoch_names[i - 1]
+    sampTab$state[(cuts[i - 1] < sampTab$pseudotime) & (sampTab$pseudotime <= cuts[i])] <- state_names[i - 1]
   }
 
   dynamic_object$cells <- sampTab
   dynamic_object
 }
 
-#' Splits data into epochs manually
+#' Splits data into states manually
 #'
-#' Splits data into epochs given group assignment
+#' Splits data into states given group assignment
 #'
 #' @param dynamic_object result of running findDynGenes or compileDynGenes
-#' @param assignment a list of vectors where names(assignment) are epoch names, and vectors contain groups belonging to corresponding epoch
+#' @param assignment a list of vectors where names(assignment) are state names, and vectors contain groups belonging to corresponding state
 #'
-#' @return updated dynamic_object with epoch column included in dynamic_object$cells
+#' @return updated dynamic_object with state column included in dynamic_object$cells
 #' @export
-split_epochs_by_group <- function(dynamic_object, assignment) {
+split_states_by_group <- function(dynamic_object, assignment) {
+  dynamic_object <- normalize_state_data(dynamic_object)
+  assignment <- normalize_state_data(assignment)
   sampTab <- dynamic_object$cells
-  sampTab$epoch <- NA
+  sampTab$state <- NA
 
   for (e in names(assignment)) {
-    sampTab$epoch[sampTab$group %in% assignment[[e]]] <- e
+    sampTab$state[sampTab$group %in% assignment[[e]]] <- e
   }
 
   dynamic_object$cells <- sampTab
@@ -168,15 +173,15 @@ split_epochs_by_group <- function(dynamic_object, assignment) {
 #' @title find_cuts_by_similarity
 #'
 #' @description
-#'  Returns cuts to define epochs via sliding window comparison
+#'  Returns cuts to define states via sliding window comparison
 #'
 #' @param matrix genes-by-cells expression matrix
-#' @param dynamic_object result of running findDynGenes or define_epochs
+#' @param dynamic_object result of running findDynGenes or define_states
 #' @param winSize number of cells to each side to compare each cell to
-#' @param limit_to vector of genes on which to base epoch cuts, for example, limiting to TFs
+#' @param limit_to vector of genes on which to base state cuts, for example, limiting to TFs
 #' @param p_value pval threshold if gene is dynamically expressed
 #'
-#' @return vector of  pseudotimes at which to cut data into epochs
+#' @return vector of  pseudotimes at which to cut data into states
 #' @export
 find_cuts_by_similarity <- function(
   matrix,
@@ -215,23 +220,23 @@ find_cuts_by_similarity <- function(
 }
 
 
-#' Returns cuts to define epochs
+#' Returns cuts to define states
 #'
-#' Returns cuts to define epochs via clustering
+#' Returns cuts to define states via clustering
 #'
 #' @param matrix genes-by-cells expression matrix
-#' @param dynamic_object result of running findDynGenes or define_epochs
-#' @param num_epochs the number of epochs
-#' @param limit_to vector of genes on which to base epoch cuts, for example, limiting to TFs
+#' @param dynamic_object result of running findDynGenes or define_states
+#' @param num_states the number of states
+#' @param limit_to vector of genes on which to base state cuts, for example, limiting to TFs
 #' @param method what clustering method to use, either 'kmeans' or 'hierarchical'
 #' @param p_value pval threshold if gene is dynamically expressed
 #'
-#' @return vector of  pseudotimes at which to cut data into epochs
+#' @return vector of  pseudotimes at which to cut data into states
 #' @export
 find_cuts_by_clustering <- function(
   matrix,
   dynamic_object,
-  num_epochs,
+  num_states,
   limit_to = NULL,
   method = "kmeans",
   p_value = 0.05
@@ -245,7 +250,7 @@ find_cuts_by_clustering <- function(
   }
 
   if (method == "kmeans") {
-    clustering <- stats::kmeans(t(matrix), num_epochs, iter.max = 100)$cluster
+    clustering <- stats::kmeans(t(matrix), num_states, iter.max = 100)$cluster
 
     cuts <- c()
     for (cluster in unique(clustering)) {
@@ -272,21 +277,21 @@ find_cuts_by_clustering <- function(
   cuts
 }
 
-#' Assigns genes to epochs
+#' Assigns genes to states
 #'
 #' @param matrix genes-by-cells expression matrix
-#' @param dynamic_object individual path result of running define_epochs
-#' @param method method of assigning epoch genes, either "active_expression" (looks for active expression in epoch) or "DE" (looks for differentially expressed genes per epoch)
+#' @param dynamic_object individual path result of running define_states
+#' @param method method of assigning state genes, either "active_expression" (looks for active expression in state) or "DE" (looks for differentially expressed genes per state)
 #' @param p_value pval threshold if gene is dynamically expressed
 #' @param pThresh_DE pval if gene is differentially expressed. Ignored if method is active_expression.
 #' @param active_thresh value between 0 and 1. Percent threshold to define activity
 #' @param toScale whether or not to scale the data
-#' @param forceGenes whether or not to rescue orphan dyanmic genes, forcing assignment into epoch with max expression.
+#' @param forceGenes whether or not to rescue orphan dyanmic genes, forcing assignment into state with max expression.
 #'
-#' @return epochs a list detailing genes active in each epoch
+#' @return states a list detailing genes active in each state
 #' @export
 #'
-assign_epochs <- function(
+assign_genes_to_states <- function(
   matrix,
   dynamic_object,
   method = "active_expression",
@@ -296,6 +301,7 @@ assign_epochs <- function(
   toScale = FALSE,
   forceGenes = TRUE
 ) {
+  dynamic_object <- normalize_state_data(dynamic_object)
   if (active_thresh < 0 | active_thresh > 1) {
     stop("active_thresh must be between 0 and 1.")
   }
@@ -314,9 +320,9 @@ assign_epochs <- function(
   }
 
 
-  epoch_names <- unique(dynamic_object$cells$epoch)
-  epochs <- vector("list", length(epoch_names))
-  names(epochs) <- epoch_names
+  state_names <- unique(dynamic_object$cells$state)
+  states <- vector("list", length(state_names))
+  names(states) <- state_names
 
   navg <- ceiling(ncol(exp) * 0.05)
 
@@ -337,32 +343,32 @@ assign_epochs <- function(
 
   mean_expression <- data.frame(
     gene = character(),
-    epoch = numeric(),
+    state = numeric(),
     mean_expression = numeric()
   )
   if (method == "active_expression") {
-    for (epoch in names(epochs)) {
-      chunk_cells <- dynamic_object$cells[dynamic_object$cells$epoch == epoch, "cells"]
+    for (state in names(states)) {
+      chunk_cells <- dynamic_object$cells[dynamic_object$cells$state == state, "cells"]
       chunk <- exp[, chunk_cells]
 
       chunk_df <- data.frame(means = rowMeans(chunk))
       chunk_df <- cbind(chunk_df, thresholds)
       chunk_df$active <- (chunk_df$means >= chunk_df$thresh)
 
-      epochs[[epoch]] <- rownames(chunk_df[chunk_df$active, ])
+      states[[state]] <- rownames(chunk_df[chunk_df$active, ])
 
       mean_expression <- rbind(
         mean_expression,
         data.frame(
           gene = rownames(chunk),
-          epoch = rep(epoch, length(rownames(chunk))),
+          state = rep(state, length(rownames(chunk))),
           mean_expression = rowMeans(chunk)
         )
       )
     }
   } else {
-    for (epoch in names(epochs)) {
-      chunk_cells <- dynamic_object$cells[dynamic_object$cells$epoch == epoch, "cells"]
+    for (state in names(states)) {
+      chunk_cells <- dynamic_object$cells[dynamic_object$cells$state == state, "cells"]
       chunk <- exp[, chunk_cells]
 
       background <- exp[, !(colnames(exp) %in% chunk_cells)]
@@ -377,20 +383,20 @@ assign_epochs <- function(
       diffres$padj <- stats::p.adjust(diffres$pval, method = "BH")
       diffres <- diffres[diffres$mean_diff > 0, ]
 
-      epochs[[epoch]] <- diffres$gene[diffres$padj < pThresh_DE]
+      states[[state]] <- diffres$gene[diffres$padj < pThresh_DE]
 
 
       chunk_df <- data.frame(means = rowMeans(chunk))
       chunk_df <- cbind(chunk_df, thresholds)
       chunk_df$active <- (chunk_df$means >= chunk_df$thresh)
 
-      epochs[[epoch]] <- intersect(epochs[[epoch]], rownames(chunk_df[chunk_df$active, ]))
+      states[[state]] <- intersect(states[[state]], rownames(chunk_df[chunk_df$active, ]))
 
       mean_expression <- rbind(
         mean_expression,
         data.frame(
           gene = rownames(chunk),
-          epoch = rep(epoch, length(rownames(chunk))),
+          state = rep(state, length(rownames(chunk))),
           mean_expression = rowMeans(chunk)
         )
       )
@@ -399,103 +405,109 @@ assign_epochs <- function(
 
 
   if (forceGenes) {
-    assignedGenes <- unique(unlist(epochs))
+    assignedGenes <- unique(unlist(states))
     orphanGenes <- setdiff(rownames(exp), assignedGenes)
     message("There are ", length(orphanGenes), " orphan genes\n")
     for (oGene in orphanGenes) {
       xdat <- mean_expression[mean_expression$gene == oGene, ]
-      ep <- xdat[which.max(xdat$mean_expression), ]$epoch
-      epochs[[ep]] <- append(epochs[[ep]], oGene)
+      state_id <- xdat[which.max(xdat$mean_expression), ]$state
+      states[[state_id]] <- append(states[[state_id]], oGene)
     }
   }
 
-  epochs$mean_expression <- mean_expression
+  states$mean_expression <- mean_expression
 
-  epochs
+  states
 }
 
-#' Divides grnDF into epochs, filters interactions between genes not in same or consecutive epochs
+#' Divides grnDF into states, filters interactions between genes not in same or consecutive states
 #'
 #' @param grnDF result of GRN reconstruction
-#' @param epochs result of running assign_epochs
-#' @param epoch_network dataframe outlining higher level epoch connectivity (i.e. epoch transition network).
-#' If NULL, will assume epochs is ordered linear trajectory
+#' @param states result of running assign_genes_to_states
+#' @param state_network dataframe outlining higher level state connectivity (i.e. state transition network).
+#' If NULL, will assume states is ordered linear trajectory
 #'
-#' @return list of GRNs across epochs and transitions
+#' @return list of GRNs across states and transitions
 #' @export
-epochGRN <- function(
+split_network_by_states <- function(
   grnDF,
-  epochs,
-  epoch_network = NULL
+  states,
+  state_network = NULL
 ) {
-  epochs$mean_expression <- NULL
-  all_dyngenes <- unique(unlist(epochs, use.names = FALSE))
+  states <- normalize_state_data(states)
+  if (!is.null(state_network)) {
+    state_network$from <- normalize_state_labels(state_network$from)
+    state_network$to <- normalize_state_labels(state_network$to)
+  }
+  states$mean_expression <- NULL
+  all_dyngenes <- unique(unlist(states, use.names = FALSE))
 
 
-  if (is.null(epoch_network)) {
-    epoch_network <- data.frame(from = character(), to = character())
-    for (i in 1:(length(names(epochs)) - 1)) {
-      df <- data.frame(from = c(names(epochs)[i]), to = c(names(epochs)[i + 1]))
-      epoch_network <- rbind(epoch_network, df)
+  if (is.null(state_network)) {
+    state_network <- data.frame(from = character(), to = character())
+    for (i in 1:(length(names(states)) - 1)) {
+      df <- data.frame(from = c(names(states)[i]), to = c(names(states)[i + 1]))
+      state_network <- rbind(state_network, df)
     }
   }
 
 
-  epoch_network <- rbind(
-    epoch_network,
-    data.frame(from = names(epochs), to = names(epochs))
+  state_network <- rbind(
+    state_network,
+    data.frame(from = names(states), to = names(states))
   )
 
 
-  epoch_network$name <- paste(epoch_network[, 1], epoch_network[, 2], sep = "..")
-  GRN <- vector("list", nrow(epoch_network))
-  names(GRN) <- epoch_network$name
+  state_network$name <- paste(state_network[, 1], state_network[, 2], sep = "..")
+  GRN <- vector("list", nrow(state_network))
+  names(GRN) <- state_network$name
 
-  print(epoch_network)
+  print(state_network)
 
-  for (t in 1:nrow(epoch_network)) {
-    from <- as.character(epoch_network[t, 1])
-    to <- as.character(epoch_network[t, 2])
+  for (t in 1:nrow(state_network)) {
+    from <- as.character(state_network[t, 1])
+    to <- as.character(state_network[t, 2])
 
 
-    temp <- grnDF[grnDF$regulator %in% epochs[[from]], ]
+    temp <- grnDF[grnDF$regulator %in% states[[from]], ]
 
 
     if (from != to) {
-      remove_tgs_in_both <- intersect(epochs[[to]], epochs[[from]])
-      remove_tgs_in_neither <- intersect(setdiff(all_dyngenes, epochs[[from]]), setdiff(all_dyngenes, epochs[[to]]))
+      remove_tgs_in_both <- intersect(states[[to]], states[[from]])
+      remove_tgs_in_neither <- intersect(setdiff(all_dyngenes, states[[from]]), setdiff(all_dyngenes, states[[to]]))
 
       temp <- temp[!(temp$TG %in% remove_tgs_in_both), ]
       temp <- temp[!(temp$TG %in% remove_tgs_in_neither), ]
     }
 
 
-    GRN[[epoch_network[t, "name"]]] <- temp
+    GRN[[state_network[t, "name"]]] <- temp
   }
 
   GRN
 }
 
 
-#' Assigns genes to epochs just based on which mean is maximal
+#' Assigns genes to states just based on which mean is maximal
 #'
 #' @param matrix expression matrix
 #' @param dynamic_object result of running findDynGenes
-#' @param num_epochs num_epochs
+#' @param num_states num_states
 #' @param pThresh pThresh
 #' @param toScale toScale
 #' @param key_word key_word
 #'
 #' @return data.frame of dynamically expressed genes, cluster, peakTime, ordered by peaktime
 #' @export
-assign_epochs_simple <- function(
+assign_genes_to_states_simple <- function(
   matrix,
   dynamic_object,
-  num_epochs = 3,
+  num_states = 3,
   pThresh = 0.01,
   toScale = FALSE,
-  key_word = "epoch"
+  key_word = "state_"
 ) {
+  dynamic_object <- normalize_state_data(dynamic_object)
   exp <- matrix[names(dynamic_object$genes[dynamic_object$genes < pThresh]), ]
 
   if (toScale) {
@@ -526,22 +538,22 @@ assign_epochs_simple <- function(
   sort(t1, decreasing = FALSE)
   exp <- exp[, names(t1)]
 
-  mean_expression <- data.frame(gene = character(), epoch = numeric(), mean_expression = numeric())
+  mean_expression <- data.frame(gene = character(), state = character(), mean_expression = numeric())
 
 
-  epoch_names <- paste0(rep(key_word, num_epochs), seq(1:num_epochs))
-  epochs <- vector("list", length(epoch_names))
-  names(epochs) <- epoch_names
+  state_names <- paste0(rep(key_word, num_states), seq(1:num_states))
+  states <- vector("list", length(state_names))
+  names(states) <- state_names
 
 
   ptmax <- max(dynamic_object$cells$pseudotime)
   ptmin <- min(dynamic_object$cells$pseudotime)
-  chunk_size <- (ptmax - ptmin) / num_epochs
+  chunk_size <- (ptmax - ptmin) / num_states
 
-  cellsEps <- rep("", length(names(t1)))
-  names(cellsEps) <- names(t1)
+  cell_states <- rep("", length(names(t1)))
+  names(cell_states) <- names(t1)
 
-  for (i in 1:length(epochs)) {
+  for (i in 1:length(states)) {
     lower_bound <- ptmin + ((i - 1) * chunk_size)
     upper_bound <- ptmin + (i * chunk_size)
     chunk_cells <- rownames(dynamic_object$cells[dynamic_object$cells$pseudotime >= lower_bound & dynamic_object$cells$pseudotime <= upper_bound, ])
@@ -551,7 +563,7 @@ assign_epochs_simple <- function(
     chunk_df <- cbind(chunk_df, thresholds)
     chunk_df$active <- (chunk_df$means >= chunk_df$thresh)
 
-    epochs[[i]] <- rownames(chunk_df[chunk_df$active, ])
+    states[[i]] <- rownames(chunk_df[chunk_df$active, ])
     genesPeakTimes <- apply(chunk, 1, which.max)
     gpt <- as.vector(dynamic_object$cells[chunk_cells, ][genesPeakTimes, ]$pseudotime)
 
@@ -559,40 +571,40 @@ assign_epochs_simple <- function(
       mean_expression,
       data.frame(
         gene = rownames(chunk),
-        epoch = rep(i, length(rownames(chunk))), mean_expression = rowMeans(chunk),
+        state = rep(state_names[i], length(rownames(chunk))), mean_expression = rowMeans(chunk),
         peakTime = gpt
       )
     )
-    cellsEps[chunk_cells] <- epoch_names[i]
+    cell_states[chunk_cells] <- state_names[i]
   }
 
 
   genes <- unique(as.vector(mean_expression$gene))
   cat("n genes: ", length(genes), "\n")
-  eps <- rep("", length(genes))
-  geneEpPT <- rep(0, length(genes))
-  epMean <- rep(0, length(genes))
+  gene_states <- rep("", length(genes))
+  gene_state_peak_time <- rep(0, length(genes))
+  state_mean <- rep(0, length(genes))
 
-  names(eps) <- genes
-  names(geneEpPT) <- genes
-  names(epMean) <- genes
+  names(gene_states) <- genes
+  names(gene_state_peak_time) <- genes
+  names(state_mean) <- genes
   for (gene in genes) {
     x <- mean_expression[mean_expression$gene == gene, ]
     xi <- which.max(x$mean_expression)
-    eps[[gene]] <- as.vector(x[xi, ]$epoch)
-    geneEpPT[[gene]] <- as.vector(x[xi, ]$peakTime)
-    epMean[[gene]] <- max(x$mean_expression)
+    gene_states[[gene]] <- as.vector(x[xi, ]$state)
+    gene_state_peak_time[[gene]] <- as.vector(x[xi, ]$peakTime)
+    state_mean[[gene]] <- max(x$mean_expression)
   }
 
   geneDF <- data.frame(
     gene = genes,
-    epoch = eps,
-    peakTime = geneEpPT,
-    epMean = epMean,
+    state = gene_states,
+    peakTime = gene_state_peak_time,
+    state_mean = state_mean,
     pval = dynamic_object$genes[genes]
   )
   cells2 <- dynamic_object$cells[names(t1), ]
-  cells2 <- cbind(cells2, epoch = cellsEps)
+  cells2$state <- cell_states
 
   list(genes = geneDF, cells = cells2)
 }

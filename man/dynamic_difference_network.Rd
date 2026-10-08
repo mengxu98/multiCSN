@@ -6,7 +6,7 @@
 \usage{
 dynamic_difference_network(
   edgeDF,
-  epochs,
+  states,
   condition,
   type,
   diff_thresh = 3,
@@ -16,7 +16,7 @@ dynamic_difference_network(
 \arguments{
 \item{edgeDF}{the result of running edge_uniqueness}
 
-\item{epochs}{list of epoch gene assignments}
+\item{states}{list of state gene assignments}
 
 \item{condition}{condition of interest, should be one of the treatment (aka network name) or column names in edgeDF}
 

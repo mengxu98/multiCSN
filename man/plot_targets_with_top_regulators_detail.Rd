@@ -7,7 +7,7 @@
 plot_targets_with_top_regulators_detail(
   network,
   targets,
-  epochs_list,
+  states_list,
   weight_column = "weight",
   gene_ranks = NULL,
   regulators_num = 5,
@@ -18,11 +18,11 @@ plot_targets_with_top_regulators_detail(
 )
 }
 \arguments{
-\item{network}{the result of running epochGRN}
+\item{network}{the result of running split_network_by_states}
 
 \item{targets}{targets}
 
-\item{epochs_list}{result of running assign_epochs}
+\item{states_list}{result of running assign_genes_to_states}
 
 \item{weight_column}{column name containing reconstruction weights to use}
 
@@ -30,9 +30,9 @@ plot_targets_with_top_regulators_detail(
 
 \item{regulators_num}{number of top regulators to plot}
 
-\item{network_order}{which epochs or transitions to plot}
+\item{network_order}{which states or transitions to plot}
 
-\item{fixed_layout}{whether or not to fix node positions across epoch networks}
+\item{fixed_layout}{whether or not to fix node positions across state networks}
 
 \item{layout_alg}{layout algorithm if fixed_layout. Defaults to FR. Ignored if fixed_layout==FALSE.}
 

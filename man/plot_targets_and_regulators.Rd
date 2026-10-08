@@ -3,12 +3,12 @@
 \name{plot_targets_and_regulators}
 \alias{plot_targets_and_regulators}
 \title{Updated plot of top regulators given targets in dynamic networks based on a weight column.
-Top regulators computed for each epoch, but maintained in plot across epochs if present in epoch subnetwork.}
+Top regulators computed for each state, but maintained in plot across states if present in state subnetwork.}
 \usage{
 plot_targets_and_regulators(
   network,
   targets,
-  epochs = NULL,
+  states = NULL,
   weight_column = "weight",
   gene_ranks = NULL,
   regulators_num = 5,
@@ -23,11 +23,11 @@ plot_targets_and_regulators(
 )
 }
 \arguments{
-\item{network}{the result of running epochGRN}
+\item{network}{the result of running split_network_by_states}
 
 \item{targets}{targets}
 
-\item{epochs}{result of running assign_epochs}
+\item{states}{result of running assign_genes_to_states}
 
 \item{weight_column}{column name containing reconstruction weights to use}
 
@@ -35,13 +35,13 @@ plot_targets_and_regulators(
 
 \item{regulators_num}{number of top regulators to plot}
 
-\item{network_order}{which epochs or transitions to plot}
+\item{network_order}{which states or transitions to plot}
 
-\item{fixed_layout}{whether or not to fix node positions across epoch networks}
+\item{fixed_layout}{whether or not to fix node positions across state networks}
 
 \item{declutter}{if TRUE, will only label nodes with active interactions in given network}
 
-\item{show_expression}{if TRUE, size and shade of node indicates mean expression in a given epoch.}
+\item{show_expression}{if TRUE, size and shade of node indicates mean expression in a given state.}
 
 \item{node_size}{node_size}
 
@@ -56,5 +56,5 @@ plot
 }
 \description{
 Updated plot of top regulators given targets in dynamic networks based on a weight column.
-Top regulators computed for each epoch, but maintained in plot across epochs if present in epoch subnetwork.
+Top regulators computed for each state, but maintained in plot across states if present in state subnetwork.
 }

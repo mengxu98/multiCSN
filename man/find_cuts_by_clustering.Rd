@@ -2,12 +2,12 @@
 % Please edit documentation in R/dynamic_network.R
 \name{find_cuts_by_clustering}
 \alias{find_cuts_by_clustering}
-\title{Returns cuts to define epochs}
+\title{Returns cuts to define states}
 \usage{
 find_cuts_by_clustering(
   matrix,
   dynamic_object,
-  num_epochs,
+  num_states,
   limit_to = NULL,
   method = "kmeans",
   p_value = 0.05
@@ -16,19 +16,19 @@ find_cuts_by_clustering(
 \arguments{
 \item{matrix}{genes-by-cells expression matrix}
 
-\item{dynamic_object}{result of running findDynGenes or define_epochs}
+\item{dynamic_object}{result of running findDynGenes or define_states}
 
-\item{num_epochs}{the number of epochs}
+\item{num_states}{the number of states}
 
-\item{limit_to}{vector of genes on which to base epoch cuts, for example, limiting to TFs}
+\item{limit_to}{vector of genes on which to base state cuts, for example, limiting to TFs}
 
 \item{method}{what clustering method to use, either 'kmeans' or 'hierarchical'}
 
 \item{p_value}{pval threshold if gene is dynamically expressed}
 }
 \value{
-vector of  pseudotimes at which to cut data into epochs
+vector of  pseudotimes at which to cut data into states
 }
 \description{
-Returns cuts to define epochs via clustering
+Returns cuts to define states via clustering
 }
