@@ -46,6 +46,41 @@ test_that("column-compressed blocks reproduce sparse column subsetting", {
   }
 })
 
+test_that("sparse block assembly preserves slots and rejects invalid indices", {
+  set.seed(1014)
+  x <- methods::as(Matrix::rsparsematrix(70, 80, density = 0.1), "dgCMatrix")
+  x[, 3] <- 0
+  x[2, 2] <- NA_real_
+  x[4, 5] <- Inf
+  rows <- multiCSN:::row_compressed_matrix(x)
+  for (selected in list(integer(), 3L, c(65L, 3L, 2L, 4L, 65L, 1L))) {
+    for (by_row in c(FALSE, TRUE)) {
+      source <- if (by_row) rows else x
+      indices <- if (by_row) source@j else source@i
+      first <- source@p[selected] + 1L
+      sizes <- source@p[selected + 1L] - source@p[selected]
+      positions <- rep.int(first, sizes) + sequence(sizes) - 1L
+      expected <- methods::new("dgCMatrix",
+        i = as.integer(indices[positions]),
+        p = as.integer(c(0L, cumsum(sizes))),
+        x = as.numeric(source@x[positions]),
+        Dim = as.integer(c(if (by_row) ncol(source) else nrow(source), length(selected)))
+      )
+      actual <- if (by_row) {
+        multiCSN:::row_compressed_block(source, selected)
+      } else {
+        multiCSN:::column_compressed_block(source, selected)
+      }
+      expect_identical(actual, expected)
+      expect_true(methods::validObject(actual))
+    }
+  }
+  for (bad in list(NA_integer_, 0L, -1L, 81L)) {
+    expect_error(multiCSN:::row_compressed_block(rows, bad), "Row indices")
+    expect_error(multiCSN:::column_compressed_block(x, bad), "Column indices")
+  }
+})
+
 test_that("layered candidate construction matches the reference selection", {
   set.seed(23)
   peaks <- paste0("p", seq_len(12))
@@ -306,4 +341,150 @@ test_that("fit_layered_network validates its inputs", {
     fit_layered_network(object, target_chunk = NA_integer_, verbose = FALSE),
     "target_chunk.*positive integer"
   )
+})
+
+test_that("native sparse gathering preserves explicit values and logical fallback", {
+  for (logical_values in c(FALSE, TRUE)) {
+    x <- Matrix::sparseMatrix(
+      i = c(1L, 3L, 2L, 4L), j = c(1L, 1L, 3L, 5L),
+      x = if (logical_values) c(TRUE, FALSE, NA, TRUE) else c(0, -0, NaN, -Inf),
+      dims = c(6L, 7L)
+    )
+    rows <- multiCSN:::row_compressed_matrix(x)
+    for (selected in list(integer(), 2L, c(5L, 1L, 3L, 5L, 2L))) {
+      for (by_row in c(FALSE, TRUE)) {
+        source <- if (by_row) rows else x
+        indices <- if (by_row) source@j else source@i
+        lengths <- source@p[selected + 1L] - source@p[selected]
+        positions <- rep.int(source@p[selected] + 1L, lengths) + sequence(lengths) - 1L
+        expected <- methods::new("dgCMatrix",
+          i = as.integer(indices[positions]),
+          p = as.integer(c(0L, cumsum(lengths))), x = as.numeric(source@x[positions]),
+          Dim = as.integer(c(if (by_row) ncol(source) else nrow(source), length(selected)))
+        )
+        actual <- if (by_row) multiCSN:::row_compressed_block(source, selected) else multiCSN:::column_compressed_block(source, selected)
+        expect_identical(actual, expected)
+        expect_identical(serialize(actual, NULL), serialize(expected, NULL))
+      }
+    }
+  }
+})
+
+test_that("layered binding preserves all internal table schemas and empty parts", {
+  schemas <- c("empty_tf_gene_edges", "empty_region_gene_edges", "empty_shared_accounting", "empty_region_gene_accounting")
+  for (schema in schemas) {
+    empty <- get(schema, envir = asNamespace("multiCSN"))
+    part <- empty()[rep(NA_integer_, 3L), , drop = FALSE]
+    for (name in names(part)) {
+      part[[name]] <- switch(typeof(empty()[[name]]),
+        character = c("x", "y", NA_character_),
+        integer = c(2L, 0L, NA_integer_),
+        double = c(1.5, Inf, NA_real_)
+      )
+    }
+    parts <- list(first = part, NULL, empty(), last = part[3:1, , drop = FALSE])
+    expected <- do.call(rbind, parts[c(1L, 4L)])
+    rownames(expected) <- NULL
+    expect_identical(multiCSN:::layered_rbind(parts, empty), expected)
+    expect_identical(multiCSN:::layered_rbind(list(NULL, empty()), empty), empty())
+  }
+})
+
+test_that("sparse gathering does not touch the random state and checks overflow", {
+  set.seed(10143)
+  x <- methods::as(Matrix::rsparsematrix(8, 9, density = 0.2), "dgCMatrix")
+  seed <- .Random.seed
+  multiCSN:::column_compressed_block(x, c(4L, 2L))
+  expect_identical(.Random.seed, seed)
+  expect_error(
+    multiCSN:::gather_sparse_block(c(0L, .Machine$integer.max), integer(), numeric(), c(1L, 1L), 1L),
+    "compressed matrix index limit"
+  )
+})
+
+test_that("native candidate unions preserve sparse value and ordering semantics", {
+  set.seed(10414)
+  for (replicate in seq_len(30)) {
+    gate <- Matrix::rsparsematrix(17, 9, density = 0.35)
+    domain <- Matrix::rsparsematrix(11, 19, density = 0.3)
+    gate@x[seq_len(4)] <- c(0, NA_real_, NaN, Inf)
+    domain@x[seq_len(4)] <- c(0, NA_real_, NaN, -Inf)
+    g <- multiCSN:::row_compressed_matrix(gate)
+    d <- multiCSN:::row_compressed_matrix(domain)
+    mapping <- sample(c(seq_len(17), NA_integer_), 19, replace = TRUE)
+    for (row in seq_len(nrow(domain))) {
+      links <- mapping[multiCSN:::row_compressed_nonzero(d, row)]
+      links <- links[!is.na(links)]
+      expected <- sort(unique(unlist(lapply(links, function(i) {
+        multiCSN:::row_compressed_positive(g, i)
+      }), use.names = FALSE)))
+      actual <- multiCSN:::sparse_candidate_union(
+        d@p, d@j, d@x, g@p, g@j, g@x, mapping, row, ncol(g)
+      )
+      expect_identical(actual, as.integer(expected))
+    }
+    for (row in seq_len(nrow(gate))) {
+      expect_identical(
+        multiCSN:::positive_sparse_row(g@p, g@j, g@x, row),
+        multiCSN:::row_compressed_positive(g, row)
+      )
+    }
+  }
+})
+
+test_that("checkpoint identity detects package code changes without version changes", {
+  package_root <- tempfile("package-identity-")
+  dir.create(package_root)
+  on.exit(unlink(package_root, recursive = TRUE), add = TRUE)
+  dir.create(file.path(package_root, "R"))
+  dir.create(file.path(package_root, "libs"))
+  writeLines("Version: 0.0.1", file.path(package_root, "DESCRIPTION"))
+  writeLines("useDynLib(multiCSN)", file.path(package_root, "NAMESPACE"))
+  writeBin(as.raw(1:5), file.path(package_root, "R", "multiCSN.rdb"))
+  binary <- file.path(package_root, "libs", "multiCSN.so")
+  writeBin(as.raw(1:9), binary)
+  original <- multiCSN:::layered_package_identity
+  testthat::local_mocked_bindings(
+    layered_package_identity = function(root) original(package_root),
+    .package = "multiCSN"
+  )
+  root <- tempfile("checkpoint-identity-")
+  on.exit(unlink(root, recursive = TRUE), add = TRUE)
+  inputs <- list(cells = "c", features = "g", regulators = "r")
+  settings <- list(cores = 1L)
+  multiCSN:::layered_prepare_checkpoint(root, inputs, settings)
+  expect_silent(multiCSN:::layered_prepare_checkpoint(root, inputs, settings))
+  writeBin(as.raw(9:1), binary)
+  expect_error(multiCSN:::layered_prepare_checkpoint(root, inputs, settings), "different input")
+  writeBin(as.raw(1:9), binary)
+  expect_silent(multiCSN:::layered_prepare_checkpoint(root, inputs, settings))
+  added <- file.path(package_root, "libs", "extra.dll")
+  writeBin(as.raw(1:3), added)
+  expect_error(multiCSN:::layered_prepare_checkpoint(root, inputs, settings), "different input")
+  unlink(added)
+  unlink(binary)
+  expect_error(multiCSN:::layered_prepare_checkpoint(root, inputs, settings), "different input")
+  writeBin(as.raw(1:9), binary)
+  writeBin(as.raw(5:1), file.path(package_root, "R", "multiCSN.rdb"))
+  expect_error(multiCSN:::layered_prepare_checkpoint(root, inputs, settings), "different input")
+})
+
+test_that("shared Gram reuse preserves complete shared-design output", {
+  set.seed(91014)
+  design <- scale(matrix(rnorm(300), 30, 10))
+  colnames(design) <- paste0("r", seq_len(10))
+  response <- Matrix::Matrix(matrix(rnorm(240), 30, 8), sparse = TRUE)
+  settings <- list(
+    response_chunk = 3L, cores = 1L, exclude_response_alias = TRUE,
+    max_support_size = NULL, min_improvement = 1e-10
+  )
+  candidates <- function(i) seq_len(ncol(design))
+  reference <- multiCSN:::fit_layered_shared_design(
+    design, response, paste0("g", seq_len(8)), candidates, "TF-gene", settings
+  )
+  reused <- multiCSN:::fit_layered_shared_design(
+    design, response, paste0("g", seq_len(8)), candidates, "TF-gene", settings,
+    gram = crossprod(design)
+  )
+  expect_identical(reused, reference)
 })
