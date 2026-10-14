@@ -22,9 +22,54 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+Rcpp::S4 gather_sparse_block(Rcpp::IntegerVector pointers, Rcpp::IntegerVector indices, Rcpp::NumericVector values, Rcpp::IntegerVector selected, int n_rows);
+RcppExport SEXP _multiCSN_gather_sparse_block(SEXP pointersSEXP, SEXP indicesSEXP, SEXP valuesSEXP, SEXP selectedSEXP, SEXP n_rowsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type pointers(pointersSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type indices(indicesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type values(valuesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type selected(selectedSEXP);
+    Rcpp::traits::input_parameter< int >::type n_rows(n_rowsSEXP);
+    rcpp_result_gen = Rcpp::wrap(gather_sparse_block(pointers, indices, values, selected, n_rows));
+    return rcpp_result_gen;
+END_RCPP
+}
+Rcpp::IntegerVector positive_sparse_row(Rcpp::IntegerVector pointers, Rcpp::IntegerVector indices, Rcpp::NumericVector values, int row);
+RcppExport SEXP _multiCSN_positive_sparse_row(SEXP pointersSEXP, SEXP indicesSEXP, SEXP valuesSEXP, SEXP rowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type pointers(pointersSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type indices(indicesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type values(valuesSEXP);
+    Rcpp::traits::input_parameter< int >::type row(rowSEXP);
+    rcpp_result_gen = Rcpp::wrap(positive_sparse_row(pointers, indices, values, row));
+    return rcpp_result_gen;
+END_RCPP
+}
+Rcpp::IntegerVector sparse_candidate_union(Rcpp::IntegerVector domain_p, Rcpp::IntegerVector domain_j, Rcpp::NumericVector domain_x, Rcpp::IntegerVector gate_p, Rcpp::IntegerVector gate_j, Rcpp::NumericVector gate_x, Rcpp::IntegerVector gate_row, int row, int n_regulators);
+RcppExport SEXP _multiCSN_sparse_candidate_union(SEXP domain_pSEXP, SEXP domain_jSEXP, SEXP domain_xSEXP, SEXP gate_pSEXP, SEXP gate_jSEXP, SEXP gate_xSEXP, SEXP gate_rowSEXP, SEXP rowSEXP, SEXP n_regulatorsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type domain_p(domain_pSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type domain_j(domain_jSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type domain_x(domain_xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type gate_p(gate_pSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type gate_j(gate_jSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type gate_x(gate_xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type gate_row(gate_rowSEXP);
+    Rcpp::traits::input_parameter< int >::type row(rowSEXP);
+    Rcpp::traits::input_parameter< int >::type n_regulators(n_regulatorsSEXP);
+    rcpp_result_gen = Rcpp::wrap(sparse_candidate_union(domain_p, domain_j, domain_x, gate_p, gate_j, gate_x, gate_row, row, n_regulators));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_multiCSN_prepare_calculate_metrics", (DL_FUNC) &_multiCSN_prepare_calculate_metrics, 2},
+    {"_multiCSN_gather_sparse_block", (DL_FUNC) &_multiCSN_gather_sparse_block, 5},
+    {"_multiCSN_positive_sparse_row", (DL_FUNC) &_multiCSN_positive_sparse_row, 4},
+    {"_multiCSN_sparse_candidate_union", (DL_FUNC) &_multiCSN_sparse_candidate_union, 9},
     {NULL, NULL, 0}
 };
 

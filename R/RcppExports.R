@@ -2,5 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 prepare_calculate_metrics <- function(network_table, ground_truth) {
-  .Call(`_multiCSN_prepare_calculate_metrics`, network_table, ground_truth)
+    .Call(`_multiCSN_prepare_calculate_metrics`, network_table, ground_truth)
 }
+
+gather_sparse_block <- function(pointers, indices, values, selected, n_rows) {
+    .Call(`_multiCSN_gather_sparse_block`, pointers, indices, values, selected, n_rows)
+}
+
+positive_sparse_row <- function(pointers, indices, values, row) {
+    .Call(`_multiCSN_positive_sparse_row`, pointers, indices, values, row)
+}
+
+sparse_candidate_union <- function(domain_p, domain_j, domain_x, gate_p, gate_j, gate_x, gate_row, row, n_regulators) {
+    .Call(`_multiCSN_sparse_candidate_union`, domain_p, domain_j, domain_x, gate_p, gate_j, gate_x, gate_row, row, n_regulators)
+}
+

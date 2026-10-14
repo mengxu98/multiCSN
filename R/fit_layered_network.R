@@ -40,9 +40,7 @@ layered_rbind <- function(parts, empty) {
   if (!length(parts)) {
     return(empty())
   }
-  out <- do.call(rbind, parts)
-  rownames(out) <- NULL
-  out
+  as.data.frame(data.table::rbindlist(parts, use.names = TRUE))
 }
 
 layered_standardize_design <- function(x) {
@@ -106,6 +104,17 @@ layered_checkpoint <- function(root, name, ...) {
   file.path(root, name, ...)
 }
 
+layered_package_identity <- function(root) {
+  paths <- sort(unique(c(
+    file.path(root, c("DESCRIPTION", "NAMESPACE")),
+    list.files(file.path(root, "R"), full.names = TRUE, recursive = TRUE),
+    list.files(file.path(root, "libs"), full.names = TRUE, recursive = TRUE)
+  )), method = "radix")
+  paths <- paths[file.exists(paths) & !dir.exists(paths)]
+  hashes <- vapply(paths, digest::digest, character(1), file = TRUE, algo = "sha256")
+  stats::setNames(unname(hashes), substring(paths, nchar(root) + 2L))
+}
+
 layered_prepare_checkpoint <- function(root, inputs, settings) {
   if (is.null(root)) {
     return(invisible(NULL))
@@ -125,8 +134,7 @@ layered_prepare_checkpoint <- function(root, inputs, settings) {
     names(settings), c("cores", "checkpoint_dir", "verbose", "response_chunk", "target_chunk")
   )]
   package_info <- lapply(c("multiCSN", "inferCSN"), function(pkg) {
-    description <- utils::packageDescription(pkg)
-    c(version = description$Version, remote_sha = description$RemoteSha)
+    layered_package_identity(system.file(package = pkg))
   })
   identity <- digest::digest(list(
     packages = package_info, settings = fitting_settings,
@@ -154,15 +162,17 @@ layered_prepare_checkpoint <- function(root, inputs, settings) {
 
 layered_candidate_functions <- function(gene_by_cell, peaks2gene, peak_tf_gate,
                                         features, regulators, min_detected,
-                                        endpoint = c("tf_gene", "tf_region")) {
+                                        endpoint = c("tf_gene", "tf_region"), gate_rows = NULL) {
   endpoint <- match.arg(endpoint)
-  peaks2gene_rows <- row_compressed_matrix(peaks2gene)
-  gate_rows <- row_compressed_matrix(peak_tf_gate)
+  if (is.null(gate_rows)) gate_rows <- row_compressed_matrix(peak_tf_gate)
+  gate_values <- as.numeric(gate_rows@x)
   if (identical(endpoint, "tf_region")) {
     return(function(response_index) {
-      row_compressed_positive(gate_rows, response_index)
+      positive_sparse_row(gate_rows@p, gate_rows@j, gate_values, response_index)
     })
   }
+  peaks2gene_rows <- row_compressed_matrix(peaks2gene)
+  domain_values <- as.numeric(peaks2gene_rows@x)
   gate_row_of_region <- match(colnames(peaks2gene), rownames(peak_tf_gate))
   gene_positions <- match(features, rownames(peaks2gene))
   self_of <- match(features, regulators)
@@ -179,12 +189,11 @@ layered_candidate_functions <- function(gene_by_cell, peaks2gene, peak_tf_gate,
     gene_row <- gene_positions[[target_index]]
     candidates <- integer()
     if (!is.na(gene_row)) {
-      rows <- gate_row_of_region[row_compressed_nonzero(peaks2gene_rows, gene_row)]
-      rows <- rows[!is.na(rows)]
-      if (length(rows)) {
-        candidate_sets <- lapply(rows, function(row) row_compressed_positive(gate_rows, row))
-        candidates <- sort(unique(unlist(candidate_sets, use.names = FALSE)))
-      }
+      candidates <- sparse_candidate_union(
+        peaks2gene_rows@p, peaks2gene_rows@j, domain_values,
+        gate_rows@p, gate_rows@j, gate_values, gate_row_of_region,
+        gene_row, length(regulators)
+      )
     }
     self <- self_of[[target_index]]
     if (!is.na(self)) {
@@ -199,9 +208,9 @@ layered_candidate_functions <- function(gene_by_cell, peaks2gene, peak_tf_gate,
 
 fit_layered_shared_design <- function(design, response, response_names,
                                       candidate_function, endpoint, settings,
-                                      checkpoint_root = NULL) {
+                                      checkpoint_root = NULL, gram = NULL) {
   n_obs <- nrow(design)
-  gram <- crossprod(design)
+  if (is.null(gram)) gram <- crossprod(design)
   response_stats <- layered_response_statistics(response, n_obs)
   chunk_size <- as.integer(settings$response_chunk)
   chunk_starts <- seq.int(1L, length(response_names), by = chunk_size)
@@ -306,6 +315,7 @@ fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2
   domain_to_peak_row <- match(colnames(peaks2gene), rownames(peak_by_cell))
   genes_to_domain_row <- match(features, rownames(peaks2gene))
   genes_to_gene_row <- match(features, rownames(gene_by_cell))
+  empty_edges <- empty_region_gene_edges()
   fit_one <- function(target_index) {
     target <- features[[target_index]]
     cache_path <- layered_checkpoint(
@@ -325,11 +335,7 @@ fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2
     candidates <- rownames(peak_by_cell)[candidate_rows]
     status <- "no_domain_peak"
     selected <- 0L
-    part <- data.frame(
-      region = character(), target = character(),
-      standardized_beta = numeric(), deletion_delta_bic = numeric(),
-      stringsAsFactors = FALSE
-    )
+    part <- empty_edges
     if (length(candidates)) {
       candidate_block <- row_compressed_block(peak_rows, candidate_rows)
       means <- peak_means[candidate_rows]
@@ -363,12 +369,11 @@ fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2
           status <- as.character(fit$status[[1]])
           selected <- length(fit$predictor_index)
           if (selected) {
-            part <- data.frame(
-              region = candidates[fit$predictor_index], target = target,
+            part <- list2DF(list(
+              region = candidates[fit$predictor_index], target = rep.int(target, selected),
               standardized_beta = as.numeric(fit$standardized_beta),
-              deletion_delta_bic = as.numeric(fit$deletion_delta_bic),
-              stringsAsFactors = FALSE
-            )
+              deletion_delta_bic = as.numeric(fit$deletion_delta_bic)
+            ))
           }
         } else {
           status <- "constant_response"
@@ -379,12 +384,11 @@ fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2
     }
     result <- list(
       edges = part,
-      accounting = data.frame(
+      accounting = list2DF(list(
         endpoint = "region-gene", target = target, n_candidates = length(candidates),
         n_selected = selected, status = status,
-        seconds = proc.time()[["elapsed"]] - target_started,
-        stringsAsFactors = FALSE
-      )
+        seconds = proc.time()[["elapsed"]] - target_started
+      ))
     )
     if (!is.null(cache_path)) {
       dir.create(dirname(cache_path), recursive = TRUE, showWarnings = FALSE)
@@ -548,20 +552,23 @@ fit_layered_core <- function(inputs, settings) {
   tf_design <- tf_design_info$matrix
   regulators <- colnames(tf_design)
   peak_tf_gate <- inputs$peak_tf_gate[, regulators, drop = FALSE]
+  gate_rows <- row_compressed_matrix(peak_tf_gate)
+  tf_gram <- crossprod(tf_design)
   tf_gene_candidate <- layered_candidate_functions(
     gene_by_cell = gene_by_cell, peaks2gene = inputs$peaks2gene,
     peak_tf_gate = peak_tf_gate, features = features, regulators = regulators,
-    min_detected = settings$min_detected, endpoint = "tf_gene"
+    min_detected = settings$min_detected, endpoint = "tf_gene", gate_rows = gate_rows
   )
   tf_region_candidate <- layered_candidate_functions(
     gene_by_cell = gene_by_cell, peaks2gene = inputs$peaks2gene,
     peak_tf_gate = peak_tf_gate, features = features, regulators = regulators,
-    min_detected = settings$min_detected, endpoint = "tf_region"
+    min_detected = settings$min_detected, endpoint = "tf_region", gate_rows = gate_rows
   )
   thisutils::log_message("Fitting the TF-gene layer", verbose = settings$verbose)
   tf_gene <- fit_layered_shared_design(
     tf_design, Matrix::t(gene_by_cell[features, , drop = FALSE]), features,
-    tf_gene_candidate, "TF-gene", settings, settings$checkpoint_dir
+    tf_gene_candidate, "TF-gene", settings, settings$checkpoint_dir,
+    gram = tf_gram
   )
   names(tf_gene$edges)[names(tf_gene$edges) == "feature"] <- "regulator"
   thisutils::log_message("Fitting the TF-region layer", verbose = settings$verbose)
@@ -569,7 +576,8 @@ fit_layered_core <- function(inputs, settings) {
     tf_design,
     Matrix::t(inputs$all_peak_by_cell[inputs$tf_region_names, , drop = FALSE]),
     inputs$tf_region_names, tf_region_candidate, "TF-region", settings,
-    settings$checkpoint_dir
+    settings$checkpoint_dir,
+    gram = tf_gram
   )
   names(tf_region$edges)[names(tf_region$edges) == "feature"] <- "regulator"
   names(tf_region$edges)[names(tf_region$edges) == "target"] <- "region"
