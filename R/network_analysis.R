@@ -449,7 +449,7 @@ setMethod(
            regulators,
            targets,
            weight_column = "weight") {
-    network_table <- tryCatch(export_csn(object), error = function(e) NULL)
+    network_table <- export_csn(object)
     if (is.null(network_table) || nrow(network_table) == 0) {
       stop("No network edges found.")
     }
@@ -506,7 +506,7 @@ setMethod(
 
     net_list <- lapply(celltypes, function(sid) {
       net <- nets[[sid]]
-      df <- tryCatch(export_csn(net, weight_cutoff = weight_cutoff), error = function(e) NULL)
+      df <- export_csn(net, weight_cutoff = weight_cutoff)
       if (is.null(df) || nrow(df) == 0) {
         return(NULL)
       }
@@ -516,9 +516,9 @@ setMethod(
       }
       df[, c("regulator", "target", weight_column, "corr"), drop = FALSE]
     })
+    names(net_list) <- celltypes
     net_list <- net_list[!sapply(net_list, is.null)]
     if (length(net_list) == 0) stop("No edges to compute shortest paths.")
-    names(net_list) <- celltypes[!sapply(net_list, is.null)]
 
     res <- dynamic_shortest_path_multiple(net_list, regulators = regulators, targets = targets, weight_column = weight_column)
     state <- read_multicsn_state(object, init = TRUE)

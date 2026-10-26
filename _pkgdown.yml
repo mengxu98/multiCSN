@@ -103,6 +103,7 @@ reference:
 - contents:
   - fit_layered_network
   - network_endpoints
+  - write_network_endpoints
   - read_network_endpoints
   - classify_edge_transitions
 

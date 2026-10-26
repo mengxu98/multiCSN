@@ -9,7 +9,8 @@ read_network_endpoints(
   endpoints = NULL,
   direction = FALSE,
   weight_column = "weight",
-  validate = TRUE
+  validate = TRUE,
+  format = c("tsv", "csv", "tsv.gz", "csv.gz")
 )
 }
 \arguments{
@@ -18,8 +19,9 @@ read_network_endpoints(
 \item{endpoints}{Endpoints to read; defaults to all five.}
 
 \item{direction}{Replace the signed weight column with a \code{direction}
-column holding its sign (finite, non-zero), which is what the transition and
-stability helpers consume.}
+column holding its sign (finite, non-zero).}
+
+\item{format}{File format: tsv, csv, tsv.gz or csv.gz.}
 
 \item{weight_column}{Name of the signed weight column.}
 

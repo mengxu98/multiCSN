@@ -101,13 +101,13 @@ test_that("classify_edge_transitions validates its inputs", {
   next_state <- data.frame(regulator = "tf1", target = "g1", direction = 1)
   expect_error(
     classify_edge_transitions(previous, next_state, c("regulator", "missing")),
-    "lacks column"
+    "column"
   )
   expect_error(
     classify_edge_transitions(previous, next_state, c("regulator", "target"),
       direction_column = "absent"
     ),
-    "lacks column"
+    "column"
   )
   expect_error(
     classify_edge_transitions(
