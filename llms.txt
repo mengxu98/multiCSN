@@ -67,7 +67,16 @@ More functions and usages about
 [multiCSN](https://mengxu98.github.io/multiCSN/)? Please reference
 [here](https://mengxu98.github.io/multiCSN/reference/index.html).
 
-# Package index
+For a result returned by
+[`fit_layered_network()`](https://mengxu98.github.io/multiCSN/reference/fit_layered_network.md),
+save the network tables and read them with the same format (`tsv`,
+`csv`, `tsv.gz` or `csv.gz`):
+
+``` r
+
+write_network_endpoints(fit, "network_results", format = "csv.gz")
+networks <- read_network_endpoints("network_results", format = "csv.gz")
+```
 
 ### Package overview
 
@@ -196,6 +205,8 @@ More functions and usages about
   : Fit a layered multi-omic gene regulatory network
 - [`network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/network_endpoints.md)
   : Endpoint tables of a layered multi-omic network
+- [`write_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/write_network_endpoints.md)
+  : Write layered network result tables
 - [`read_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/read_network_endpoints.md)
   : Read layered network endpoints from a result directory
 - [`classify_edge_transitions()`](https://mengxu98.github.io/multiCSN/reference/classify_edge_transitions.md)

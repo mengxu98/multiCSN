@@ -10,7 +10,8 @@ read_network_endpoints(
   endpoints = NULL,
   direction = FALSE,
   weight_column = "weight",
-  validate = TRUE
+  validate = TRUE,
+  format = c("tsv", "csv", "tsv.gz", "csv.gz")
 )
 ```
 
@@ -27,8 +28,11 @@ read_network_endpoints(
 - direction:
 
   Replace the signed weight column with a `direction` column holding its
-  sign (finite, non-zero), which is what the transition and stability
-  helpers consume.
+  sign (finite, non-zero).
+
+- format:
+
+  File format: tsv, csv, tsv.gz or csv.gz.
 
 - weight_column:
 

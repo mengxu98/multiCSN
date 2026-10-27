@@ -126,6 +126,10 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">network_table</span><span class="op">)</span></span></code></pre></div>
 <p>More functions and usages about <a href="https://mengxu98.github.io/multiCSN/">multiCSN</a>? Please reference <a href="https://mengxu98.github.io/multiCSN/reference/index.html">here</a>.</p>
+<p>For a result returned by <code><a href="reference/fit_layered_network.html">fit_layered_network()</a></code>, save the network tables and read them with the same format (<code>tsv</code>, <code>csv</code>, <code>tsv.gz</code> or <code>csv.gz</code>):</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/write_network_endpoints.html">write_network_endpoints</a></span><span class="op">(</span><span class="va">fit</span>, <span class="st">"network_results"</span>, format <span class="op">=</span> <span class="st">"csv.gz"</span><span class="op">)</span></span>
+<span><span class="va">networks</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/read_network_endpoints.html">read_network_endpoints</a></span><span class="op">(</span><span class="st">"network_results"</span>, format <span class="op">=</span> <span class="st">"csv.gz"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 </div>

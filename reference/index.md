@@ -1,5 +1,3 @@
-# Package index
-
 ### Package overview
 
 - [`multiCSN`](https://mengxu98.github.io/multiCSN/reference/multiCSN-package.md)
@@ -127,6 +125,8 @@
   : Fit a layered multi-omic gene regulatory network
 - [`network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/network_endpoints.md)
   : Endpoint tables of a layered multi-omic network
+- [`write_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/write_network_endpoints.md)
+  : Write layered network result tables
 - [`read_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/read_network_endpoints.md)
   : Read layered network endpoints from a result directory
 - [`classify_edge_transitions()`](https://mengxu98.github.io/multiCSN/reference/classify_edge_transitions.md)
