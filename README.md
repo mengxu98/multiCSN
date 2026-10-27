@@ -61,3 +61,10 @@ head(network_table)
 ```
 
 More functions and usages about [multiCSN](https://mengxu98.github.io/multiCSN/)? Please reference [here](https://mengxu98.github.io/multiCSN/reference/index.html).
+
+For a result returned by `fit_layered_network()`, save the network tables and read them with the same format (`tsv`, `csv`, `tsv.gz` or `csv.gz`):
+
+```r
+write_network_endpoints(fit, "network_results", format = "csv.gz")
+networks <- read_network_endpoints("network_results", format = "csv.gz")
+```

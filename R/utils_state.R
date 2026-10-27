@@ -385,8 +385,7 @@ multicsn_resolve_network <- function(
 
 stop_csnobject_runtime <- function() {
   stop(
-    "CSNObject runtime support has been removed. ",
-    "Please use a Seurat object with state stored in Seurat::Misc(object, 'CSNObject').",
+    "CSNObject runtime is unsupported; use a Seurat object.",
     call. = FALSE
   )
 }

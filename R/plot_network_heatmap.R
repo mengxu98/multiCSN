@@ -457,9 +457,6 @@ network_to_heatmap_matrix <- function(
 ) {
   if (switch_matrix) {
     network_table <- as.data.frame(network_table, stringsAsFactors = FALSE)
-    if (ncol(network_table) < 3) {
-      stop("network_table must contain at least three columns.")
-    }
     network_table <- network_table[, 1:3, drop = FALSE]
     colnames(network_table) <- c("row", "col", "value")
     valid_edges <- valid_network_heatmap_name(network_table$row) &

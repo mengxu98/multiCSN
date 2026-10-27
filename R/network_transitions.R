@@ -29,10 +29,6 @@ classify_edge_transitions <- function(previous, next_state, keys,
       stop(label, " must be a data frame or data.table.", call. = FALSE)
     }
     table <- data.table::as.data.table(data.table::copy(table))
-    missing <- setdiff(c(keys, direction_column), names(table))
-    if (length(missing)) {
-      stop(label, " lacks column(s): ", paste(missing, collapse = ", "), call. = FALSE)
-    }
     table <- table[, c(keys, direction_column), with = FALSE]
     if (anyNA(table[, keys, with = FALSE]) || anyDuplicated(table[, keys, with = FALSE])) {
       stop(label, " has missing or duplicated edge keys.", call. = FALSE)

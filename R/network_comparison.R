@@ -111,14 +111,11 @@ setMethod(
     }
 
     grnDFs <- lapply(celltypes, function(sid) {
-      df <- tryCatch(export_csn(nets[[sid]], weight_cutoff = weight_cutoff), error = function(e) NULL)
+      df <- export_csn(nets[[sid]], weight_cutoff = weight_cutoff)
       if (is.null(df) || nrow(df) == 0) {
         return(NULL)
       }
       df <- as.data.frame(df)
-      if (!weight_column %in% colnames(df)) {
-        stop("weight_column '", weight_column, "' not found in exported network.")
-      }
       df[, c("regulator", "target", weight_column), drop = FALSE]
     })
     ok <- !sapply(grnDFs, is.null)

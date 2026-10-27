@@ -285,7 +285,7 @@ fit_layered_shared_design <- function(design, response, response_names,
     result
   }, cores = settings$cores)
   failures <- vapply(
-    chunk_results, function(x) inherits(x, "try-error") || is.null(x$edges), logical(1)
+    chunk_results, function(x) is.null(x$edges), logical(1)
   )
   if (any(failures)) {
     stop("Layered fit failed for ", sum(failures), " ", endpoint, " chunk(s).", call. = FALSE)
@@ -404,10 +404,6 @@ fit_layered_region_gene <- function(peak_by_cell, gene_by_cell, features, peaks2
     last <- min(length(features), first + target_chunk - 1L)
     lapply(first:last, fit_one)
   }, cores = settings$cores)
-  chunk_failures <- vapply(chunked, function(x) inherits(x, "try-error"), logical(1))
-  if (any(chunk_failures)) {
-    stop("Layered region-gene fit failed for ", sum(chunk_failures), " chunk(s).", call. = FALSE)
-  }
   results <- unlist(chunked, recursive = FALSE)
   failures <- vapply(
     results, function(x) is.null(x) || is.null(x$accounting), logical(1)

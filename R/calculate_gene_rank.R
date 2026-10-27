@@ -354,7 +354,7 @@ setMethod(
            top_n = 30,
            ...) {
     method <- match.arg(method)
-    network_table <- tryCatch(export_csn(object), error = function(e) NULL)
+    network_table <- export_csn(object)
     if (is.null(network_table) || nrow(network_table) == 0) {
       stop("No network edges found. Run inferCSN and ensure network has edges.")
     }

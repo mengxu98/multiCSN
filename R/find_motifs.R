@@ -249,7 +249,10 @@ create_motif_object_motifmatchr <- function(features, genome, pfm) {
     pwms = pfm,
     subject = features,
     genome = genome,
-    out = "scores"
+    out = "scores",
+    p.cutoff = 5e-5,
+    bg = "subject",
+    w = 7
   )
 
   motif_matrix <- motifmatchr::motifMatches(motif_ix)
@@ -279,34 +282,6 @@ create_motif_object_motifmatchr <- function(features, genome, pfm) {
 }
 
 validate_genome_seqinfo <- function(genome) {
-  seqinfo_ok <- tryCatch(
-    {
-      GenomeInfoDb::seqinfo(genome)
-      TRUE
-    },
-    error = function(e) {
-      FALSE
-    }
-  )
-
-  if (seqinfo_ok) {
-    return(invisible(TRUE))
-  }
-
-  has_seqinfo_pkg <- "package:Seqinfo" %in% search()
-  fix_hint <- if (has_seqinfo_pkg) {
-    " Detach it using detach('package:Seqinfo', unload = TRUE) and retry."
-  } else {
-    ""
-  }
-
-  stop(
-    paste0(
-      "GenomeInfoDb::seqinfo(genome) failed for the provided BSgenome object. ",
-      "This usually indicates a conflicting 'seqinfo' generic in the R session",
-      " (often from the 'Seqinfo' package).",
-      fix_hint
-    ),
-    call. = FALSE
-  )
+  GenomeInfoDb::seqinfo(genome)
+  invisible(TRUE)
 }

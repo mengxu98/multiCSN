@@ -379,12 +379,8 @@ fetch_tf_expression_data <- function(
     assay = assay,
     layer = "data"
   )
-  if (!tf %in% rownames(expr_mat)) {
-    stop(
-      sprintf("TF '%s' not found in assay '%s'.", tf, assay),
-      call. = FALSE
-    )
-  }
+
+  if (!tf %in% rownames(expr_mat)) stop("Unknown TF: ", tf, call. = FALSE)
 
   cells <- colnames(object)
   meta <- object@meta.data[cells, , drop = FALSE]
@@ -836,7 +832,6 @@ prioritize_targets_integrated <- function(
     return(data.frame())
   }
 
-  state_ids <- get_ordered_state_levels(tf_scores$anchor_state)
   nets_all <- export_state_networks(
     object,
     network = network,
@@ -845,18 +840,6 @@ prioritize_targets_integrated <- function(
   edge_tbl <- purrr::imap_dfr(nets_all, function(df, sid) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
-    }
-    if (!weight_column %in% colnames(df)) {
-      stop(
-        "prioritize_features: weight_column not found in exported network.",
-        call. = FALSE
-      )
-    }
-    if (!all(c("regulator", "target") %in% colnames(df))) {
-      stop(
-        "prioritize_features: exported network must contain regulator and target columns.",
-        call. = FALSE
-      )
     }
     edge_input <- df[, c("regulator", "target", weight_column), drop = FALSE]
     colnames(edge_input)[3] <- "weight"

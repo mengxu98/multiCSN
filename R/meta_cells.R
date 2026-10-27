@@ -323,15 +323,7 @@ build_knn <- function(
   if (method == "coordinates") {
     if (use_nn2) {
       if (dist_method != "euclidean") {
-        stop(
-          "thisutils KNN is used, so ",
-          dist_method,
-          " distance is not acceptable.
-          To use the fast neighbor search, please choose euclidean distance.
-          If you want to use ",
-          dist_method,
-          " distance, please set parameter use_nn2 to FALSE"
-        )
+        stop("use_nn2 requires dist_method = 'euclidean'.")
       }
       mode <- ifelse(directed, "out", "all")
       return(

@@ -458,7 +458,7 @@ setMethod(
     if (length(celltypes) == 0) stop("No matching cell types/states in network.")
     dyn_list <- lapply(celltypes, function(sid) {
       net <- nets[[sid]]
-      df <- tryCatch(export_csn(net, weight_cutoff = weight_cutoff), error = function(e) NULL)
+      df <- export_csn(net, weight_cutoff = weight_cutoff)
       if (is.null(df) || nrow(df) == 0) {
         return(NULL)
       }
@@ -602,7 +602,6 @@ setMethod(
            figure_height = 6,
            seed = 1) {
     network_table <- as.data.frame(object)
-    if (ncol(network_table) < 4) stop("object must have columns: regulator, target, weight, celltype")
     names(network_table)[1:4] <- c("regulator", "target", "weight", "celltype")
     if (is.null(celltypes_order)) celltypes_order <- unique(network_table$celltype)
     network_table$regulator <- as.character(network_table$regulator)

@@ -234,7 +234,7 @@ setMethod(
     if (is.null(celltypes)) celltypes <- names(nets)
     celltypes <- intersect(celltypes, names(nets))
     network_list <- lapply(celltypes, function(sid) {
-      df <- tryCatch(export_csn(nets[[sid]], weight_cutoff = weight_cutoff), error = function(e) NULL)
+      df <- export_csn(nets[[sid]], weight_cutoff = weight_cutoff)
       if (is.null(df) || nrow(df) == 0) {
         return(NULL)
       }

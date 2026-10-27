@@ -347,11 +347,6 @@ normalize_signed_predicted_edges <- function(network_table) {
 
 normalize_signed_ground_truth_edges <- function(ground_truth) {
   truth <- as.data.frame(ground_truth, stringsAsFactors = FALSE)
-  if (ncol(truth) < 3) {
-    stop(
-      "ground_truth must contain a third column with edge sign/type information"
-    )
-  }
   truth <- truth[, 1:3, drop = FALSE]
   names(truth)[1:3] <- c("regulator", "target", "type")
   truth <- truth[

@@ -46,7 +46,6 @@ setMethod(
     }
 
     orig_expr <- as.matrix(object@data)
-    pert_expr <- orig_expr
 
     if (use_weight) {
       net_df <- object@network
