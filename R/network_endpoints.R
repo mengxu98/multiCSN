@@ -124,14 +124,17 @@ check_endpoint_keys <- function(table, keys, endpoint, columns = keys, validate 
 
 write_endpoint_table <- function(table, path, format) {
   sep <- if (startsWith(format, "csv")) "," else "\t"
-  data.table::fwrite(table, path, sep = sep, quote = "auto", na = "NA",
-                    compress = if (endsWith(format, ".gz")) "gzip" else "none")
+  data.table::fwrite(table, path,
+    sep = sep, quote = "auto", na = "NA",
+    compress = if (endsWith(format, ".gz")) "gzip" else "none"
+  )
   invisible(path)
 }
 
 read_endpoint_table <- function(path, sep = "\t", keys = character()) {
   data.table::as.data.table(utils::read.delim(
-    path, sep = sep, check.names = FALSE, stringsAsFactors = FALSE,
+    path,
+    sep = sep, check.names = FALSE, stringsAsFactors = FALSE,
     colClasses = stats::setNames(rep("character", length(keys)), keys)
   ))
 }
