@@ -66,9 +66,9 @@ A ggplot2 object.
 ``` r
 data(example_matrix, package = "inferCSN")
 network_table <- inferCSN::inferCSN(example_matrix)
-#> ℹ [2026-10-27 17:50:18] Inferring network for <matrix/array>...
-#> ✔ [2026-10-27 17:50:18] Inferring network done
-#> ℹ [2026-10-27 17:50:18] Network information:
+#> ℹ [2026-10-28 07:35:04] Inferring network for <matrix/array>...
+#> ✔ [2026-10-28 07:35:04] Inferring network done
+#> ℹ [2026-10-28 07:35:04] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 plot_contrast_networks(network_table[1:50, ])
