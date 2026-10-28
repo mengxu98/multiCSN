@@ -77,12 +77,6 @@ row_compressed_nonzero <- function(row_compressed, row) {
   as.integer(row_compressed@j[positions][keep]) + 1L
 }
 
-row_compressed_positive <- function(row_compressed, row) {
-  p <- row_compressed@p
-  positions <- p[[row]] + seq_len(p[[row + 1L]] - p[[row]])
-  keep <- row_compressed@x[positions] > 0
-  as.integer(row_compressed@j[positions][keep]) + 1L
-}
 
 row_compressed_dense <- function(row_compressed, row, length_out) {
   values <- numeric(length_out)

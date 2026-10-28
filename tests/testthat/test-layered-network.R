@@ -403,6 +403,13 @@ test_that("sparse gathering does not touch the random state and checks overflow"
 })
 
 test_that("native candidate unions preserve sparse value and ordering semantics", {
+  row_compressed_positive <-
+    function(row_compressed, row) {
+      p <- row_compressed@p
+      positions <- p[[row]] + seq_len(p[[row + 1L]] - p[[row]])
+      keep <- row_compressed@x[positions] > 0
+      as.integer(row_compressed@j[positions][keep]) + 1L
+    }
   set.seed(10414)
   for (replicate in seq_len(30)) {
     gate <- Matrix::rsparsematrix(17, 9, density = 0.35)
@@ -416,7 +423,7 @@ test_that("native candidate unions preserve sparse value and ordering semantics"
       links <- mapping[multiCSN:::row_compressed_nonzero(d, row)]
       links <- links[!is.na(links)]
       expected <- sort(unique(unlist(lapply(links, function(i) {
-        multiCSN:::row_compressed_positive(g, i)
+        row_compressed_positive(g, i)
       }), use.names = FALSE)))
       actual <- multiCSN:::sparse_candidate_union(
         d@p, d@j, d@x, g@p, g@j, g@x, mapping, row, ncol(g)
@@ -426,7 +433,7 @@ test_that("native candidate unions preserve sparse value and ordering semantics"
     for (row in seq_len(nrow(gate))) {
       expect_identical(
         multiCSN:::positive_sparse_row(g@p, g@j, g@x, row),
-        multiCSN:::row_compressed_positive(g, row)
+        row_compressed_positive(g, row)
       )
     }
   }
