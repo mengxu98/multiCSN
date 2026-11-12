@@ -10,7 +10,8 @@ read_network_endpoints(
   direction = FALSE,
   weight_column = "weight",
   validate = TRUE,
-  format = c("tsv", "csv", "tsv.gz", "csv.gz")
+  format = NULL,
+  simplify = FALSE
 )
 }
 \arguments{
@@ -18,17 +19,21 @@ read_network_endpoints(
 
 \item{endpoints}{Endpoints to read; defaults to all five.}
 
-\item{direction}{Replace the signed weight column with a \code{direction}
-column holding its sign (finite, non-zero).}
-
-\item{format}{File format: tsv, csv, tsv.gz or csv.gz.}
+\item{direction}{Return only the key columns plus a \code{direction} column
+holding the sign of \code{weight_column} (finite, non-zero).}
 
 \item{weight_column}{Name of the signed weight column.}
 
 \item{validate}{Check that key columns are present, complete and unique.}
+
+\item{format}{File format: tsv, csv, tsv.gz or csv.gz. Detected from the
+files in \code{root} when \code{NULL}.}
+
+\item{simplify}{Return the table itself when one endpoint is requested.}
 }
 \value{
-A named list of \code{data.table}s, one per endpoint.
+A named list of \code{data.table}s, one per endpoint. When a single
+  endpoint is requested with \code{simplify = TRUE}, that table.
 }
 \description{
 Read layered network endpoints from a result directory

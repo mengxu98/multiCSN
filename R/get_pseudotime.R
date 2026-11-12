@@ -74,7 +74,6 @@ get_pseudotime.default <- function(
   return(pseudotime_res)
 }
 
-#' @param assay The assay used for slingshot.
 #' @param layer The layer used for slingshot.
 #' @param reduction The reduction used for slingshot.
 #' @rdname get_pseudotime
@@ -82,7 +81,6 @@ get_pseudotime.default <- function(
 #' @method get_pseudotime Seurat
 get_pseudotime.Seurat <- function(
   object,
-  assay = "RNA",
   layer = "data",
   cluster_column = "cluster",
   reduction = "umap",

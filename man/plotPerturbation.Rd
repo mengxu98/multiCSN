@@ -9,75 +9,54 @@
 \usage{
 plotPerturbation(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 
 plotPerturbation(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 
 \S4method{plotPerturbation}{Network}(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 
 \S4method{plotPerturbation}{Seurat}(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 
 \S4method{plotPerturbation}{CSNObject}(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 }
 \arguments{
 \item{object}{A Network or CSNObject object}
 
-\item{label_points}{Logical, whether to add point labels}
-
 \item{point_size}{Numeric, size of points}
-
-\item{max_overlaps}{Maximum number of overlapping labels to allow}
 
 \item{alpha}{Point transparency}
 
 \item{show_trajectory}{Logical, whether to show trajectory arrows}
 
 \item{arrow_size}{Size of trajectory arrows}
-
-\item{grid_n}{Number of grid points for trajectory arrows}
 }
 \value{
 ggplot object

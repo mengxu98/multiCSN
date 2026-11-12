@@ -1,3 +1,44 @@
+# multiCSN (development version)
+
+* `prepare_candidates()` builds the unfiltered candidate catalogue and motif
+  matches in one call; `find_motifs()` uses the bundled `motifs` and
+  `motif2tf` by default.
+* `fit_layered_network()` gains `preset = c("state", "timepoint")` for the two
+  common fitting designs and `output_dir` to write the network tables after a
+  complete fit, keeping resumable checkpoints beside the output until then.
+* `validate_network_endpoints()` checks a saved result directory;
+  `read_network_endpoints()` detects the file format and can return a single
+  table; `classify_edge_transitions()` labels the state transition.
+* New evaluation helpers: `evaluate_network()`, `ranking_metrics()`,
+  `tie_aware_auroc()`, `tie_aware_average_precision()`,
+  `expected_precision_at_k()`, `signed_ordinal_weight()`, `as_edge_table()`
+  and `weight_matrix_to_edges()`.
+* Peak coordinate parsing no longer calls the deprecated Signac
+  `StringToGRanges()` and `GRangesToString()`.
+* `create_seurat_object()` works with current Signac annotation checks.
+* Removed `define_states_new()`, `assign_genes_to_states_new1()` and
+  `assign_genes_to_states_simple()`, which duplicated `define_states()` and
+  `assign_genes_to_states()`, and `JI_across_topregs()` and
+  `biglist_compute_betweenness_degree()`, which failed on every call.
+* Removed arguments that had no effect: `lag_fraction` and `lag_steps` from
+  the `Network` and `Seurat` methods of `inferCSN()`, `pseudotime` from the
+  `Network` method and `seed` from the `Seurat` method; the
+  per-method arguments of the `fit_models()` generic; `label_points`,
+  `max_overlaps` and `grid_n` from `plotPerturbation()`; `weight_cutoff` and
+  `compare_random` from `plot_gene_rank()` for Seurat objects; `group.by`
+  from `plot_rewiring()` and `plot_state_rewiring()`; `celltypes` from
+  `metrics()` for `Network`; `method` from `compute_JI_topregs()`;
+  `directed` from `compute_pagerank()`; `assay`
+  from `get_pseudotime()` for Seurat; and `sep` from `parse_peak_ranges()`.
+* `fit_models()` passes `extend` to the GREAT peak-to-gene mapping.
+* Fewer hard dependencies: `ComplexHeatmap`, `circlize`, `thisplot`,
+  `tidygraph`, `ggraph`, `ggnetwork`, `patchwork` and `rlang` move to
+  Suggests and are needed only by the plotting functions. Optional packages
+  are installed on first use through `thisutils::check_r(strict = TRUE)`
+  (thisutils >= 0.5.4), which stops only if installation fails; `purrr` and
+  `digest` are no longer used.
+* `network_ordinal_weight()` uses `inferCSN::deletion_rank_weight()`.
+
 # multiCSN 0.0.1
 
 * Trajectory partitions, gene assignments, subnetworks, and heatmap annotations

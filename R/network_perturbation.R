@@ -297,23 +297,17 @@ do_reduction <- function(data, method, dims, cores, seed) {
 
 #' Visualize perturbation results
 #' @param object A Network or CSNObject object
-#' @param label_points Logical, whether to add point labels
 #' @param point_size Numeric, size of points
-#' @param max_overlaps Maximum number of overlapping labels to allow
 #' @param alpha Point transparency
 #' @param show_trajectory Logical, whether to show trajectory arrows
 #' @param arrow_size Size of trajectory arrows
-#' @param grid_n Number of grid points for trajectory arrows
 #' @return ggplot object
 #' @export
 setGeneric("plotPerturbation", function(object,
-                                        label_points = FALSE,
                                         point_size = 1,
-                                        max_overlaps = 10,
                                         alpha = 0.6,
                                         show_trajectory = TRUE,
-                                        arrow_size = 0.5,
-                                        grid_n = 25) {
+                                        arrow_size = 0.5) {
   standardGeneric("plotPerturbation")
 })
 
@@ -322,10 +316,8 @@ setGeneric("plotPerturbation", function(object,
 setMethod(
   "plotPerturbation",
   signature(object = "Network"),
-  function(object, label_points = FALSE, point_size = 1,
-           max_overlaps = 10, alpha = 0.6,
-           show_trajectory = TRUE, arrow_size = 0.5,
-           grid_n = 25) {
+  function(object, point_size = 1, alpha = 0.6,
+           show_trajectory = TRUE, arrow_size = 0.5) {
     pert <- object@perturbation
 
     if (is.null(pert@embedding)) {
@@ -405,15 +397,13 @@ setMethod(
 #' @export
 setMethod(
   "plotPerturbation", signature(object = "Seurat"),
-  function(object, label_points = FALSE, point_size = 1,
-           max_overlaps = 10, alpha = 0.6,
-           show_trajectory = TRUE, arrow_size = 0.5,
-           grid_n = 25) {
+  function(object, point_size = 1, alpha = 0.6,
+           show_trajectory = TRUE, arrow_size = 0.5) {
     nets <- GetNetwork(object)
     out <- lapply(
       nets,
       function(net) {
-        plotPerturbation(net, label_points, point_size, max_overlaps, alpha, show_trajectory, arrow_size, grid_n)
+        plotPerturbation(net, point_size, alpha, show_trajectory, arrow_size)
       }
     )
     if (length(out) == 1) {
@@ -427,10 +417,8 @@ setMethod(
 #' @export
 setMethod(
   "plotPerturbation", signature(object = "CSNObject"),
-  function(object, label_points = FALSE, point_size = 1,
-           max_overlaps = 10, alpha = 0.6,
-           show_trajectory = TRUE, arrow_size = 0.5,
-           grid_n = 25) {
+  function(object, point_size = 1, alpha = 0.6,
+           show_trajectory = TRUE, arrow_size = 0.5) {
     stop_csnobject_runtime()
   }
 )
@@ -460,6 +448,7 @@ setMethod(
   signature(object = "Network"),
   function(object, genes = NULL, show_heatmap = FALSE, n_top_genes = 50,
            heatmap_style = "combined", ...) {
+    check_r(c("ComplexHeatmap"), strict = TRUE, verbose = FALSE)
     pert <- object@perturbation
 
     if (is.null(genes)) {
@@ -601,6 +590,7 @@ setMethod(
   signature(object = "Seurat"),
   function(object, genes = NULL, show_heatmap = FALSE, n_top_genes = 50,
            heatmap_style = "combined", ...) {
+    check_r(c("ComplexHeatmap"), strict = TRUE, verbose = FALSE)
     nets <- GetNetwork(object)
     out <- lapply(
       nets,

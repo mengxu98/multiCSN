@@ -1,6 +1,7 @@
-#' @import Matrix tidygraph ggplot2 ggraph ggnetwork patchwork
+#' @import Matrix ggplot2
 #' @import thisutils Seurat SeuratObject
 #' @importFrom stats approx ave coef setNames xtabs
+#' @importFrom dplyr %>% n
 #' @importFrom methods as new
 #' @importClassesFrom Signac Motif
 #' @importClassesFrom GenomicRanges GRanges

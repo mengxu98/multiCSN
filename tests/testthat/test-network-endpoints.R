@@ -123,3 +123,61 @@ test_that("classify_edge_transitions validates its inputs", {
     "labels must name"
   )
 })
+
+fake_layered_fit <- function() {
+  edge <- function(...) data.frame(..., stringsAsFactors = FALSE)
+  fit <- list(
+    tf_gene = edge(regulator = c("tf1", "tf2"), target = c("g1", "g2"), weight = c(0.75, -0.25)),
+    tf_region = edge(regulator = "tf1", region = "chr1-1-2", weight = 0.5),
+    region_gene = edge(region = "chr1-1-2", target = "g1", weight = 0.5),
+    triplets = edge(regulator = "tf1", region = "chr1-1-2", target = "g1", weight = 0.5),
+    mediated_tf_gene = edge(regulator = "tf1", target = "g1", region = "chr1-1-2", weight = 0.5),
+    accounting = list(
+      tf_gene = edge(endpoint = "TF-gene", target = c("g1", "g2"), n_selected = 1L),
+      tf_region = edge(endpoint = "TF-region", region = "chr1-1-2", n_selected = 1L),
+      region_gene = edge(endpoint = "region-gene", target = "g1", n_selected = 1L)
+    )
+  )
+  fit$summary <- edge(
+    endpoint = network_endpoints()$endpoint,
+    selected = c(2L, 1L, 1L, 1L, 1L)
+  )
+  fit
+}
+
+test_that("written endpoints round-trip in every format and validate", {
+  fit <- fake_layered_fit()
+  for (format in c("tsv", "csv", "tsv.gz", "csv.gz")) {
+    root <- tempfile(paste0("endpoints-", format, "-"))
+    write_network_endpoints(fit, root, format = format)
+    expect_true(validate_network_endpoints(root))
+    tables <- read_network_endpoints(root)
+    expect_equal(as.data.frame(tables$`TF-gene`), fit$tf_gene)
+    single <- read_network_endpoints(root, endpoints = "TF-gene", direction = TRUE, simplify = TRUE)
+    expect_identical(single$direction, c(1, -1))
+    unlink(root, recursive = TRUE)
+  }
+})
+
+test_that("validate_network_endpoints reports incomplete or inconsistent output", {
+  root <- tempfile("endpoints-invalid-")
+  write_network_endpoints(fake_layered_fit(), root)
+  expect_false(validate_network_endpoints(file.path(root, "absent"), error = FALSE))
+  summary <- data.table::fread(file.path(root, "endpoint_summary.tsv"))
+  summary$selected[[1]] <- 5L
+  data.table::fwrite(summary, file.path(root, "endpoint_summary.tsv"), sep = "\t")
+  expect_error(validate_network_endpoints(root), "count mismatch")
+  file.create(file.path(root, "tf_region_accounting.tsv"))
+  expect_error(validate_network_endpoints(root), "Incomplete network output")
+  unlink(root, recursive = TRUE)
+})
+
+test_that("classify_edge_transitions labels the transition when states are named", {
+  previous <- data.frame(regulator = c("a", "b"), target = "x", direction = c(1, -1))
+  next_state <- data.frame(regulator = c("b", "c"), target = "x", direction = c(1, 1))
+  merged <- classify_edge_transitions(previous, next_state, from = "early", to = "late")
+  expect_identical(unique(merged$transition), "early -> late")
+  expect_identical(unique(merged$previous_state), "early")
+  expect_identical(sort(merged$topology_class), sort(c("lost", "shared_sign_flip", "gained")))
+  expect_error(classify_edge_transitions(previous, next_state, from = "early"), "single state names")
+})

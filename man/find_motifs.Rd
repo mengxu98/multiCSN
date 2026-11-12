@@ -10,7 +10,7 @@ find_motifs(object, ...)
 
 \S4method{find_motifs}{Seurat}(
   object,
-  pfm,
+  pfm = NULL,
   genome,
   motif_tfs = NULL,
   backend = c("signac", "motifmatchr"),
@@ -25,11 +25,13 @@ find_motifs(object, ...)
 
 \item{...}{Arguments for other methods}
 
-\item{pfm}{A PFMatrixList object with position weight matrices.}
+\item{pfm}{A PFMatrixList object with position weight matrices. Defaults to
+the bundled \code{\link{motifs}}.}
 
 \item{genome}{A BSgenome object.}
 
-\item{motif_tfs}{A data frame matching motifs with TFs. First column motif, second TF.}
+\item{motif_tfs}{A data frame matching motifs with TFs. First column motif,
+second TF. Defaults to the bundled \code{\link{motif2tf}}.}
 
 \item{backend}{Motif scanning backend. `"signac"` uses `Signac::AddMotifs()`;
 `"motifmatchr"` uses `motifmatchr::matchMotifs()` directly and wraps the

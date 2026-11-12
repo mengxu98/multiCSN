@@ -13,67 +13,68 @@ BugReports: https://github.com/mengxu98/multiCSN/issues
 Depends:
     R (>= 4.1.0)
 Imports:
-    ComplexHeatmap,
-    circlize,
-    grid,
-    grDevices,
+    data.table,
+    dplyr,
+    GenomeInfoDb,
     GenomicRanges,
+    ggplot2,
+    grDevices,
+    grid,
     inferCSN (>= 1.2.5),
     IRanges,
-    S4Vectors,
     Matrix,
     methods,
-    purrr,
     Rcpp,
-    data.table,
-    digest,
-    Signac,
+    S4Vectors,
     Seurat,
     SeuratObject,
+    Signac,
     sparseMatrixStats,
     stats,
-    thisplot (>= 0.4.6),
-    thisutils (>= 0.5.2),
-    tidygraph,
-    utils,
-    patchwork,
-    ggplot2,
-    ggraph,
-    ggnetwork,
-    rlang
+    thisutils (>= 0.5.4),
+    utils
 LinkingTo:
     Rcpp
 Suggests:
-    ggrepel,
-    edgeR,
-    motifmatchr,
-    testthat (>= 3.0.0),
+    BiocNeighbors,
+    BSgenome.Hsapiens.UCSC.hg38,
+    circlize,
     cli,
-    dplyr,
-    GenomeInfoDb,
+    ComplexHeatmap,
+    edgeR,
     gganimate,
-    network,
+    ggnetwork,
+    ggpointdensity,
+    ggraph,
+    ggrepel,
+    gridExtra,
     igraph,
+    irlba,
+    knitr,
+    motifmatchr,
+    network,
+    pals,
+    patchwork,
     plotly,
     precrec,
+    proxy,
+    RANN,
+    RColorBrewer,
+    reshape2,
+    rlang,
+    rmarkdown,
+    Rtsne,
     scales,
     slingshot,
-    gridExtra,
-    irlba,
-    reshape2,
-    viridis,
+    stringr,
+    testthat (>= 3.0.0),
+    thisplot (>= 0.4.6),
+    tibble,
+    tidygraph,
+    tidyr,
     tidyselect,
     uwot,
-    RColorBrewer,
-    Rtsne,
-    ggpointdensity,
-    pals,
-    tibble,
-    tidyr,
-    stringr,
-    fields,
-    proxy,
-    RANN
+    viridis
 Remotes:
     mengxu98/inferCSN,
     mengxu98/thisplot,
@@ -81,6 +82,7 @@ Remotes:
 Config/Needs/website: mengxu98/thistemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
+VignetteBuilder: knitr
 LazyData: true
 LazyDataCompression: gzip
 Language: en-US
@@ -128,6 +130,7 @@ Collate:
     'perturbation_truth.R'
     'plot_network_heatmap.R'
     'plotting_functions.R'
+    'ranking_metrics.R'
     'reexports.R'
     'setMethod.R'
     'simulate_data.R'
@@ -135,6 +138,7 @@ Collate:
     'state_inference.R'
     'subsampling.R'
     'utils_2.R'
+    'utils_iterate.R'
     'utils_network.R'
     'utils_plots.R'
     'utils_state.R'

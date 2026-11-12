@@ -11,8 +11,8 @@ A data frame with columns \code{endpoint} and \code{file} plus a list
   column \code{keys} holding the key columns of each endpoint.
 }
 \description{
-The five endpoint tables written by \code{\link{fit_layered_network}} (and by
-the manuscript pipeline) share one contract: a file name, a key column set and
-a signed weight. This function returns that contract so writers, readers and
-validators cannot drift apart.
+The five endpoint tables written by \code{\link{fit_layered_network}} share
+one contract: a file name, a key column set and a signed weight. This
+function returns that contract so writers, readers and validators cannot
+drift apart.
 }

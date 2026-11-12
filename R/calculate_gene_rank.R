@@ -353,6 +353,7 @@ setMethod(
            compare_random = TRUE,
            top_n = 30,
            ...) {
+    check_r(c("patchwork"), strict = TRUE, verbose = FALSE)
     method <- match.arg(method)
     network_table <- export_csn(object)
     if (is.null(network_table) || nrow(network_table) == 0) {
@@ -532,14 +533,13 @@ setMethod(
            network = NULL,
            celltypes = NULL,
            method = c("page_rank", "degree_distribution"),
-           weight_cutoff = 0.1,
-           compare_random = TRUE,
            combine = TRUE,
            top_n = 30,
            nrow = NULL,
            ncol = NULL,
            byrow = TRUE,
            ...) {
+    check_r(c("patchwork"), strict = TRUE, verbose = FALSE)
     network <- multicsn_resolve_network(
       object,
       network = network,
@@ -616,6 +616,7 @@ setMethod(
            weight_cutoff = 0.1,
            compare_random = TRUE,
            top_n = 30) {
+    check_r(c("patchwork"), strict = TRUE, verbose = FALSE)
     if ("gene" %in% colnames(object) && ("page_rank" %in% colnames(object) || "rank_value" %in% colnames(object))) {
       method_used <- if ("page_rank" %in% colnames(object)) "page_rank" else "degree_distribution"
       plot_rank_centrality(object, method_used, top_n)

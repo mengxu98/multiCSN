@@ -37,11 +37,10 @@ get_peak_annotation <-
 
 #' Parse peak identifiers
 #' @param peaks Character peak identifiers in chromosome:start-end, chromosome-start-end or chromosome_start_end form.
-#' @param sep Retained for compatibility with peak identifier callers.
 #' @return Named genomic ranges.
 #' @export
 parse_peak_ranges <-
-  function(peaks, sep = c("-", "-")) {
+  function(peaks) {
     peaks <- as.character(peaks)
     if (length(peaks) == 0) {
       return(GenomicRanges::GRanges())
@@ -189,3 +188,16 @@ collapse_peak_gene_domains <-
       )
     ), "generalMatrix")
   }
+
+string_to_ranges <- function(regions) {
+  ranges <- parse_peak_ranges(regions)
+  names(ranges) <- NULL
+  GenomeInfoDb::sortSeqlevels(ranges)
+}
+
+ranges_to_string <- function(grange, sep = c("-", "-")) {
+  paste0(
+    as.character(GenomicRanges::seqnames(grange)), sep[[1]],
+    GenomicRanges::start(grange), sep[[2]], GenomicRanges::end(grange)
+  )
+}

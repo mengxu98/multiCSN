@@ -149,9 +149,7 @@ fit_perturbation_effects <- function(pseudobulk, sample_metadata, targets = NULL
                                      min_replicates = 3L, output_dir = NULL,
                                      output_subdirs = NULL,
                                      verbose = TRUE) {
-  if (!requireNamespace("edgeR", quietly = TRUE)) {
-    stop("Package 'edgeR' is required for fit_perturbation_effects().", call. = FALSE)
-  }
+  check_r("edgeR", strict = TRUE, verbose = FALSE)
   required <- c("sample_id", "replicate", "timepoint", "target")
   if (!is.data.frame(sample_metadata) || !all(required %in% names(sample_metadata))) {
     stop("sample_metadata must have columns: ", paste(required, collapse = ", "), call. = FALSE)

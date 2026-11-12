@@ -1,46 +1,15 @@
 #' Rank signed network edges by deletion evidence
 #' @param coefficient Signed coefficients.
 #' @param deletion_delta_bic Nonnegative deletion delta-BIC values, one per coefficient.
-#' @details Descending evidence is grouped against each group's maximum using
+#' @details Uses \code{\link[inferCSN:deletion_rank_weight]{inferCSN::deletion_rank_weight()}}:
+#'   descending evidence is grouped against each group's maximum using
 #'   absolute difference <= 1e-12 * (1 + abs(maximum)). This numerical rule does
 #'   not change fitted support, coefficients or raw deletion evidence.
 #' @return Signed ordinal weights; invalid or zero coefficients receive zero.
 #' @export
-network_ordinal_weight <-
-  function(coefficient, deletion_delta_bic) {
-    coefficient <- suppressWarnings(as.numeric(coefficient))
-    deletion_delta_bic <- suppressWarnings(as.numeric(deletion_delta_bic))
-    if (length(coefficient) != length(deletion_delta_bic)) {
-      stop("Coefficient and deletion-evidence lengths differ.", call. = FALSE)
-    }
-    out <- numeric(length(coefficient))
-    keep <- is.finite(coefficient) & coefficient != 0 & is.finite(deletion_delta_bic) & deletion_delta_bic >=
-      0
-    if (!any(keep)) {
-      return(out)
-    }
-    kept_index <- which(keep)
-    magnitude <- deletion_delta_bic[kept_index]
-    ord <- order(magnitude, decreasing = TRUE, kept_index)
-    sorted_magnitude <- magnitude[ord]
-    group <- integer(length(ord))
-    group[[1]] <- 1L
-    group_anchor <- sorted_magnitude[[1]]
-    if (length(ord) > 1L) {
-      for (i in 2:length(ord)) {
-        if (abs(sorted_magnitude[[i]] - group_anchor) > 1e-12 * (1 + abs(group_anchor))) {
-          group[[i]] <- group[[i - 1L]] + 1L
-          group_anchor <- sorted_magnitude[[i]]
-        } else {
-          group[[i]] <- group[[i - 1L]]
-        }
-      }
-    }
-    n_groups <- max(group)
-    mapped <- 1 - (group - 0.5) / n_groups
-    out[kept_index[ord]] <- sign(coefficient[kept_index[ord]]) * mapped
-    out
-  }
+network_ordinal_weight <- function(coefficient, deletion_delta_bic) {
+  inferCSN::deletion_rank_weight(coefficient, deletion_delta_bic)
+}
 
 empty_factorized_chain_table <-
   function() {

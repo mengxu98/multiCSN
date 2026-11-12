@@ -7,6 +7,7 @@
 fit_layered_network(
   object,
   cell_group = NULL,
+  preset = NULL,
   cells = NULL,
   regulators = NULL,
   targets = NULL,
@@ -26,6 +27,8 @@ fit_layered_network(
   checkpoint_dir = NULL,
   store = FALSE,
   network_name = "multiCSN",
+  output_dir = NULL,
+  format = c("tsv", "csv", "tsv.gz", "csv.gz"),
   verbose = TRUE
 )
 }
@@ -35,6 +38,11 @@ assays plus the multiCSN state (see \code{\link{initiate_object}}).}
 
 \item{cell_group}{Catalogue key (cell type, state or timepoint) used to select
 cells, peaks and target genes.}
+
+\item{preset}{Default settings for \code{min_detected},
+\code{tf_region_scope}, \code{exclude_response_alias}, \code{renormalize}
+and \code{sort_regulators}: \code{"state"} or \code{"timepoint"}.
+\code{NULL} keeps the individual defaults.}
 
 \item{cells}{Optional character vector of exact cells to fit; when supplied the
 fit uses exactly these cells and validates them against \code{cell_group}.}
@@ -83,12 +91,22 @@ object.}
 
 \item{network_name}{Name of the stored network entries.}
 
+\item{output_dir}{Optional directory receiving the endpoint tables (see
+\code{\link{write_network_endpoints}}). The tables are written to a
+sibling staging directory, which also holds the resumable checkpoints when
+\code{checkpoint_dir} is \code{NULL}, and the directory is published only
+after the fit completes. An existing \code{output_dir} is never overwritten.}
+
+\item{format}{File format of \code{output_dir}.}
+
 \item{verbose}{Print progress messages.}
 }
 \value{
 A list with \code{tf_gene}, \code{tf_region}, \code{region_gene},
   \code{triplets}, \code{mediated_tf_gene}, \code{accounting}, \code{summary},
   \code{settings}, \code{cells} and, when \code{store = TRUE}, \code{object}.
+  With \code{output_dir} the list is returned invisibly and also holds the
+  written \code{paths}.
 }
 \description{
 Fits the layered multiCSN model on single-cell multiome data: a
@@ -97,4 +115,24 @@ a region-to-gene layer, each solved as independent per-target Greedy-l0
 problems, followed by the factorized chain projection that links the three
 layers. By default only the selected cells are used and the expression layers
 stored in the object are taken as-is.
+}
+\details{
+A typical workflow is \code{\link{prepare_candidates}()} followed by
+\code{fit_layered_network(object, cell_group = "state", output_dir = "out")}.
+Two presets cover the common designs: \code{"state"} fits cell states that
+share one normalization, and \code{"timepoint"} re-normalizes each group,
+requires every target and TF to be detected in 20 cells and drops affine
+response aliases. Arguments supplied explicitly override the preset.
+}
+\examples{
+\dontrun{
+object <- prepare_candidates(object, group.by = "cell_type", genome = genome)
+fit <- fit_layered_network(
+  object,
+  cell_group = "Erythroblast",
+  preset = "state",
+  output_dir = "networks/erythroblast"
+)
+networks <- read_network_endpoints("networks/erythroblast")
+}
 }

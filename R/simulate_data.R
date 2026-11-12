@@ -237,7 +237,11 @@ create_seurat_object <- function(
       end = gene_ends
     ),
     strand = gene_strands,
-    gene_name = all_genes
+    gene_name = all_genes,
+    gene_id = all_genes,
+    tx_id = all_genes,
+    gene_biotype = "protein_coding",
+    type = "exon"
   )
   GenomeInfoDb::genome(gene_ranges) <- "hg38"
 

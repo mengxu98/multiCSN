@@ -1,0 +1,98 @@
+---
+title: "Layered multi-omic networks"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Layered multi-omic networks}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+run <- requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE) &&
+  requireNamespace("motifmatchr", quietly = TRUE)
+knitr::opts_chunk$set(eval = run)
+options(log_message.verbose = FALSE)
+```
+
+multiCSN fits three regression layers on paired single-cell RNA and chromatin
+data, transcription factor (TF) to gene, TF to region and region to gene, and
+links them into factorized TF-region-gene chains. This vignette runs the
+workflow on simulated data.
+
+## Input
+
+The input is a Seurat object with a normalized RNA assay, a TF-IDF normalized
+chromatin assay with a gene annotation, and a metadata column with the cell
+groups to fit.
+
+```{r input}
+library(multiCSN)
+set.seed(1)
+simulated <- simulate_csn_data(n_cells = 300, n_genes = 80, n_tfs = 30, n_peaks = 3000)
+object <- suppressWarnings(suppressMessages(create_seurat_object(simulated, variable_features = 50)))
+object <- Signac::RunTFIDF(object, assay = "ATAC", verbose = FALSE)
+object
+```
+
+## Candidate catalogue
+
+`prepare_candidates()` keeps every RNA gene as a candidate target, scans the
+peaks for motifs with the bundled `motifs` and `motif2tf` resources and
+records the TFs with a motif.
+
+```{r candidates}
+genome <- BSgenome.Hsapiens.UCSC.hg38::BSgenome.Hsapiens.UCSC.hg38
+object <- prepare_candidates(object, group.by = "celltype", genome = genome, verbose = FALSE)
+get_attribute(object, attribute = "celltypes")
+length(get_attribute(object, attribute = "tfs"))
+```
+
+## Fitting
+
+Fit one network per cell group. `preset = "state"` suits cell states sharing
+one normalization; `preset = "timepoint"` re-normalizes the group and requires
+targets and TFs to be detected in 20 cells. Any argument you pass overrides
+the preset.
+
+```{r fit}
+output <- file.path(tempdir(), "celltype_1")
+fit <- fit_layered_network(
+  object,
+  cell_group = "celltype_1",
+  preset = "state",
+  upstream = 5e7,
+  output_dir = output,
+  verbose = FALSE
+)
+fit$summary
+```
+
+With `output_dir`, the tables are written only after the fit completes, and a
+re-run never overwrites an existing result. Each table has signed ordinal
+weights in `weight`.
+
+## Reading results
+
+```{r read}
+validate_network_endpoints(output)
+networks <- read_network_endpoints(output)
+names(networks)
+head(networks$`TF-gene`)
+```
+
+## Comparing states
+
+```{r compare}
+other <- fit_layered_network(
+  object, cell_group = "celltype_2", preset = "state", upstream = 5e7, verbose = FALSE
+)
+first <- read_network_endpoints(output, "TF-gene", direction = TRUE, simplify = TRUE)
+second <- data.frame(
+  regulator = other$tf_gene$regulator,
+  target = other$tf_gene$target,
+  direction = sign(other$tf_gene$weight)
+)
+transitions <- classify_edge_transitions(first, second, from = "celltype_1", to = "celltype_2")
+table(transitions$topology_class)
+```

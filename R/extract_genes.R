@@ -11,20 +11,20 @@ extract_genes <- function(
   common_regulators = FALSE
 ) {
   if (common_regulators) {
-    regulators_list <- purrr::map(
+    regulators_list <- map_list(
       network_list, function(x) {
         regulators <- x$regulator
         regulators[!duplicated(regulators)]
       }
     )
-    regulators_common <- purrr::reduce(
+    regulators_common <- reduce_list(
       regulators_list,
       .f = intersect
     )
   }
 
   if (is.list(network_list)) {
-    genes_list <- purrr::map(
+    genes_list <- map_list(
       network_list, function(x) {
         regulators_list <- x$regulator
         regulators_list <- regulators_list[!duplicated(regulators_list)]
@@ -39,7 +39,7 @@ extract_genes <- function(
           }
         }
 
-        targets_list <- purrr::map_dfr(
+        targets_list <- map_dfr_list(
           regulators, function(g) {
             x_g <- inferCSN::network_format(
               x,
@@ -70,7 +70,7 @@ setdiff_genes <- function(list) {
     genes1 <- list[[i]]
     nums_list <- seq_len(length(list))[-i]
     list_new <- list[nums_list]
-    genes2 <- purrr::list_c(list_new)
+    genes2 <- list_c(list_new)
     genes_list[[i]] <- unique(setdiff(genes1, genes2))
   }
 
@@ -90,7 +90,7 @@ extract_genes_transition_list <- function(
 ) {
   if (is.null(transition_networks)) {
     network_names <- sort(names(network_list))
-    transition_networks <- purrr::map(
+    transition_networks <- map_list(
       seq_len(((length(network_names) - 1) / 2)),
       .f = function(x) {
         x <- 2 * x - 1
@@ -99,7 +99,7 @@ extract_genes_transition_list <- function(
     )
   }
 
-  transition_networks_list <- purrr::map(
+  transition_networks_list <- map_list(
     transition_networks,
     .f = function(x) {
       network_list_sub <- network_list[x]
@@ -110,13 +110,13 @@ extract_genes_transition_list <- function(
         top_targets_num = top_targets_num
       )
       if (common_regulators && common_targets) {
-        targets_list <- purrr::map(
+        targets_list <- map_list(
           transition_networks_list_sub, function(x) {
             targets <- x$target
             targets[!duplicated(targets)]
           }
         )
-        targets_common <- purrr::reduce(
+        targets_common <- reduce_list(
           targets_list,
           .f = intersect
         )
@@ -124,7 +124,7 @@ extract_genes_transition_list <- function(
         targets_setdiff <- setdiff_genes(targets_list)
         names(targets_setdiff) <- names(targets_list)
 
-        transition_networks_list_sub <- purrr::map2(
+        transition_networks_list_sub <- map2_list(
           transition_networks_list_sub,
           targets_setdiff,
           .f = function(x, y) {

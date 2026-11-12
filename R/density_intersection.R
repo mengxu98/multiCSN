@@ -128,6 +128,7 @@ plot_states <- function(
   palette = NULL,
   palette_name = "Chinese"
 ) {
+  check_r(c("thisplot"), strict = TRUE, verbose = FALSE)
   if (!methods::is(object, "Seurat")) {
     stop("plot_states: object must be a Seurat object.", call. = FALSE)
   }
@@ -138,11 +139,7 @@ plot_states <- function(
     pseudotime_column,
     recompute = FALSE
   )
-  state_windows <- state_windows_from_result(
-    object,
-    density_result,
-    pseudotime_column
-  )
+  state_windows <- density_result$windows
   state_windows <- state_windows[state_windows$keep, , drop = FALSE]
   if (nrow(state_windows) == 0) {
     stop("plot_states: no kept states available.", call. = FALSE)
@@ -460,7 +457,7 @@ infer_state_partition <- function(
     )
   }
 
-  group_stats <- purrr::map_dfr(groups, function(g) {
+  group_stats <- map_dfr_list(groups, function(g) {
     vals <- pt[meta$.group == g]
     dens <- density_on_grid(
       vals,
@@ -885,78 +882,6 @@ adjust_transition_intervals <- function(boundaries, global_min, global_max) {
   }
   keep <- keep & (right > left)
   list(left = left, right = right, keep = keep)
-}
-
-state_windows_from_result <- function(
-  object,
-  density_result,
-  pseudotime_column,
-  prefer_network = FALSE
-) {
-  if (!isTRUE(prefer_network)) {
-    return(density_result$windows)
-  }
-  nets <- tryCatch(
-    {
-      active_network <- multicsn_resolve_network(
-        object,
-        network = NULL,
-        preferred = "dynamic",
-        verbose = FALSE,
-        caller = "plot_states"
-      )
-      GetNetwork(object, network = active_network)
-    },
-    error = function(e) NULL
-  )
-  if (is.list(nets) && length(nets) > 0) {
-    state_ids <- names(nets)
-    windows <- purrr::map_dfr(state_ids, function(sid) {
-      net <- nets[[sid]]
-      if (is.null(net) || !methods::is(net, "Network")) {
-        return(NULL)
-      }
-      window <- net@params$state_window %ss% net@params$pseudotime_range
-      if (is.null(window) || length(window) != 2) {
-        row <- density_result$windows[
-          density_result$windows$state_id == sid, ,
-          drop = FALSE
-        ]
-        if (nrow(row) == 0) {
-          return(NULL)
-        }
-        window <- c(row$left[[1]], row$right[[1]])
-      }
-      row <- density_result$windows[
-        density_result$windows$state_id == sid, ,
-        drop = FALSE
-      ]
-      if (nrow(row) == 0) {
-        row <- data.frame(
-          state_id = sid,
-          state_type = net@params$state_type %ss% NA_character_,
-          left = as.numeric(window[1]),
-          right = as.numeric(window[2]),
-          parent_groups = paste(
-            net@params$parent_groups %ss% NA_character_,
-            collapse = "|"
-          ),
-          keep = TRUE,
-          inferable = TRUE,
-          stringsAsFactors = FALSE
-        )
-      } else {
-        row$left <- as.numeric(window[1])
-        row$right <- as.numeric(window[2])
-        row$keep <- TRUE
-      }
-      row
-    })
-    if (nrow(windows) > 0) {
-      return(windows)
-    }
-  }
-  density_result$windows
 }
 
 density_on_grid <- function(

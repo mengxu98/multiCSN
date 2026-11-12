@@ -12,7 +12,7 @@ metrics(object, ...)
 
 \S4method{metrics}{Seurat}(object, network = DefaultNetwork(object), celltypes = NULL, ...)
 
-\S4method{metrics}{Network}(object, celltypes = NULL, ...)
+\S4method{metrics}{Network}(object, ...)
 }
 \arguments{
 \item{object}{The input data, a csn object.}

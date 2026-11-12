@@ -36,32 +36,8 @@
 setGeneric(
   name = "fit_models",
   signature = c("object"),
-  def = function(object,
-                 regulators = NULL,
-                 targets = NULL,
-                 network_name = paste0(method, "_network"),
-                 peak_to_gene_method = c("Signac", "GREAT"),
-                 upstream = 100000,
-                 downstream = 0,
-                 extend = 1000000,
-                 only_tss = FALSE,
-                 peak_to_gene_domains = NULL,
-                 gene_cor_threshold = 0.1,
-                 peak_cor_threshold = 0.1,
-                 aggregate_rna_col = NULL,
-                 aggregate_peaks_col = NULL,
-                 method = "greedy_l0",
-                 interaction_term = ":",
-                 adjust_method = "fdr",
-                 scale = FALSE,
-                 verbose = TRUE,
-                 cores = 1,
-                 celltype = NULL,
-                 ...) {
-    UseMethod(
-      generic = "fit_models",
-      object = object
-    )
+  def = function(object, ...) {
+    standardGeneric("fit_models")
   }
 )
 
@@ -181,7 +157,7 @@ setMethod(
         intersect(rownames(csn_get_assay(object, params$rna_assay)))
       gene_annot <- gene_annot[gene_annot$gene_name %in% features, ]
 
-      celltype_ranges <- Signac::StringToGRanges(celltype_peaks)
+      celltype_ranges <- string_to_ranges(celltype_peaks)
 
       regions <- NetworkRegions(object)
       if (is.list(regions@motifs)) {
@@ -210,6 +186,7 @@ setMethod(
           genes = gene_annot,
           upstream = upstream,
           downstream = downstream,
+          extend = extend,
           only_tss = only_tss
         )
       } else {
@@ -314,7 +291,7 @@ setMethod(
           peak_x <- peak_x[, peaks_use, drop = FALSE]
           peak_motifs <- peaks2motif[peaks_use, , drop = FALSE]
 
-          gene_peak_tfs <- purrr::map(
+          gene_peak_tfs <- map_list(
             rownames(peak_motifs), function(p) {
               x <- as.logical(peak_motifs[p, ])
               peak_tfs <- thisutils::col_maxs(
@@ -329,7 +306,7 @@ setMethod(
           names(gene_peak_tfs) <- rownames(peak_motifs)
 
 
-          gene_tfs <- purrr::reduce(gene_peak_tfs, union)
+          gene_tfs <- reduce_list(gene_peak_tfs, union)
           tf_x <- gene_data[gene_groups, gene_tfs, drop = FALSE]
           tf_g_cor <- as(thisutils::sparse_cor(tf_x, g_x), "generalMatrix")
           tf_g_cor[is.na(tf_g_cor)] <- 0
@@ -350,7 +327,7 @@ setMethod(
             dplyr::rename("tf" = 1, "corr" = 2)
 
 
-          frml_string <- purrr::map(names(gene_peak_tfs), function(p) {
+          frml_string <- map_list(names(gene_peak_tfs), function(p) {
             peak_tfs <- gene_peak_tfs[[p]]
             peak_tfs <- peak_tfs[peak_tfs %in% tfs_use]
             if (length(peak_tfs) == 0) {
@@ -364,7 +341,7 @@ setMethod(
             )
             return(list(tfs = peak_tfs, frml = formula_str))
           })
-          frml_string <- frml_string[!purrr::map_lgl(frml_string, is.null)]
+          frml_string <- frml_string[!map_lgl_list(frml_string, is.null)]
           if (length(frml_string) == 0) {
             thisutils::log_message(
               sprintf("no valid peak:TF pairs found for %s", g),
@@ -379,7 +356,7 @@ setMethod(
             paste0(
               target, " ~ ",
               paste0(
-                purrr::map(
+                map_list(
                   frml_string,
                   function(x) x$frml
                 ),
@@ -389,13 +366,13 @@ setMethod(
           )
 
           nfeats <- sum(
-            purrr::map_dbl(
+            map_dbl_list(
               frml_string,
               function(x) length(x$tfs)
             )
           )
-          gene_tfs <- purrr::reduce(
-            purrr::map(frml_string, function(x) x$tfs),
+          gene_tfs <- reduce_list(
+            map_list(frml_string, function(x) x$tfs),
             union
           )
           gene_x <- gene_data[gene_groups, union(g, gene_tfs), drop = FALSE]
@@ -471,7 +448,7 @@ setMethod(
       )
     }
 
-    model_fits <- model_fits[!purrr::map_lgl(model_fits, is.null)]
+    model_fits <- model_fits[!map_lgl_list(model_fits, is.null)]
     if (length(model_fits) == 0) {
       thisutils::log_message(
         "fitting model failed for all genes.",
@@ -480,7 +457,7 @@ setMethod(
       )
     }
 
-    coefficients <- purrr::map_dfr(
+    coefficients <- map_dfr_list(
       model_fits,
       function(x) x$coefficients,
       .id = "target"
@@ -490,7 +467,7 @@ setMethod(
       variable = if (has_peaks) interaction_term else NULL,
       adjust_method = adjust_method
     )
-    corrs <- purrr::map_dfr(
+    corrs <- map_dfr_list(
       model_fits,
       function(x) x$corr,
       .id = "target"
@@ -500,7 +477,7 @@ setMethod(
         dplyr::left_join(coefficients, corrs)
       )
     }
-    metrics <- purrr::map_dfr(
+    metrics <- map_dfr_list(
       model_fits,
       function(x) x$metrics,
       .id = "target"

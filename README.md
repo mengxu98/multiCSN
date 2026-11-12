@@ -27,44 +27,52 @@ pak::pak("mengxu98/multiCSN")
 
 ## **Usage**
 
-### **Examples**
+### **Layered multi-omic networks**
 
-### **For a `matrix` object**
+For a Seurat object with normalized RNA and TF-IDF chromatin assays, build the candidate catalogue once and fit one network per cell group. The bundled motifs are used by default.
+
+``` r
+library(multiCSN)
+genome <- BSgenome.Hsapiens.UCSC.hg38::BSgenome.Hsapiens.UCSC.hg38
+
+object <- prepare_candidates(object, group.by = "cell_type", genome = genome)
+
+fit <- fit_layered_network(
+  object,
+  cell_group = "Erythroblast",
+  preset = "state",
+  output_dir = "networks/erythroblast"
+)
+```
+
+`preset = "state"` fits cell states that share one normalization; `preset = "timepoint"` re-normalizes each group and requires target genes and TFs to be detected in at least 20 cells. Arguments you pass explicitly override the preset. With `output_dir` the network tables are written only after the fit completes, and an existing directory is never overwritten.
+
+Read, check and compare the saved networks:
+
+``` r
+validate_network_endpoints("networks/erythroblast")
+networks <- read_network_endpoints("networks/erythroblast")
+
+early <- read_network_endpoints("networks/proerythroblast", "TF-gene", direction = TRUE, simplify = TRUE)
+late <- read_network_endpoints("networks/erythroblast", "TF-gene", direction = TRUE, simplify = TRUE)
+classify_edge_transitions(early, late, from = "Proerythroblast", to = "Erythroblast")
+```
+
+### **Network evaluation**
+
+`evaluate_network()` scores a predicted edge table against a ground truth with BEELINE-style metrics, and `ranking_metrics()`, `tie_aware_auroc()`, `tie_aware_average_precision()` and `expected_precision_at_k()` give tie-aware ranking metrics for any score vector.
+
+``` r
+evaluate_network(prediction, ground_truth)$AUPRC
+```
+
+### **Single-omic networks**
 
 ``` r
 library(multiCSN)
 data("example_matrix", package = "inferCSN")
 
-network <- inferCSN(
-  example_matrix
-)
+network <- inferCSN(example_matrix)
 ```
 
-### **For a `matrix` object, initiate it to `Network` object**
-
-``` r
-library(multiCSN)
-data("example_matrix", package = "inferCSN")
-
-object <- initiate_object(
-  example_matrix
-)
-object
-object <- inferCSN(
-  object
-)
-
-network_table <- export_csn(
-  object
-)
-head(network_table)
-```
-
-More functions and usages about [multiCSN](https://mengxu98.github.io/multiCSN/)? Please reference [here](https://mengxu98.github.io/multiCSN/reference/index.html).
-
-For a result returned by `fit_layered_network()`, save the network tables and read them with the same format (`tsv`, `csv`, `tsv.gz` or `csv.gz`):
-
-```r
-write_network_endpoints(fit, "network_results", format = "csv.gz")
-networks <- read_network_endpoints("network_results", format = "csv.gz")
-```
+See the [function reference](https://mengxu98.github.io/multiCSN/reference/index.html) for the full interface.

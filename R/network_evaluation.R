@@ -207,6 +207,7 @@ calculate_auc_from_pred_data <- function(
   )
 
   if (return_plot) {
+    check_r(c("patchwork", "precrec"), strict = TRUE, verbose = FALSE)
     auc_curves <- precrec::evalmod(scores = gold$weight, labels = gold$label)
     final_plot <- patchwork::wrap_plots(
       list(
@@ -1018,9 +1019,7 @@ calculate_motif_ratios <- function(
   top_k = NULL,
   strategy = "beeline"
 ) {
-  if (!requireNamespace("igraph", quietly = TRUE)) {
-    stop("calculate_motif_ratios() requires the 'igraph' package")
-  }
+  check_r("igraph", strict = TRUE, verbose = FALSE)
   strategy <- match.arg(strategy, c("beeline", "default"))
 
   truth <- normalize_ground_truth_edges(ground_truth)
@@ -1152,9 +1151,7 @@ calculate_motif_ratios <- function(
 #' @return A list containing path statistics
 #' @export
 calculate_path_stats <- function(network_table, ground_truth, top_k = NULL) {
-  if (!requireNamespace("igraph", quietly = TRUE)) {
-    stop("calculate_path_stats() requires the 'igraph' package")
-  }
+  check_r("igraph", strict = TRUE, verbose = FALSE)
 
   truth <- normalize_ground_truth_edges(ground_truth)
   if (is.null(top_k)) {
@@ -1398,6 +1395,7 @@ plot_edges_comparison <- function(
     total = "#6C757D"
   )
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "patchwork"), strict = TRUE, verbose = FALSE)
   all_genes <- sort(
     unique(
       c(

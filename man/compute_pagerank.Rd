@@ -4,12 +4,7 @@
 \alias{compute_pagerank}
 \title{Function to compute page rank of TF+target networks}
 \usage{
-compute_pagerank(
-  networks_list,
-  regulators = NULL,
-  targets = NULL,
-  directed = FALSE
-)
+compute_pagerank(networks_list, regulators = NULL, targets = NULL)
 }
 \arguments{
 \item{networks_list}{result of dynamic network reconstruction}
@@ -17,8 +12,6 @@ compute_pagerank(
 \item{regulators}{list of regulators}
 
 \item{targets}{list of targets}
-
-\item{directed}{if network is directed or not}
 }
 \value{
 list of each network, ranked by `page_rank`

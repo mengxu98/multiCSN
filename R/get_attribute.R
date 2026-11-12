@@ -117,7 +117,7 @@ get_attribute_impl <- function(
     return(csn_celltypes(object))
   }
 
-  attributes <- purrr::set_names(attributes, celltypes)
+  attributes <- stats::setNames(attributes, celltypes)
   if (length(attributes) == 1) {
     return(attributes[[1]])
   }

@@ -55,10 +55,10 @@ plot_network_heatmap(
 
 \item{show_names}{Logical display control.}
 
+\item{show_names_position}{Name placement for multiple heatmaps.}
+
 \item{heatmap_size_lock}{Use the requested dimensions as square-cell bounds.
 If \code{FALSE}, choose the square-cell size automatically.}
-
-\item{show_names_position}{Name placement for multiple heatmaps.}
 
 \item{heatmap_size, heatmap_height, heatmap_width}{Heatmap body bounds in cm.
 Cell width and height are always equal.}

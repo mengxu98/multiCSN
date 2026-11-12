@@ -89,30 +89,30 @@ setMethod(
       dplyr::group_by(tf) |>
       dplyr::filter(dplyr::n() > min_genes_per_module) |>
       dplyr::group_split()
-    names(module_pos) <- purrr::map_chr(
+    names(module_pos) <- map_chr_list(
       module_pos, function(x) x$tf[[1]]
     )
-    module_pos <- purrr::map(module_pos, function(x) x$target)
+    module_pos <- map_list(module_pos, function(x) x$target)
 
     module_neg <- modules |>
       dplyr::filter(coefficient < 0) |>
       dplyr::group_by(tf) |>
       dplyr::filter(dplyr::n() > min_genes_per_module) |>
       dplyr::group_split()
-    names(module_neg) <- purrr::map_chr(
+    names(module_neg) <- map_chr_list(
       module_neg, function(x) x$tf[[1]]
     )
-    module_neg <- purrr::map(module_neg, function(x) x$target)
+    module_neg <- map_list(module_neg, function(x) x$target)
 
     regions_pos <- modules |>
       dplyr::filter(coefficient > 0) |>
       dplyr::group_by(tf) |>
       dplyr::filter(dplyr::n() > min_genes_per_module) |>
       dplyr::group_split()
-    names(regions_pos) <- purrr::map_chr(
+    names(regions_pos) <- map_chr_list(
       regions_pos, function(x) x$tf[[1]]
     )
-    regions_pos <- purrr::map(
+    regions_pos <- map_list(
       regions_pos, function(x) {
         unlist(stringr::str_split(x$regions, ";"))
       }
@@ -123,10 +123,10 @@ setMethod(
       dplyr::group_by(tf) |>
       dplyr::filter(dplyr::n() > min_genes_per_module) |>
       dplyr::group_split()
-    names(regions_neg) <- purrr::map_chr(
+    names(regions_neg) <- map_chr_list(
       regions_neg, function(x) x$tf[[1]]
     )
-    regions_neg <- purrr::map(
+    regions_neg <- map_list(
       regions_neg, function(x) {
         unlist(stringr::str_split(x$regions, ";"))
       }
@@ -221,7 +221,7 @@ setMethod(
     )
 
     n_total <- length(cell_types)
-    net_obj <- purrr::imap(
+    net_obj <- imap_list(
       net_obj, function(x, i) {
         ct <- cell_types[i]
         if (is.null(x)) {
@@ -245,7 +245,7 @@ setMethod(
       }
     )
 
-    modules_list <- purrr::imap(
+    modules_list <- imap_list(
       net_obj, function(x, i) {
         if (is.null(x)) {
           return(NULL)
@@ -258,13 +258,13 @@ setMethod(
           reg2peaks <- rownames(
             csn_get_assay(object, assay = params$peak_assay)
           )[regions@peaks]
-          names(reg2peaks) <- Signac::GRangesToString(regions@ranges)
+          names(reg2peaks) <- ranges_to_string(regions@ranges)
           peaks_pos <- modules@features$regions_pos |>
-            purrr::map(
+            map_list(
               function(r) unique(reg2peaks[r])
             )
           peaks_neg <- modules@features$regions_neg |>
-            purrr::map(
+            map_list(
               function(r) unique(reg2peaks[r])
             )
         }

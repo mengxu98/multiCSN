@@ -20,7 +20,6 @@ test_that("state partitions preserve cut boundaries and custom group labels", {
   expect_identical(observed$cells$state, rep(c("state_1", "state_2"), each = 3))
   expect_false("epoch" %in% names(observed$cells))
   expect_identical(observed$genes, f$object$genes)
-  expect_identical(define_states_new(f$object, f$matrix, pseudotime_cuts = 0.5), observed)
   ordered <- define_states(f$object, f$matrix, method = "cell_order", num_states = 3)
   expect_identical(ordered$cells$state, rep(paste0("state_", 1:3), each = 2))
   grouped <- define_states(f$object, f$matrix,
@@ -52,10 +51,6 @@ test_that("gene assignments and transition networks use the same state identifie
   object$cells$epoch <- sub("state_", "epoch", object$cells$state)
   object$cells$state <- NULL
   expect_identical(assign_genes_to_states(f$matrix, object, forceGenes = FALSE), assigned)
-  simple <- suppressMessages(assign_genes_to_states_simple(f$matrix, object, num_states = 2))
-  expect_identical(simple$genes$state, c("state_1", "state_2", "state_1"))
-  expect_identical(simple$cells$state, rep(c("state_1", "state_2"), each = 3))
-  expect_false(anyDuplicated(names(simple$cells)) > 0L)
 })
 
 test_that("saved assignments migrate without changing custom labels or input data", {

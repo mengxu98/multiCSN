@@ -314,7 +314,6 @@ build_knn <- function(
   return_neighbors_order = FALSE,
   dist_method = "euclidean",
   cor_method = "pearson",
-  p = 2,
   directed = FALSE,
   ...
 ) {

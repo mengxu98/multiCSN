@@ -18,7 +18,8 @@ Signed ordinal weights; invalid or zero coefficients receive zero.
 Rank signed network edges by deletion evidence
 }
 \details{
-Descending evidence is grouped against each group's maximum using
+Uses \code{\link[inferCSN:deletion_rank_weight]{inferCSN::deletion_rank_weight()}}:
+  descending evidence is grouped against each group's maximum using
   absolute difference <= 1e-12 * (1 + abs(maximum)). This numerical rule does
   not change fitted support, coefficients or raw deletion evidence.
 }
