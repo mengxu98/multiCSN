@@ -14,13 +14,14 @@ Depends:
     R (>= 4.1.0)
 Imports:
     data.table,
+    digest,
     dplyr,
     GenomeInfoDb,
     GenomicRanges,
     ggplot2,
     grDevices,
     grid,
-    inferCSN (>= 1.2.5),
+    inferCSN (>= 1.2.6),
     IRanges,
     Matrix,
     methods,

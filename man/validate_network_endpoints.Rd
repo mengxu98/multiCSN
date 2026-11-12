@@ -19,7 +19,11 @@ files in \code{root} when \code{NULL}.}
 \code{TRUE} (invisibly) for a complete result.
 }
 \description{
-Checks that every endpoint and accounting table is present and non-empty,
-that the endpoint keys are complete and unique, and that the row counts
-match \code{endpoint_summary}.
+Checks that every endpoint and accounting file is present and non-empty,
+that tables can be read, that endpoint keys are complete and unique, and that
+finite nonnegative integer summary counts match the endpoint row counts.
+Accounting tables retain their endpoint, target and selected-count columns.
+Header-only tables are accepted for complete empty networks.
+With \code{error = FALSE}, malformed files and invalid result metadata return
+\code{FALSE} without signaling a parsing or validation error.
 }

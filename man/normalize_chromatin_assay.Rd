@@ -32,7 +32,7 @@ current assay annotation when available.}
 \item{genome}{Optional genome metadata forwarded to
 \code{Signac::CreateChromatinAssay()}.}
 
-\item{sep}{Separator used in peak names.}
+\item{sep}{Character vector of two literal separators used in peak names. Explicit values control coordinate parsing. If omitted, the supported identifier forms are detected automatically.}
 }
 \value{
 A \code{Seurat} object with a \code{ChromatinAssay}.

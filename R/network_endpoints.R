@@ -143,38 +143,67 @@ read_network_endpoints <- function(root, endpoints = NULL, direction = FALSE,
 #' @return \code{TRUE} (invisibly) for a complete result.
 #' @export
 validate_network_endpoints <- function(root, format = NULL, error = TRUE) {
-  fail <- function(...) {
-    if (isTRUE(error)) stop(..., call. = FALSE)
-    FALSE
-  }
-  if (!dir.exists(root)) {
-    return(fail("Result directory does not exist: ", root))
-  }
-  format <- detect_endpoint_format(root, format)
-  paths <- file.path(root, network_endpoint_files(format, accounting = TRUE))
-  sizes <- file.size(paths)
-  if (anyNA(sizes) || any(sizes == 0)) {
-    return(fail("Incomplete network output: ", root))
-  }
-  summary <- read_endpoint_table(utils::tail(paths, 1L))
-  spec <- network_endpoints()
-  if (!all(c("endpoint", "selected") %in% names(summary)) ||
-    anyDuplicated(summary$endpoint) || !setequal(summary$endpoint, spec$endpoint)) {
-    return(fail("Invalid endpoint summary: ", root))
-  }
-  tables <- tryCatch(
-    read_network_endpoints(root, format = format),
-    error = function(e) e
-  )
-  if (inherits(tables, "error")) {
-    return(fail(conditionMessage(tables), " (", root, ")"))
-  }
-  for (endpoint in spec$endpoint) {
-    if (nrow(tables[[endpoint]]) != summary$selected[match(endpoint, summary$endpoint)]) {
-      return(fail("Endpoint count mismatch: ", endpoint, " in ", root))
+  tryCatch(withCallingHandlers({
+    if (!dir.exists(root)) {
+      stop("Result directory does not exist: ", root, call. = FALSE)
     }
-  }
-  invisible(TRUE)
+    format <- detect_endpoint_format(root, format)
+    paths <- file.path(root, network_endpoint_files(format, accounting = TRUE))
+    sizes <- file.size(paths)
+    if (anyNA(sizes) || any(sizes == 0)) {
+      stop("Incomplete network output: ", root, call. = FALSE)
+    }
+    summary <- read_endpoint_table(utils::tail(paths, 1L))
+    spec <- network_endpoints()
+    if (anyDuplicated(names(summary)) ||
+      !all(c("endpoint", "selected") %in% names(summary)) ||
+      anyNA(summary$endpoint) || anyDuplicated(summary$endpoint) ||
+      !setequal(summary$endpoint, spec$endpoint) ||
+      !is.numeric(summary$selected) || any(!is.finite(summary$selected)) ||
+      any(summary$selected < 0 | summary$selected != floor(summary$selected))) {
+      stop("Invalid endpoint summary: ", root, call. = FALSE)
+    }
+    tables <- read_network_endpoints(root, format = format)
+    for (endpoint in spec$endpoint) {
+      table <- tables[[endpoint]]
+      if (anyDuplicated(names(table))) {
+        stop(endpoint, " endpoint has duplicated column names.", call. = FALSE)
+      }
+      if (nrow(table) != summary$selected[match(endpoint, summary$endpoint)]) {
+        stop("Endpoint count mismatch: ", endpoint, " in ", root, call. = FALSE)
+      }
+    }
+    accounting_paths <- paths[seq.int(nrow(spec) + 1L, length(paths) - 1L)]
+    for (index in seq_along(accounting_paths)) {
+      endpoint <- spec$endpoint[[index]]
+      accounting <- tryCatch(
+        read_endpoint_table(accounting_paths[[index]], c("endpoint", "target")),
+        warning = function(problem) {
+          stop("Invalid ", endpoint, " accounting table: ", conditionMessage(problem), call. = FALSE)
+        },
+        error = function(problem) {
+          stop("Invalid ", endpoint, " accounting table: ", conditionMessage(problem), call. = FALSE)
+        }
+      )
+      if (anyDuplicated(names(accounting)) ||
+        !all(c("endpoint", "target", "n_selected") %in% names(accounting)) ||
+        anyNA(accounting$endpoint) || any(accounting$endpoint != endpoint) ||
+        anyNA(accounting$target) || anyDuplicated(accounting$target) ||
+        (nrow(accounting) > 0L && (!is.numeric(accounting$n_selected) ||
+          any(!is.finite(accounting$n_selected)) ||
+          any(accounting$n_selected < 0 | accounting$n_selected != floor(accounting$n_selected))))) {
+        stop("Invalid ", endpoint, " accounting table: ", root, call. = FALSE)
+      }
+    }
+    invisible(TRUE)
+  }, warning = function(warning) {
+    stop(conditionMessage(warning), call. = FALSE)
+  }), error = function(problem) {
+    if (isTRUE(error)) {
+      stop(conditionMessage(problem), call. = FALSE)
+    }
+    FALSE
+  })
 }
 
 detect_endpoint_format <- function(root, format = NULL) {

@@ -111,12 +111,17 @@ layered_package_identity <- function(root) {
     list.files(file.path(root, "libs"), full.names = TRUE, recursive = TRUE)
   )), method = "radix")
   paths <- paths[file.exists(paths) & !dir.exists(paths)]
-  hashes <- unname(tools::sha256sum(paths))
+  hashes <- vapply(paths, function(path) {
+    digest::digest(file = path, algo = "sha256")
+  }, character(1), USE.NAMES = FALSE)
   stats::setNames(hashes, substring(paths, nchar(root) + 2L))
 }
 
 layered_sha256 <- function(x) {
-  unname(tools::sha256sum(bytes = serialize(x, NULL, xdr = FALSE, version = 3L)))
+  digest::digest(
+    serialize(x, NULL, xdr = FALSE, version = 3L),
+    algo = "sha256", serialize = FALSE
+  )
 }
 
 layered_prepare_checkpoint <- function(root, inputs, settings) {

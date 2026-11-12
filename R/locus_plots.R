@@ -57,7 +57,7 @@ normalize_chromatin_assay <- function(
   }
 
   peak_ranges <- tryCatch(
-    string_to_ranges(rownames(counts)),
+    string_to_ranges(rownames(counts), sep = if (missing(sep)) NULL else sep),
     error = function(e) NULL
   )
   if (is.null(peak_ranges) || length(peak_ranges) != nrow(counts)) {
@@ -78,6 +78,8 @@ normalize_chromatin_assay <- function(
     error = function(e) NULL
   )
   if (!is.null(data_layer) && all(dim(data_layer) == dim(counts))) {
+    data_layer <- data_layer[rownames(counts), colnames(counts), drop = FALSE]
+    rownames(data_layer) <- rownames(chrom_assay)
     chrom_assay <- SeuratObject::SetAssayData(
       object = chrom_assay,
       layer = "data",

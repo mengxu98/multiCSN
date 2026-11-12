@@ -241,6 +241,7 @@ importClassesFrom(GenomicRanges,GRanges)
 importClassesFrom(SeuratObject,Seurat)
 importClassesFrom(Signac,Motif)
 importFrom(Rcpp,evalCpp)
+importFrom(inferCSN,deletion_rank_weight)
 importFrom(dplyr,
   "%>%",
   n

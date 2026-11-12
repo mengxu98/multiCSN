@@ -159,6 +159,26 @@ test_that("written endpoints round-trip in every format and validate", {
   }
 })
 
+test_that("numeric-like target identifiers survive accounting validation", {
+  fit <- fake_layered_fit()
+  targets <- c("01", "1")
+  fit$tf_gene$target <- targets
+  fit$accounting$tf_gene$target <- targets
+  for (name in c("region_gene", "triplets", "mediated_tf_gene")) {
+    fit[[name]]$target <- targets[[1L]]
+  }
+  fit$accounting$region_gene$target <- targets[[1L]]
+  for (format in c("tsv", "csv", "tsv.gz", "csv.gz")) {
+    root <- tempfile(paste0("endpoints-identifiers-", format, "-"))
+    on.exit(unlink(root, recursive = TRUE), add = TRUE)
+    write_network_endpoints(fit, root, format = format)
+    expect_identical(validate_network_endpoints(root, error = FALSE), TRUE)
+    expect_no_error(validate_network_endpoints(root))
+    table <- read_network_endpoints(root, endpoints = "TF-gene", simplify = TRUE)
+    expect_identical(table$target, targets)
+  }
+})
+
 test_that("validate_network_endpoints reports incomplete or inconsistent output", {
   root <- tempfile("endpoints-invalid-")
   write_network_endpoints(fake_layered_fit(), root)
@@ -180,4 +200,76 @@ test_that("classify_edge_transitions labels the transition when states are named
   expect_identical(unique(merged$previous_state), "early")
   expect_identical(sort(merged$topology_class), sort(c("lost", "shared_sign_flip", "gained")))
   expect_error(classify_edge_transitions(previous, next_state, from = "early"), "single state names")
+})
+
+test_that("endpoint validation contains damaged summaries in boolean mode", {
+  fit <- fake_layered_fit()
+  for (format in c("tsv", "csv", "tsv.gz", "csv.gz")) {
+    root <- tempfile("endpoints-summary-")
+    on.exit(unlink(root, recursive = TRUE), add = TRUE)
+    for (selected in list(NA_real_, NaN, Inf, -1, 0.5, "bad")) {
+      damaged <- fit
+      damaged$summary$selected[[1L]] <- selected
+      write_network_endpoints(damaged, root, format = format, overwrite = TRUE)
+      expect_identical(validate_network_endpoints(root, error = FALSE), FALSE)
+      expect_error(validate_network_endpoints(root), "summary")
+    }
+    write_network_endpoints(fit, root, format = format, overwrite = TRUE)
+    expect_identical(validate_network_endpoints(root), TRUE)
+  }
+})
+
+test_that("endpoint validation covers format and table parsing failures", {
+  root <- tempfile("endpoints-corrupt-")
+  on.exit(unlink(root, recursive = TRUE), add = TRUE)
+  fit <- fake_layered_fit()
+  write_network_endpoints(fit, root)
+  write_network_endpoints(fit, root, format = "csv")
+  expect_identical(validate_network_endpoints(root, error = FALSE), FALSE)
+  expect_error(validate_network_endpoints(root), "Several endpoint formats")
+  expect_identical(validate_network_endpoints(root, format = "unknown", error = FALSE), FALSE)
+  expect_error(validate_network_endpoints(root, format = "unknown"), "arg")
+  expect_identical(validate_network_endpoints(root, format = "tsv"), TRUE)
+  unlink(file.path(root, "tf_gene.csv"))
+  writeLines(c("endpoint\tselected", "\"unfinished"), file.path(root, "endpoint_summary.tsv"))
+  expect_identical(validate_network_endpoints(root, error = FALSE), FALSE)
+  expect_error(validate_network_endpoints(root), "quoted|summary")
+  write_network_endpoints(fit, root, overwrite = TRUE)
+  writeLines("garbage", file.path(root, "tf_region_accounting.tsv"))
+  expect_identical(validate_network_endpoints(root, error = FALSE), FALSE)
+  expect_error(validate_network_endpoints(root), "accounting")
+  write_network_endpoints(fit, root, overwrite = TRUE)
+  writeLines(c("regulator\ttarget\ttarget", "tf1\tg1\tg1"), file.path(root, "tf_gene.tsv"))
+  expect_identical(validate_network_endpoints(root, error = FALSE), FALSE)
+  expect_error(validate_network_endpoints(root), "duplicated column")
+})
+
+test_that("endpoint validation accepts complete empty network outputs", {
+  fit <- fake_layered_fit()
+  for (name in c("tf_gene", "tf_region", "region_gene", "triplets", "mediated_tf_gene")) {
+    fit[[name]] <- fit[[name]][FALSE, , drop = FALSE]
+  }
+  fit$accounting <- lapply(fit$accounting, function(table) table[FALSE, , drop = FALSE])
+  fit$summary$selected <- 0L
+  for (format in c("tsv", "csv", "tsv.gz", "csv.gz")) {
+    root <- tempfile("endpoints-empty-")
+    on.exit(unlink(root, recursive = TRUE), add = TRUE)
+    write_network_endpoints(fit, root, format = format)
+    expect_identical(validate_network_endpoints(root), TRUE)
+  }
+})
+
+test_that("endpoint validation rejects nonempty corrupt output files", {
+  for (format in c("tsv", "csv", "tsv.gz", "csv.gz")) {
+    root <- tempfile("endpoints-damaged-")
+    on.exit(unlink(root, recursive = TRUE), add = TRUE)
+    paths <- write_network_endpoints(fake_layered_fit(), root, format = format)
+    for (path in paths) {
+      writeBin(as.raw(0:5), path)
+      expect_identical(validate_network_endpoints(root, error = FALSE), FALSE)
+      expect_error(validate_network_endpoints(root))
+      write_network_endpoints(fake_layered_fit(), root, format = format, overwrite = TRUE)
+    }
+    expect_identical(validate_network_endpoints(root), TRUE)
+  }
 })

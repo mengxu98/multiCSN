@@ -1,5 +1,12 @@
 # multiCSN (development version)
 
+* Checkpoint hashes use SHA-256 through `digest`, retaining support for R 4.1.
+* Explicit peak separators are respected when normalizing chromatin assays,
+  and normalized values remain aligned when peak names are canonicalized.
+* Boolean endpoint validation returns `FALSE` for malformed result files and
+  invalid summary counts.
+* Require inferCSN 1.2.6 for the shared deletion-evidence ranking API.
+
 * `prepare_candidates()` builds the unfiltered candidate catalogue and motif
   matches in one call; `find_motifs()` uses the bundled `motifs` and
   `motif2tf` by default.
@@ -29,14 +36,13 @@
   from `plot_rewiring()` and `plot_state_rewiring()`; `celltypes` from
   `metrics()` for `Network`; `method` from `compute_JI_topregs()`;
   `directed` from `compute_pagerank()`; `assay`
-  from `get_pseudotime()` for Seurat; and `sep` from `parse_peak_ranges()`.
+  from `get_pseudotime()` for Seurat.
 * `fit_models()` passes `extend` to the GREAT peak-to-gene mapping.
 * Fewer hard dependencies: `ComplexHeatmap`, `circlize`, `thisplot`,
   `tidygraph`, `ggraph`, `ggnetwork`, `patchwork` and `rlang` move to
   Suggests and are needed only by the plotting functions. Optional packages
   are installed on first use through `thisutils::check_r(strict = TRUE)`
-  (thisutils >= 0.5.4), which stops only if installation fails; `purrr` and
-  `digest` are no longer used.
+  (thisutils >= 0.5.4), which stops only if installation fails; `purrr` is no longer used.
 * `network_ordinal_weight()` uses `inferCSN::deletion_rank_weight()`.
 
 # multiCSN 0.0.1
