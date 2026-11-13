@@ -91,3 +91,13 @@ test_that("evaluate_network scores the complete gene-pair universe", {
   empty <- evaluate_network(perfect, data.frame(regulator = "A", target = "A"))
   expect_true(is.na(empty$AUROC))
 })
+
+test_that("network evaluation rejects missing and empty truth endpoints", {
+  prediction <- data.frame(regulator = "A", target = "B", weight = 1)
+  for (bad in c(NA_character_, "")) {
+    expect_error(evaluate_network(prediction, data.frame(regulator = bad, target = "B")),
+                 "Ground-truth edges require")
+    expect_error(evaluate_network(prediction, data.frame(regulator = "A", target = bad)),
+                 "Ground-truth edges require")
+  }
+})

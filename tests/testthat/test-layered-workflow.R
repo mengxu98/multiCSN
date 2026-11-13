@@ -11,11 +11,15 @@ test_that("prepare_candidates and fit_layered_network run end to end", {
 
   root <- tempfile("layered-")
   output <- file.path(root, "A")
+  unrelated <- file.path(root, ".A.partial", "tables")
+  dir.create(unrelated, recursive = TRUE)
+  writeLines("preserve me", file.path(unrelated, "keep.txt"))
   fit <- fit_layered_network(
     object, cell_group = "A", preset = "state", output_dir = output, verbose = FALSE
   )
   expect_true(validate_network_endpoints(output))
-  expect_identical(list.files(root, all.files = TRUE, no.. = TRUE), "A")
+  expect_identical(readLines(file.path(unrelated, "keep.txt")), "preserve me")
+  expect_setequal(list.files(root, all.files = TRUE, no.. = TRUE), c(".A.partial", "A"))
   expect_true(all(file.exists(fit$paths)))
   expect_identical(fit$settings$tf_region_scope, "domain_peaks")
   expect_true(fit$settings$sort_regulators)

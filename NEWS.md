@@ -22,7 +22,7 @@
   `motif2tf` by default.
 * `fit_layered_network()` gains `preset = c("state", "timepoint")` for the two
   common fitting designs and `output_dir` to write the network tables after a
-  complete fit, keeping resumable checkpoints beside the output until then.
+  complete fit. Use `checkpoint_dir` to retain resumable checkpoints.
 * `validate_network_endpoints()` checks a saved result directory;
   `read_network_endpoints()` detects the file format and can return a single
   table; `classify_edge_transitions()` labels the state transition.

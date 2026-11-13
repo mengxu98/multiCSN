@@ -9,7 +9,7 @@ evaluate_network(network_table, ground_truth)
 \arguments{
 \item{network_table}{Predicted edges, see \code{\link{as_edge_table}}.}
 
-\item{ground_truth}{Ground-truth edges.}
+\item{ground_truth}{Ground-truth edges with non-missing, non-empty endpoints.}
 }
 \value{
 A named list with \code{AUROC}, \code{AUPRC}, \code{AP},

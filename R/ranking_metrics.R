@@ -328,7 +328,7 @@ weight_matrix_to_edges <- function(weight_matrix, remove_self = TRUE) {
 #' actually selected.
 #'
 #' @param network_table Predicted edges, see \code{\link{as_edge_table}}.
-#' @param ground_truth Ground-truth edges.
+#' @param ground_truth Ground-truth edges with non-missing, non-empty endpoints.
 #' @return A named list with \code{AUROC}, \code{AUPRC}, \code{AP},
 #'   \code{ACC}, \code{Precision}, \code{Recall}, \code{F1}, \code{JI},
 #'   \code{SI}, \code{EarlyPrecision}, \code{EPR}, \code{TopK},
@@ -345,6 +345,10 @@ weight_matrix_to_edges <- function(weight_matrix, remove_self = TRUE) {
 #' @export
 evaluate_network <- function(network_table, ground_truth) {
   gt <- as_edge_table(ground_truth, weight = FALSE)
+  if (anyNA(gt$regulator) || anyNA(gt$target) ||
+      any(!nzchar(gt$regulator) | !nzchar(gt$target))) {
+    stop("Ground-truth edges require non-missing, non-empty endpoints.", call. = FALSE)
+  }
   gt <- gt[gt$regulator != gt$target, , drop = FALSE]
   gt <- unique(gt)
   if (!nrow(gt)) {

@@ -747,9 +747,9 @@ layered_store <- function(object, fit, network_name, cell_group, settings) {
 #' @param network_name Name of the stored network entries.
 #' @param output_dir Optional directory receiving the endpoint tables (see
 #'   \code{\link{write_network_endpoints}}). The tables are written to a
-#'   sibling staging directory, which also holds the resumable checkpoints when
-#'   \code{checkpoint_dir} is \code{NULL}, and the directory is published only
-#'   after the fit completes. An existing \code{output_dir} is never overwritten.
+#'   temporary sibling directory and published only after the fit completes. Use
+#'   \code{checkpoint_dir} to retain resumable checkpoints. An existing
+#'   \code{output_dir} is never overwritten.
 #' @param format File format of \code{output_dir}.
 #' @param verbose Print progress messages.
 #' @return A list with \code{tf_gene}, \code{tf_region}, \code{region_gene},
@@ -834,16 +834,10 @@ fit_layered_network <- function(object,
     sort_regulators = isTRUE(sort_regulators), cores = cores,
     checkpoint_dir = checkpoint_dir, verbose = isTRUE(verbose)
   )
-  stage <- NULL
   if (!is.null(output_dir)) {
     output_dir <- normalizePath(output_dir, mustWork = FALSE)
     if (file.exists(output_dir)) {
       stop("Output exists and will not be overwritten: ", output_dir, call. = FALSE)
-    }
-    dir.create(dirname(output_dir), recursive = TRUE, showWarnings = FALSE)
-    stage <- paste0(dirname(output_dir), "/.", basename(output_dir), ".partial")
-    if (is.null(checkpoint_dir)) {
-      settings$checkpoint_dir <- checkpoint_dir <- file.path(stage, "checkpoints")
     }
   }
   inputs <- layered_inputs(
@@ -867,13 +861,14 @@ fit_layered_network <- function(object,
     )
   }
   if (!is.null(output_dir)) {
-    tables <- file.path(stage, "tables")
-    unlink(tables, recursive = TRUE)
+    dir.create(dirname(output_dir), recursive = TRUE, showWarnings = FALSE)
+    tables <- tempfile(".network-tables-", tmpdir = dirname(output_dir))
+    if (!dir.create(tables)) stop("Could not create a staging directory for ", output_dir, call. = FALSE)
+    on.exit(unlink(tables, recursive = TRUE), add = TRUE)
     write_network_endpoints(result, tables, format = format)
-    if (!file.rename(tables, output_dir)) {
+    if (file.exists(output_dir) || !file.rename(tables, output_dir)) {
       stop("Could not publish the network tables to ", output_dir, call. = FALSE)
     }
-    unlink(stage, recursive = TRUE)
     result$paths <- file.path(output_dir, basename(
       network_endpoint_files(format, accounting = TRUE)
     ))

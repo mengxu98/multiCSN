@@ -94,9 +94,9 @@ include a copy of the Seurat object.}
 
 \item{output_dir}{Optional directory receiving the endpoint tables (see
 \code{\link{write_network_endpoints}}). The tables are written to a
-sibling staging directory, which also holds the resumable checkpoints when
-\code{checkpoint_dir} is \code{NULL}, and the directory is published only
-after the fit completes. An existing \code{output_dir} is never overwritten.}
+temporary sibling directory and published only after the fit completes. Use
+\code{checkpoint_dir} to retain resumable checkpoints. An existing
+\code{output_dir} is never overwritten.}
 
 \item{format}{File format of \code{output_dir}.}
 
