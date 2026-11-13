@@ -1,4 +1,4 @@
-# multiCSN 0.0.2
+# multiCSN 0.1.0
 
 * The independent layered workflow has an explicit input and result contract.
   Candidate preparation and fitting require one joined `data` layer per assay;
