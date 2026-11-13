@@ -30,6 +30,13 @@ test_that("prepare_candidates and fit_layered_network run end to end", {
   )
   expect_identical(in_memory$tf_gene, fit$tf_gene)
   expect_identical(in_memory$triplets, fit$triplets)
+  positional <- fit_layered_network(
+    object, "A", in_memory$cells, NULL, NULL, 0L, 3L, 1e5, 0L, "domain_peaks",
+    FALSE, FALSE, 1024L, 256L, NULL, 1e-10, TRUE, 1L, NULL, FALSE, "multiCSN", FALSE
+  )
+  expect_identical(positional$cells, in_memory$cells)
+  expect_identical(positional$tf_gene, in_memory$tf_gene)
+  expect_false(positional$settings$verbose)
 
   timepoint <- fit_layered_network(
     object, cell_group = "B", preset = "timepoint", min_detected = 5L, verbose = FALSE

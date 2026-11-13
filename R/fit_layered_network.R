@@ -771,7 +771,6 @@ layered_store <- function(object, fit, network_name, cell_group, settings) {
 #' @export
 fit_layered_network <- function(object,
                                 cell_group = NULL,
-                                preset = NULL,
                                 cells = NULL,
                                 regulators = NULL,
                                 targets = NULL,
@@ -791,9 +790,10 @@ fit_layered_network <- function(object,
                                 checkpoint_dir = NULL,
                                 store = FALSE,
                                 network_name = "multiCSN",
+                                verbose = TRUE,
+                                preset = NULL,
                                 output_dir = NULL,
-                                format = c("tsv", "csv", "tsv.gz", "csv.gz"),
-                                verbose = TRUE) {
+                                format = c("tsv", "csv", "tsv.gz", "csv.gz")) {
   format <- match.arg(format)
   if (!is.null(preset)) {
     supplied <- names(match.call())[-1L]

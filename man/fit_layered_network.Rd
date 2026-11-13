@@ -7,7 +7,6 @@
 fit_layered_network(
   object,
   cell_group = NULL,
-  preset = NULL,
   cells = NULL,
   regulators = NULL,
   targets = NULL,
@@ -27,9 +26,10 @@ fit_layered_network(
   checkpoint_dir = NULL,
   store = FALSE,
   network_name = "multiCSN",
+  verbose = TRUE,
+  preset = NULL,
   output_dir = NULL,
-  format = c("tsv", "csv", "tsv.gz", "csv.gz"),
-  verbose = TRUE
+  format = c("tsv", "csv", "tsv.gz", "csv.gz")
 )
 }
 \arguments{
