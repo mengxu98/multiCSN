@@ -111,8 +111,17 @@ layered_package_identity <- function(root) {
     list.files(file.path(root, "libs"), full.names = TRUE, recursive = TRUE)
   )), method = "radix")
   paths <- paths[file.exists(paths) & !dir.exists(paths)]
-  hashes <- vapply(paths, digest::digest, character(1), file = TRUE, algo = "sha256")
-  stats::setNames(unname(hashes), substring(paths, nchar(root) + 2L))
+  hashes <- vapply(paths, function(path) {
+    digest::digest(file = path, algo = "sha256")
+  }, character(1), USE.NAMES = FALSE)
+  stats::setNames(hashes, substring(paths, nchar(root) + 2L))
+}
+
+layered_sha256 <- function(x) {
+  digest::digest(
+    serialize(x, NULL, xdr = FALSE, version = 3L),
+    algo = "sha256", serialize = FALSE
+  )
 }
 
 layered_prepare_checkpoint <- function(root, inputs, settings) {
@@ -136,14 +145,14 @@ layered_prepare_checkpoint <- function(root, inputs, settings) {
   package_info <- lapply(c("multiCSN", "inferCSN"), function(pkg) {
     layered_package_identity(system.file(package = pkg))
   })
-  identity <- digest::digest(list(
+  identity <- layered_sha256(list(
     packages = package_info, settings = fitting_settings,
     cells = inputs$cells, features = inputs$features,
     regulators = inputs$regulators, tf_region_names = inputs$tf_region_names,
     gene_by_cell = inputs$gene_by_cell,
     all_peak_by_cell = inputs$all_peak_by_cell,
     peaks2gene = inputs$peaks2gene, peak_tf_gate = inputs$peak_tf_gate
-  ), algo = "sha256")
+  ))
   if (file.exists(manifest)) {
     previous <- tryCatch(readRDS(manifest), error = function(e) NULL)
     if (!is.list(previous) || !identical(previous$sha256, identity)) {
@@ -209,6 +218,25 @@ layered_candidate_functions <- function(gene_by_cell, peaks2gene, peak_tf_gate,
 fit_layered_shared_design <- function(design, response, response_names,
                                       candidate_function, endpoint, settings,
                                       checkpoint_root = NULL, gram = NULL) {
+  if (!length(response_names) || !ncol(design)) {
+    edges <- data.frame(
+      feature = character(), target = character(), standardized_beta = numeric(),
+      deletion_delta_bic = numeric(), stringsAsFactors = FALSE
+    )
+    accounting <- if (length(response_names)) {
+      data.frame(
+        endpoint = endpoint, target = response_names,
+        n_candidates = integer(length(response_names)),
+        n_selected = integer(length(response_names)),
+        rss = rep(NA_real_, length(response_names)),
+        bic = rep(NA_real_, length(response_names)),
+        status = "no_variable_candidate", stringsAsFactors = FALSE
+      )
+    } else {
+      empty_shared_accounting()
+    }
+    return(list(edges = edges, accounting = accounting))
+  }
   n_obs <- nrow(design)
   if (is.null(gram)) gram <- crossprod(design)
   response_stats <- layered_response_statistics(response, n_obs)
@@ -428,6 +456,10 @@ layered_inputs <- function(object, cell_group, cells, regulators, targets,
   if (is.null(peak_assay)) {
     stop("A layered multi-omic fit requires a chromatin accessibility assay.", call. = FALSE)
   }
+  check_layered_assay_layers(
+    object, c(rna_assay, peak_assay),
+    layers = if (isTRUE(renormalize)) c("data", "counts") else "data"
+  )
   catalogue <- if (is.null(cell_group)) {
     NULL
   } else {
@@ -503,13 +535,14 @@ layered_inputs <- function(object, cell_group, cells, regulators, targets,
   domain_peak <- Matrix::colSums(peaks2gene != 0) > 0 &
     observed[colnames(peaks2gene)]
   peaks2gene <- peaks2gene[, domain_peak, drop = FALSE]
+  domain_peak_names <- as.character(colnames(peaks2gene))
   all_peak_by_cell <- peak_by_cell
-  peak_by_cell <- peak_by_cell[colnames(peaks2gene), , drop = FALSE]
+  peak_by_cell <- peak_by_cell[domain_peak_names, , drop = FALSE]
   motif_peak <- Matrix::rowSums(
-    peaks2motif[colnames(peaks2gene), , drop = FALSE] != 0
+    peaks2motif[domain_peak_names, , drop = FALSE] != 0
   ) > 0
   tf_region_names <- if (identical(tf_region_scope, "domain_peaks")) {
-    colnames(peaks2gene)[motif_peak]
+    domain_peak_names[motif_peak]
   } else {
     peaks_requested[observed & Matrix::rowSums(peaks2motif != 0) > 0]
   }
@@ -583,13 +616,13 @@ fit_layered_core <- function(inputs, settings) {
     inputs$peak_by_cell, gene_by_cell, features, inputs$peaks2gene, settings,
     settings$checkpoint_dir
   )
-  tf_gene$edges$weight <- network_ordinal_weight(
+  tf_gene$edges$weight <- inferCSN::deletion_rank_weight(
     sign(tf_gene$edges$standardized_beta), tf_gene$edges$deletion_delta_bic
   )
-  tf_region$edges$weight <- network_ordinal_weight(
+  tf_region$edges$weight <- inferCSN::deletion_rank_weight(
     sign(tf_region$edges$standardized_beta), tf_region$edges$deletion_delta_bic
   )
-  region_gene$edges$weight <- network_ordinal_weight(
+  region_gene$edges$weight <- inferCSN::deletion_rank_weight(
     sign(region_gene$edges$standardized_beta), region_gene$edges$deletion_delta_bic
   )
   thisutils::log_message("Assembling factorized chains", verbose = settings$verbose)
@@ -666,10 +699,21 @@ layered_store <- function(object, fit, network_name, cell_group, settings) {
 #' layers. By default only the selected cells are used and the expression layers
 #' stored in the object are taken as-is.
 #'
+#' A typical workflow is \code{\link{prepare_candidates}()} followed by
+#' \code{fit_layered_network(object, cell_group = "state", output_dir = "out")}.
+#' Two presets cover the common designs: \code{"state"} fits cell states that
+#' share one normalization, and \code{"timepoint"} re-normalizes each group,
+#' requires every target and TF to be detected in 20 cells and drops affine
+#' response aliases. Arguments supplied explicitly override the preset.
+#'
 #' @param object A Seurat object with chromatin accessibility and gene expression
 #'   assays plus the multiCSN state (see \code{\link{initiate_object}}).
 #' @param cell_group Catalogue key (cell type, state or timepoint) used to select
 #'   cells, peaks and target genes.
+#' @param preset Default settings for \code{min_detected},
+#'   \code{tf_region_scope}, \code{exclude_response_alias}, \code{renormalize}
+#'   and \code{sort_regulators}: \code{"state"} or \code{"timepoint"}.
+#'   \code{NULL} keeps the individual defaults.
 #' @param cells Optional character vector of exact cells to fit; when supplied the
 #'   fit uses exactly these cells and validates them against \code{cell_group}.
 #' @param regulators,targets Optional character vectors restricting the
@@ -701,10 +745,29 @@ layered_store <- function(object, fit, network_name, cell_group, settings) {
 #' @param store Store the three layers as \code{Network} entries in the returned
 #'   object.
 #' @param network_name Name of the stored network entries.
+#' @param output_dir Optional directory receiving the endpoint tables (see
+#'   \code{\link{write_network_endpoints}}). The tables are written to a
+#'   temporary sibling directory and published only after the fit completes. Use
+#'   \code{checkpoint_dir} to retain resumable checkpoints. An existing
+#'   \code{output_dir} is never overwritten.
+#' @param format File format of \code{output_dir}.
 #' @param verbose Print progress messages.
 #' @return A list with \code{tf_gene}, \code{tf_region}, \code{region_gene},
 #'   \code{triplets}, \code{mediated_tf_gene}, \code{accounting}, \code{summary},
 #'   \code{settings}, \code{cells} and, when \code{store = TRUE}, \code{object}.
+#'   With \code{output_dir} the list is returned invisibly and also holds the
+#'   written \code{paths}.
+#' @examples
+#' \dontrun{
+#' object <- prepare_candidates(object, group.by = "cell_type", genome = genome)
+#' fit <- fit_layered_network(
+#'   object,
+#'   cell_group = "Erythroblast",
+#'   preset = "state",
+#'   output_dir = "networks/erythroblast"
+#' )
+#' networks <- read_network_endpoints("networks/erythroblast")
+#' }
 #' @export
 fit_layered_network <- function(object,
                                 cell_group = NULL,
@@ -727,7 +790,18 @@ fit_layered_network <- function(object,
                                 checkpoint_dir = NULL,
                                 store = FALSE,
                                 network_name = "multiCSN",
-                                verbose = TRUE) {
+                                verbose = TRUE,
+                                preset = NULL,
+                                output_dir = NULL,
+                                format = c("tsv", "csv", "tsv.gz", "csv.gz")) {
+  format <- match.arg(format)
+  if (!is.null(preset)) {
+    supplied <- names(match.call())[-1L]
+    defaults <- layered_preset(preset)
+    for (name in setdiff(names(defaults), supplied)) {
+      assign(name, defaults[[name]])
+    }
+  }
   tf_region_scope <- match.arg(tf_region_scope)
   min_detected <- as.integer(min_detected)
   min_peak_cells <- as.integer(min_peak_cells)
@@ -760,6 +834,12 @@ fit_layered_network <- function(object,
     sort_regulators = isTRUE(sort_regulators), cores = cores,
     checkpoint_dir = checkpoint_dir, verbose = isTRUE(verbose)
   )
+  if (!is.null(output_dir)) {
+    output_dir <- normalizePath(output_dir, mustWork = FALSE)
+    if (file.exists(output_dir)) {
+      stop("Output exists and will not be overwritten: ", output_dir, call. = FALSE)
+    }
+  }
   inputs <- layered_inputs(
     object = object, cell_group = cell_group, cells = cells,
     regulators = regulators, targets = targets, min_peak_cells = min_peak_cells,
@@ -780,5 +860,34 @@ fit_layered_network <- function(object,
       inputs$object, fit, network_name, cell_group, settings
     )
   }
+  if (!is.null(output_dir)) {
+    dir.create(dirname(output_dir), recursive = TRUE, showWarnings = FALSE)
+    tables <- tempfile(".network-tables-", tmpdir = dirname(output_dir))
+    if (!dir.create(tables)) stop("Could not create a staging directory for ", output_dir, call. = FALSE)
+    on.exit(unlink(tables, recursive = TRUE), add = TRUE)
+    write_network_endpoints(result, tables, format = format)
+    if (file.exists(output_dir) || !file.rename(tables, output_dir)) {
+      stop("Could not publish the network tables to ", output_dir, call. = FALSE)
+    }
+    result$paths <- file.path(output_dir, basename(
+      network_endpoint_files(format, accounting = TRUE)
+    ))
+    thisutils::log_message("Network tables written to ", output_dir, verbose = verbose)
+    return(invisible(result))
+  }
   result
+}
+
+layered_preset <- function(preset) {
+  preset <- match.arg(preset, c("state", "timepoint"))
+  switch(preset,
+    state = list(
+      min_detected = 0L, tf_region_scope = "domain_peaks",
+      exclude_response_alias = FALSE, renormalize = FALSE, sort_regulators = TRUE
+    ),
+    timepoint = list(
+      min_detected = 20L, tf_region_scope = "motif_peaks",
+      exclude_response_alias = TRUE, renormalize = TRUE, sort_regulators = FALSE
+    )
+  )
 }

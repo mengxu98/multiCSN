@@ -1,6 +1,7 @@
 #' @include setClass.R
 #' @include inferCSN.R
 
+#' @param seed Stored on \code{Network} objects for provenance.
 #' @rdname inferCSN
 #' @method inferCSN Network
 #' @export
@@ -15,12 +16,9 @@ setMethod(
   f = inferCSN,
   signature = signature(object = "Network"),
   definition = function(object,
-                        pseudotime = NULL,
                         regulators = NULL,
                         targets = NULL,
                         max_support_size = NULL,
-                        lag_fraction = 0.05,
-                        lag_steps = NULL,
                         cores = 1,
                         verbose = TRUE,
                         seed = 1,
@@ -65,7 +63,7 @@ setMethod(
       max_support_size = max_support_size,
       ...
     )
-    model_fits <- model_fits[!purrr::map_lgl(model_fits, is.null)]
+    model_fits <- model_fits[!map_lgl_list(model_fits, is.null)]
     if (length(model_fits) == 0) {
       thisutils::log_message(
         "fitting model failed for all genes.",
@@ -74,7 +72,7 @@ setMethod(
       )
     }
 
-    coefficients <- purrr::map_dfr(
+    coefficients <- map_dfr_list(
       model_fits,
       function(x) x$coefficients,
       .id = "target"
@@ -84,7 +82,7 @@ setMethod(
       variable = NULL,
       adjust_method = "fdr"
     )
-    corrs <- purrr::map_dfr(
+    corrs <- map_dfr_list(
       model_fits,
       function(x) x$corr,
       .id = "target"
@@ -94,7 +92,7 @@ setMethod(
         dplyr::left_join(coefficients, corrs)
       )
     }
-    object@metrics <- purrr::map_dfr(
+    object@metrics <- map_dfr_list(
       model_fits,
       function(x) x$metrics,
       .id = "target"
@@ -122,42 +120,30 @@ setMethod(
 )
 
 #' @param celltypes Character vector of cell types to infer networks for.
-#' @param network_name network_name.
-#' @param peak_to_gene_method Character specifying the method to
-#' link peak overlapping motif regions to nearby genes. One of \code{Signac} or \code{GREAT}.
-#' @param upstream Integer defining the distance upstream of the gene to consider as potential regulatory region.
-#' @param downstream Integer defining the distance downstream of the gene to consider as potential regulatory region.
-#' @param extend Integer defining the distance from the upstream and downstream of the basal regulatory region.
-#' Only used of `peak_to_gene_method = 'GREAT'`.
-#' @param only_tss Logical. Measure distance from the TSS (\code{TRUE}) or from the entire gene body (\code{FALSE}).
+#' @param r_squared_threshold Threshold of \eqn{R^2} used when formatting \code{Network} / \code{Seurat} results.
+#' @param network_name Name of the stored network.
+#' @param peak_to_gene_method Method to link peaks to genes. One of \code{Signac} or \code{GREAT}.
+#' @param upstream Distance upstream of the gene to consider as a potential regulatory region.
+#' @param downstream Distance downstream of the gene to consider as a potential regulatory region.
+#' @param extend Distance added to the basal regulatory region when \code{peak_to_gene_method = "GREAT"}.
+#' @param only_tss Measure distance from the TSS (\code{TRUE}) or from the gene body (\code{FALSE}).
 #' @param peak_to_gene_domains \code{GenomicRanges} object with regulatory regions for each gene.
-#' @param gene_cor_threshold Threshold for TF - target gene correlation.
-#' @param peak_cor_threshold Threshold for binding peak - target gene correlation.
-#' @param aggregate_rna_col aggregate_rna_col
-#' @param aggregate_peaks_col aggregate_peaks_col
+#' @param gene_cor_threshold Threshold for TF-target gene correlation.
+#' @param peak_cor_threshold Threshold for binding peak-target gene correlation.
+#' @param aggregate_rna_col Metadata column used to aggregate RNA.
+#' @param aggregate_peaks_col Metadata column used to aggregate peaks.
 #' @param method For matrix input, \code{"greedy_l0"} (default) or the optional
 #'   L0Learn penalties \code{"L0"}, \code{"L0L1"}, and \code{"L0L2"}.
 #'   The \code{Network} and \code{Seurat} methods support only \code{"greedy_l0"}.
-#' @param interaction_term The interaction variable to use in the model between TF and binding site.
-#' * \code{'+'} for additive interaction.
-#' * \code{':'} for 'multiplicative' interaction.
-#' * \code{'*'} for crossing interaction, i.e. additive AND 'multiplicative'.
-#' For more info, see \code{\link[stats]{formula}}
-#' @param scale Logical. Whether to z-transform the expression and accessibility matrices.
+#' @param interaction_term Interaction between TF and binding site: \code{"+"}, \code{":"}, or \code{"*"}.
+#' @param scale Whether to z-transform expression and accessibility matrices.
 #' @param adjust_method Method for adjusting p-values.
-#' @param pseudotime_column Character. Column name in metadata for pseudotime. If provided, runs state dynamic network inference.
-#' @param dynamic_features List or NULL. When \code{pseudotime_column} is set, pre-filter genes by dynamic expression to speed up inference.
-#'   \code{NULL}: use all genes. List with optional elements:
-#'   \itemize{
-#'     \item \code{n_candidates}: maximum number of significant dynamic genes (default NULL, no cap).
-#'     \item \code{padjust_threshold}: adjusted P-value threshold for dynamic genes (default 0.05).
-#'     \item \code{fit_method}: dynamic feature fitting method, one of \code{"gam"} or \code{"pretsa"} (default \code{"pretsa"}).
-#'     \item Compatible cached results are reused; otherwise candidates are computed
-#'           by \code{inferCSN::select_trend_features()}.
-#'   }
-#'   Dynamic features are always computed with the same \code{cores} argument passed to \code{inferCSN}.
-#'
-#' @return A Seurat object carrying CSNObject state.
+#' @param pseudotime_column Metadata column for pseudotime. If set, runs state-dynamic inference.
+#' @param dynamic_features Optional dynamic-gene filter when \code{pseudotime_column} is set.
+#'   A list with \code{fit_method} (\code{"pretsa"} by default or \code{"gam"}),
+#'   \code{padjust_threshold} (default 0.05), and optional \code{n_candidates}
+#'   (default NULL, no cap). Compatible cached statistics are reused; otherwise
+#'   \code{inferCSN::select_trend_features()} computes the candidates.
 #'
 #' @rdname inferCSN
 #' @method inferCSN Seurat
@@ -170,11 +156,8 @@ setMethod(
                         regulators = NULL,
                         targets = NULL,
                         max_support_size = NULL,
-                        lag_fraction = 0.05,
-                        lag_steps = NULL,
                         cores = 1,
                         verbose = TRUE,
-                        seed = 1,
                         r_squared_threshold = 0,
                         celltypes = NULL,
                         network_name = paste0(method, "_network"),
@@ -320,16 +303,7 @@ setMethod(
 setMethod(
   f = inferCSN,
   signature = signature(object = "CSNObject"),
-  definition = function(object,
-                        pseudotime = NULL,
-                        regulators = NULL,
-                        targets = NULL,
-                        max_support_size = NULL,
-                        lag_fraction = 0.05,
-                        lag_steps = NULL,
-                        cores = 1,
-                        verbose = TRUE,
-                        ...) {
+  definition = function(object, ...) {
     stop_csnobject_runtime()
   }
 )

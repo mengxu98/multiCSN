@@ -1,8 +1,4 @@
 test_that("deletion evidence determines ordinal weights and chain projections", {
-  expect_equal(
-    network_ordinal_weight(c(1, -2, 0, NA, 1), c(5, 5, 100, 1, 0)),
-    c(0.75, -0.75, 0, 0, 0.25)
-  )
   tr <- data.frame(
     regulator = c("A", "A", "B"), region = c("r1", "r2", "r1"),
     standardized_beta = c(1, -1, 1), deletion_delta_bic = c(6, 6, 4)

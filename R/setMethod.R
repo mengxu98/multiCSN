@@ -712,7 +712,7 @@ setMethod(
 setMethod(
   f = "metrics",
   signature = "Network",
-  definition = function(object, celltypes = NULL, ...) {
+  definition = function(object, ...) {
     return(object@metrics)
   }
 )
@@ -1079,7 +1079,7 @@ setMethod(
         export_csn(x, weight_cutoff = weight_cutoff)
       }
     ) |>
-      purrr::set_names(celltypes)
+      stats::setNames(celltypes)
 
     if (length(celltypes) == 1) {
       return(res[[1]])
@@ -1109,7 +1109,7 @@ setMethod(
         export_csn(x, weight_cutoff = weight_cutoff)
       }
     ) |>
-      purrr::set_names(celltypes)
+      stats::setNames(celltypes)
 
     if (length(celltypes) == 1) {
       return(res[[1]])

@@ -23,7 +23,6 @@ get_pseudotime(object, ...)
 
 \method{get_pseudotime}{Seurat}(
   object,
-  assay = "RNA",
   layer = "data",
   cluster_column = "cluster",
   reduction = "umap",
@@ -52,8 +51,6 @@ get_pseudotime(object, ...)
 \item{end_cluster}{The end cluster.}
 
 \item{verbose}{Logical indicating whether to print progress messages. Default is TRUE.}
-
-\item{assay}{The assay used for slingshot.}
 
 \item{layer}{The layer used for slingshot.}
 

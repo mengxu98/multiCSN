@@ -545,7 +545,6 @@ compute_frobenius_distance <- function(
 #' @param netlist1 list of grnDFs
 #' @param netlist2 list of grnDFs
 #' @param n_regs the number of top regulators to compare from each network
-#' @param method method to find top regulators. Currently only supports "pagerank"
 #' @param compare_within_netlist1 whether or not to do pairwise comparisons between networks in netlist1
 #' @param compare_within_netlist2 whether or not to do pairwise comparisons between networks in netlist2
 #'
@@ -557,7 +556,6 @@ compute_JI_topregs <- function(
   netlist1,
   netlist2,
   n_regs = 15,
-  method = "pagerank",
   compare_within_netlist1 = TRUE,
   compare_within_netlist2 = TRUE
 ) {
@@ -658,133 +656,6 @@ compute_JI_topregs <- function(
 }
 
 
-#' Computes Jaccard similarity between top regulators in two sets of networks across a range of top X regulators
-#'
-#' @param netlist1 list of grnDFs
-#' @param netlist2 list of grnDFs
-#' @param n_regs a vector indicating which values of top regulators to scan across
-#' @param func func
-#' @param method method to find top regulators. Currently only supports "pagerank"
-#' @param weight_column column name in grnDFs containing edge weights
-#' @param compare_within_netlist1 whether or not to do pairwise comparisons between networks in netlist1
-#' @param compare_within_netlist2 whether or not to do pairwise comparisons between networks in netlist2
-#'
-#' @return dataframe of Jaccard similarities of top regulators
-#'
-#' @export
-JI_across_topregs <- function(
-  netlist1,
-  netlist2,
-  n_regs = 3:15,
-  func = "mean",
-  method = "pagerank",
-  weight_column = "zscore",
-  compare_within_netlist1 = TRUE,
-  compare_within_netlist2 = TRUE
-) {
-  if (func == "mean") {
-    res <- data.frame(
-      group = character(),
-      jaccard = numeric(),
-      n_regs = numeric()
-    )
-    for (i in n_regs) {
-      ji <- compute_JI_topregs(
-        netlist1,
-        netlist2,
-        n_regs = i,
-        method = method,
-        compare_within_netlist1 = compare_within_netlist1,
-        compare_within_netlist2 = compare_within_netlist2
-      )
-      ji <- ji[, c("group", "jaccard")]
-      ji <- aggregate(. ~ group, ji, mean)
-      ji$n_regs <- i
-
-      res <- rbind(res, ji)
-    }
-  }
-  res
-}
-
-
-compute_betweenness <- function(
-  grnDF,
-  tfs = NULL,
-  normalized = TRUE
-) {
-  if (is.null(tfs)) {
-    tfs <- unique(grnDF$regulator)
-  }
-
-  grnDF <- grnDF[, c("regulator", "target", "weight")]
-  g <- igraph::graph_from_data_frame(grnDF, directed = FALSE)
-
-  betweenness <- igraph::betweenness(
-    g,
-    tfs,
-    directed = FALSE,
-    normalized = normalized
-  )
-
-  betweenness
-}
-
-
-#' Computes betweenness and degree of each regulator for each network in a list of networks
-#'
-#' @param netlist netlist
-#' @param weight_column column name in grnDFs containing edge weights
-#' @param normalized whether or not to normalize degree and betweenness
-#'
-#' @return dataframe listing network, betweenness of each regulator, degree of each regulator
-#'
-#' @export
-biglist_compute_betweenness_degree <- function(
-  netlist,
-  weight_column = "zscore",
-  normalized = TRUE
-) {
-  res <- data.frame(
-    betweenness = numeric(),
-    degree = numeric(),
-    network = character(),
-    regulator = character()
-  )
-
-  if (is.null(names(netlist))) {
-    names(netlist) <- seq(1:length(netlist))
-  }
-
-  for (name in names(netlist)) {
-    net <- netlist[[name]]
-    g <- igraph::graph_from_data_frame(
-      net[, c("regulator", "target")],
-      directed = FALSE
-    )
-    betweenness <- compute_betweenness(
-      net,
-      normalized = normalized
-    )
-    degree <- degree(
-      g,
-      unique(net$regulator),
-      mode = "all",
-      normalized = normalized
-    )
-
-    df <- cbind(betweenness, degree = degree[names(betweenness)])
-    df <- as.data.frame(df)
-    df$network <- name
-    df$regulator <- rownames(df)
-
-    res <- rbind(res, df)
-  }
-
-  res
-}
-
-
 #' Plot the dynamic differential network
 #'
 #' @param grn the dynamic network
@@ -802,6 +673,7 @@ plot_dyn_diffnet <- function(
   only_TFs = TRUE,
   order = NULL
 ) {
+  check_r(c("ggnetwork"), strict = TRUE, verbose = FALSE)
   g <- list()
 
   if (!is.null(order)) {
@@ -830,7 +702,7 @@ plot_dyn_diffnet <- function(
 
     cols <- c("activation" = "blue", "repression" = "red")
     g[[i]] <- ggplot() +
-      geom_edges(
+      ggnetwork::geom_edges(
         data = tfnet,
         aes(x = x, y = y, xend = xend, yend = yend, color = interaction),
         size = 0.75,
@@ -838,27 +710,27 @@ plot_dyn_diffnet <- function(
         alpha = .6
       ) +
       scale_color_manual(values = cols) +
-      geom_nodes(
+      ggnetwork::geom_nodes(
         data = tfnet,
         aes(x = x, y = y, xend = xend, yend = yend),
         color = "darkgray",
         size = 6,
         alpha = .5
       ) +
-      geom_nodes(
+      ggnetwork::geom_nodes(
         data = tfnet[tfnet$is_regulator == "TRUE", ],
         aes(x = x, y = y, xend = xend, yend = yend),
         color = "#8C4985",
         size = 6,
         alpha = .8
       ) +
-      geom_nodelabel_repel(
+      ggnetwork::geom_nodelabel_repel(
         data = tfnet,
         aes(x = x, y = y, label = name),
         size = 2.5,
         color = "#5A8BAD"
       ) +
-      theme_blank() +
+      ggnetwork::theme_blank() +
       ggtitle(names(grn)[i])
 
     g[[i]] <- g[[i]] + theme(legend.position = "none")
@@ -886,6 +758,7 @@ plot_diffnet_detail <- function(
   order = NULL,
   compute_betweenness = TRUE
 ) {
+  check_r(c("ggnetwork"), strict = TRUE, verbose = FALSE)
   g <- list()
 
   if (!is.null(order)) {
@@ -930,7 +803,7 @@ plot_diffnet_detail <- function(
     layout <- igraph::layout_with_fr(net)
     rownames(layout) <- igraph::V(net)$name
     layout_ordered <- layout[igraph::V(net)$name, ]
-    tfnet <- ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
+    tfnet <- ggnetwork::ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
     tfnet$is_regulator <- as.character(tfnet$name %in% tfs)
     if (compute_betweenness) {
       tfnet$betweenness <- vtx_features$betweenness[match(tfnet$name, vtx_features$gene)]
@@ -949,21 +822,21 @@ plot_diffnet_detail <- function(
 
     if (compute_betweenness) {
       g[[i]] <- ggplot() +
-        geom_edges(data = tfnet, aes(x = x, y = y, xend = xend, yend = yend, color = interaction), size = 0.75, curvature = 0.1, alpha = .6) +
+        ggnetwork::geom_edges(data = tfnet, aes(x = x, y = y, xend = xend, yend = yend, color = interaction), size = 0.75, curvature = 0.1, alpha = .6) +
         scale_color_manual(values = cols) +
-        geom_nodes(data = tfnet, aes(x = x, y = y, xend = xend, yend = yend), color = "darkgray", size = 6, alpha = .5) +
-        geom_nodes(data = tfnet[tfnet$is_regulator == "TRUE", ], aes(x = x, y = y, xend = xend, yend = yend, color = communities, alpha = betweenness + .5), size = 6) +
-        geom_nodelabel_repel(data = tfnet, aes(x = x, y = y, label = name), size = 2.5, color = "#5A8BAD") +
-        theme_blank() +
+        ggnetwork::geom_nodes(data = tfnet, aes(x = x, y = y, xend = xend, yend = yend), color = "darkgray", size = 6, alpha = .5) +
+        ggnetwork::geom_nodes(data = tfnet[tfnet$is_regulator == "TRUE", ], aes(x = x, y = y, xend = xend, yend = yend, color = communities, alpha = betweenness + .5), size = 6) +
+        ggnetwork::geom_nodelabel_repel(data = tfnet, aes(x = x, y = y, label = name), size = 2.5, color = "#5A8BAD") +
+        ggnetwork::theme_blank() +
         ggtitle(names(grn)[i])
     } else {
       g[[i]] <- ggplot() +
-        geom_edges(data = tfnet, aes(x = x, y = y, xend = xend, yend = yend, color = interaction), size = 0.75, curvature = 0.1, alpha = .6) +
+        ggnetwork::geom_edges(data = tfnet, aes(x = x, y = y, xend = xend, yend = yend, color = interaction), size = 0.75, curvature = 0.1, alpha = .6) +
         scale_color_manual(values = cols) +
-        geom_nodes(data = tfnet, aes(x = x, y = y, xend = xend, yend = yend), color = "darkgray", size = 6, alpha = .5) +
-        geom_nodes(data = tfnet[tfnet$is_regulator == "TRUE", ], aes(x = x, y = y, xend = xend, yend = yend, color = communities), alpha = .5, size = 6) +
-        geom_nodelabel_repel(data = tfnet, aes(x = x, y = y, label = name), size = 2.5, color = "#5A8BAD") +
-        theme_blank() +
+        ggnetwork::geom_nodes(data = tfnet, aes(x = x, y = y, xend = xend, yend = yend), color = "darkgray", size = 6, alpha = .5) +
+        ggnetwork::geom_nodes(data = tfnet[tfnet$is_regulator == "TRUE", ], aes(x = x, y = y, xend = xend, yend = yend, color = communities), alpha = .5, size = 6) +
+        ggnetwork::geom_nodelabel_repel(data = tfnet, aes(x = x, y = y, label = name), size = 2.5, color = "#5A8BAD") +
+        ggnetwork::theme_blank() +
         ggtitle(names(grn)[i])
     }
 

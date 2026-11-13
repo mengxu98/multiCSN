@@ -10,7 +10,6 @@ plot_state_rewiring(
   type = c("rewiring", "networks", "regulators", "targets"),
   plot_type = c("heatmap", "venn", "upset"),
   weight.by = "weight",
-  group.by = NULL,
   palette = "Chinese",
   palcolor = NULL
 )
@@ -29,8 +28,6 @@ or target-gene sets.}
 \code{"upset"} are supported for similarity plots.}
 
 \item{weight.by}{Weight column used when exporting networks.}
-
-\item{group.by}{Reserved for future grouping support in similarity plots.}
 
 \item{palette}{Palette name passed to
 \code{thisplot::palette_colors()} via \code{multicsn_palette_colors()}.}

@@ -3,15 +3,13 @@
 #' @param networks_list result of dynamic network reconstruction
 #' @param regulators list of regulators
 #' @param targets list of targets
-#' @param directed if network is directed or not
 #'
 #' @return list of each network, ranked by `page_rank`
 #' @export
 compute_pagerank <- function(
   networks_list,
   regulators = NULL,
-  targets = NULL,
-  directed = FALSE
+  targets = NULL
 ) {
   ranked_networks <- sapply(
     names(networks_list), function(x) NULL
@@ -30,6 +28,7 @@ compute_pagerank <- function(
 #' Function to compute betweenness and degree
 #'
 #' @inheritParams compute_pagerank
+#' @param directed if network is directed or not
 #'
 #' @return list of each network, ranked by `betweenness*degree`
 #' @export

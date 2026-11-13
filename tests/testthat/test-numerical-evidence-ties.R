@@ -1,12 +1,12 @@
 test_that("roundoff-scale evidence ties are grouped without chaining", {
-  expect_equal(network_ordinal_weight(c(1, -1, 1), c(354, 354 + 1e-11, 10)),
+  expect_equal(signed_ordinal_from_evidence(c(1, -1, 1), c(354, 354 + 1e-11, 10)),
     c(.75, -.75, .25),
     tolerance = 0
   )
 
   e <- c(1, 1 - 1.5e-12, 1 - 3e-12)
-  expect_equal(network_ordinal_weight(rep(1, 3), e), c(.75, .75, .25), tolerance = 0)
-  expect_equal(network_ordinal_weight(c(1, 1), c(1, 1 + 1e-8)), c(.25, .75))
+  expect_equal(signed_ordinal_from_evidence(rep(1, 3), e), c(.75, .75, .25), tolerance = 0)
+  expect_equal(signed_ordinal_from_evidence(c(1, 1), c(1, 1 + 1e-8)), c(.25, .75))
 })
 
 test_that("numerically tied strongest paths cannot invent a confident sign", {

@@ -75,8 +75,7 @@ compare_state_similarity <- function(
   object,
   network = DefaultNetwork(object),
   type = c("networks", "regulators", "targets"),
-  state_ids = NULL,
-  weight_column = "weight"
+  state_ids = NULL
 ) {
   type <- match.arg(type)
   state_tbl <- summarize_networks(object, network = network)
@@ -432,7 +431,7 @@ extract_tf_target_table <- function(
     return(data.frame())
   }
 
-  out <- purrr::imap_dfr(nets, function(df, sid) {
+  out <- imap_dfr_list(nets, function(df, sid) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -609,7 +608,7 @@ prioritize_regulators_integrated <- function(
   motif_mat <- motif_mat[genes, state_ids, drop = FALSE]
 
   rewiring <- compare_state_rewiring(object, network = network)
-  rew_tbl <- purrr::imap_dfr(rewiring$tf_rewiring, function(df, nm) {
+  rew_tbl <- imap_dfr_list(rewiring$tf_rewiring, function(df, nm) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -837,7 +836,7 @@ prioritize_targets_integrated <- function(
     network = network,
     inferable_only = TRUE
   )
-  edge_tbl <- purrr::imap_dfr(nets_all, function(df, sid) {
+  edge_tbl <- imap_dfr_list(nets_all, function(df, sid) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -1098,6 +1097,7 @@ select_key_targets <- function(
 #' @return A patchwork/ggplot object.
 #' @export
 plot_key_tf_multiome <- function(tf_scores, top_n = 12) {
+  check_r(c("ComplexHeatmap", "circlize", "patchwork", "thisplot"), strict = TRUE, verbose = FALSE)
   if (is.null(tf_scores) || nrow(tf_scores) == 0) {
     stop("plot_key_tf_multiome: tf_scores is empty.", call. = FALSE)
   }
@@ -1172,6 +1172,7 @@ plot_key_tf_multiome <- function(tf_scores, top_n = 12) {
 #' @return A \code{ggplot} object.
 #' @export
 plot_key_target_multiome <- function(target_scores, top_n = 10) {
+  check_r(c("thisplot"), strict = TRUE, verbose = FALSE)
   if (is.null(target_scores) || nrow(target_scores) == 0) {
     stop("plot_key_target_multiome: target_scores is empty.", call. = FALSE)
   }
@@ -1408,7 +1409,7 @@ get_state_regulator_target_counts <- function(
     return(data.frame())
   }
 
-  out <- purrr::imap_dfr(nets, function(df, sid) {
+  out <- imap_dfr_list(nets, function(df, sid) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -1744,7 +1745,7 @@ build_gene_peak_map <- function(
   if (length(gene_annot) == 0) {
     return(NULL)
   }
-  peak_ranges <- Signac::StringToGRanges(rownames(csn_get_assay(
+  peak_ranges <- string_to_ranges(rownames(csn_get_assay(
     object,
     peak_assay
   )))
@@ -2418,7 +2419,7 @@ compare_celltype_rewiring <- function(
 
       tfs <- sort(unique(c(a$regulator, b$regulator)))
       shared_targets_global <- intersect(unique(a$target), unique(b$target))
-      tf_df <- purrr::map_dfr(tfs, function(tf) {
+      tf_df <- map_dfr_list(tfs, function(tf) {
         a_tf <- a[a$regulator == tf, c("target", weight_column), drop = FALSE]
         b_tf <- b[b$regulator == tf, c("target", weight_column), drop = FALSE]
         a_tf$target <- as.character(a_tf$target)
@@ -2534,6 +2535,7 @@ plot_celltype_specificity_heatmap <- function(
   metric = c("rewiring_score", "regulon_jaccard"),
   weight_column = "weight"
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "patchwork", "thisplot"), strict = TRUE, verbose = FALSE)
   metric <- match.arg(metric)
   rewiring <- compare_celltype_rewiring(
     object,
@@ -2542,7 +2544,7 @@ plot_celltype_specificity_heatmap <- function(
     weight_column = weight_column
   )
 
-  tf_tbl <- purrr::imap_dfr(rewiring$tf_rewiring, function(df, nm) {
+  tf_tbl <- imap_dfr_list(rewiring$tf_rewiring, function(df, nm) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -2621,7 +2623,7 @@ summarize_transition_analysis <- function(
     state_pairs = state_pairs,
     weight_column = weight_column
   )
-  tf_tbl <- purrr::imap_dfr(rewiring$tf_rewiring, function(df, nm) {
+  tf_tbl <- imap_dfr_list(rewiring$tf_rewiring, function(df, nm) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -2638,7 +2640,7 @@ summarize_transition_analysis <- function(
     network = network,
     inferable_only = FALSE
   )
-  target_tbl <- purrr::imap_dfr(rewiring$tf_rewiring, function(df, nm) {
+  target_tbl <- imap_dfr_list(rewiring$tf_rewiring, function(df, nm) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -2665,7 +2667,7 @@ summarize_transition_analysis <- function(
     }
     tf_keep <- df$regulator[seq_len(min(top_tfs, nrow(df)))]
 
-    gain_loss_tbl <- purrr::map_dfr(tf_keep, function(tf) {
+    gain_loss_tbl <- map_dfr_list(tf_keep, function(tf) {
       from_tbl <- net_from[
         net_from$regulator == tf,
         c("target", weight_column),
@@ -2718,8 +2720,7 @@ summarize_transition_analysis <- function(
 
 summarize_states_base <- function(
   object,
-  pseudotime_column = NULL,
-  network = NULL
+  pseudotime_column = NULL
 ) {
   if (!methods::is(object, "Seurat")) {
     stop("summarize_states: object must be a Seurat object.", call. = FALSE)
@@ -2730,11 +2731,7 @@ summarize_states_base <- function(
     pseudotime_column,
     recompute = FALSE
   )
-  windows <- state_windows_from_result(
-    object,
-    density_result,
-    pseudotime_column
-  )
+  windows <- density_result$windows
   metrics <- density_result$metrics
   windows$n_cells <- metrics$n_cells[match(windows$state_id, metrics$state_id)]
   windows$support_score <- metrics$support_score[match(
@@ -2774,8 +2771,7 @@ summarize_networks <- function(
 
   states <- summarize_states_base(
     object,
-    pseudotime_column = pseudotime_column,
-    network = network
+    pseudotime_column = pseudotime_column
   )
   if (!is.null(celltypes)) {
     states <- states[states$state_id %in% celltypes, , drop = FALSE]
@@ -2864,7 +2860,7 @@ rank_features <- function(
       return(data.frame())
     }
 
-    out <- purrr::imap_dfr(ranks, function(rank_obj, sid) {
+    out <- imap_dfr_list(ranks, function(rank_obj, sid) {
       if (is.null(rank_obj) || is.null(rank_obj$df)) {
         return(NULL)
       }
@@ -2914,7 +2910,7 @@ rank_features <- function(
       return(data.frame())
     }
 
-    out <- purrr::imap_dfr(nets, function(df, sid) {
+    out <- imap_dfr_list(nets, function(df, sid) {
       if (is.null(df) || nrow(df) == 0) {
         return(NULL)
       }
@@ -2981,7 +2977,7 @@ rank_features <- function(
       return(data.frame())
     }
 
-    edge_tbl <- purrr::imap_dfr(nets, function(df, celltype_id) {
+    edge_tbl <- imap_dfr_list(nets, function(df, celltype_id) {
       if (is.null(df) || nrow(df) == 0) {
         return(NULL)
       }
@@ -3003,7 +2999,7 @@ rank_features <- function(
       return(data.frame())
     }
 
-    out <- purrr::imap_dfr(ranks, function(rank_obj, celltype_id) {
+    out <- imap_dfr_list(ranks, function(rank_obj, celltype_id) {
       if (is.null(rank_obj) || is.null(rank_obj$df)) {
         return(NULL)
       }
@@ -3160,7 +3156,7 @@ rank_features <- function(
       character(0)
     }
 
-    out <- purrr::imap_dfr(nets, function(df, celltype_id) {
+    out <- imap_dfr_list(nets, function(df, celltype_id) {
       if (is.null(df) || nrow(df) == 0) {
         return(NULL)
       }
@@ -3346,7 +3342,7 @@ compare_state_rewiring <- function(
   }
 
   tf_tables <- list()
-  pair_summary <- purrr::pmap_dfr(state_pairs, function(state_from, state_to) {
+  pair_summary <- pmap_dfr_list(state_pairs, function(state_from, state_to) {
     a <- nets[[state_from]]
     b <- nets[[state_to]]
     if (is.null(a) || is.null(b) || nrow(a) == 0 || nrow(b) == 0) {
@@ -3370,7 +3366,7 @@ compare_state_rewiring <- function(
 
     tfs <- sort(unique(c(a$regulator, b$regulator)))
     shared_targets_global <- intersect(unique(a$target), unique(b$target))
-    tf_df <- purrr::map_dfr(tfs, function(tf) {
+    tf_df <- map_dfr_list(tfs, function(tf) {
       a_tf <- a[a$regulator == tf, c("target", weight_column), drop = FALSE]
       b_tf <- b[b$regulator == tf, c("target", weight_column), drop = FALSE]
       a_tf$target <- as.character(a_tf$target)
@@ -3470,6 +3466,7 @@ plot_network_summary <- function(
   metrics = c("n_cells", "n_edges", "n_regulators", "n_targets"),
   weight_cutoff = NULL
 ) {
+  check_r(c("thisplot"), strict = TRUE, verbose = FALSE)
   tbl <- summarize_networks(
     object,
     network = network,
@@ -3553,6 +3550,7 @@ plot_features <- function(
   cluster_columns = FALSE,
   return_grob = FALSE
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "patchwork", "rlang", "thisplot"), strict = TRUE, verbose = FALSE)
   type <- match.arg(type)
   method <- match.arg(method)
   view <- match.arg(view)
@@ -3862,7 +3860,6 @@ plot_features <- function(
 #' @param plot_type Plot form. Default is \code{"heatmap"}; \code{"venn"} and
 #'   \code{"upset"} are supported for similarity plots.
 #' @param weight.by Weight column used when exporting networks.
-#' @param group.by Reserved for future grouping support in similarity plots.
 #' @param palette Palette name passed to
 #'   \code{thisplot::palette_colors()} via \code{multicsn_palette_colors()}.
 #' @param palcolor Optional named color vector overriding state/group colors.
@@ -3875,10 +3872,10 @@ plot_rewiring <- function(
   type = c("rewiring", "networks", "regulators", "targets"),
   plot_type = c("heatmap", "venn", "upset"),
   weight.by = "weight",
-  group.by = NULL,
   palette = "Chinese",
   palcolor = NULL
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "thisplot"), strict = TRUE, verbose = FALSE)
   type <- match.arg(type)
   plot_type <- match.arg(plot_type)
   metric <- "rewiring_score"
@@ -3888,8 +3885,7 @@ plot_rewiring <- function(
     sim <- compare_state_similarity(
       object,
       network = network,
-      type = type,
-      weight_column = weight.by
+      type = type
     )
     sim_mat <- sim$similarity
     state_tbl <- sim$state_table
@@ -4115,7 +4111,7 @@ plot_rewiring <- function(
     weight_column = weight.by
   )
 
-  tf_tbl <- purrr::imap_dfr(rewiring$tf_rewiring, function(df, nm) {
+  tf_tbl <- imap_dfr_list(rewiring$tf_rewiring, function(df, nm) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -4358,6 +4354,7 @@ plot_tf_case_study <- function(
   top_targets = 15,
   ranked_features = NULL
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "patchwork", "rlang", "thisplot"), strict = TRUE, verbose = FALSE)
   if (!methods::is(object, "Seurat")) {
     stop("plot_tf_case_study: object must be a Seurat object.", call. = FALSE)
   }
@@ -4459,7 +4456,7 @@ plot_tf_case_study <- function(
     network = network,
     weight_column = weight_column
   )
-  rew_df <- purrr::imap_dfr(rew$tf_rewiring, function(df, nm) {
+  rew_df <- imap_dfr_list(rew$tf_rewiring, function(df, nm) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -4583,6 +4580,7 @@ plot_state_overview_figure <- function(
   top_tfs_bar = 8,
   palette = NULL
 ) {
+  check_r(c("ggraph", "patchwork", "thisplot", "tidygraph"), strict = TRUE, verbose = FALSE)
   if (!methods::is(object, "Seurat")) {
     stop(
       "plot_state_overview_figure: object must be a Seurat object.",
@@ -4807,7 +4805,7 @@ build_rewiring_heatmap_plot <- function(
     state_pairs = state_pairs,
     weight_column = weight_column
   )
-  tf_tbl <- purrr::imap_dfr(rewiring$tf_rewiring, function(df, nm) {
+  tf_tbl <- imap_dfr_list(rewiring$tf_rewiring, function(df, nm) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -4972,6 +4970,7 @@ plot_rewiring_overview_figure <- function(
   metric = c("rewiring_score", "regulon_jaccard"),
   weight_column = "weight"
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "patchwork", "thisplot"), strict = TRUE, verbose = FALSE)
   if (!methods::is(object, "Seurat")) {
     stop(
       "plot_rewiring_overview_figure: object must be a Seurat object.",
@@ -5051,6 +5050,7 @@ plot_key_tf_summary_figure <- function(
   n_case_tfs = 6,
   feature_scores = NULL
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "patchwork", "rlang", "thisplot"), strict = TRUE, verbose = FALSE)
   if (!methods::is(object, "Seurat")) {
     stop(
       "plot_key_tf_summary_figure: object must be a Seurat object.",
@@ -5196,7 +5196,7 @@ plot_key_tf_summary_figure <- function(
     column_title = "State"
   )
 
-  rew_sel <- purrr::imap_dfr(rewiring$tf_rewiring, function(df, nm) {
+  rew_sel <- imap_dfr_list(rewiring$tf_rewiring, function(df, nm) {
     if (is.null(df) || nrow(df) == 0) {
       return(NULL)
     }
@@ -5258,6 +5258,7 @@ plot_state_network_summary <- function(
   metrics = c("n_cells", "n_edges", "n_regulators", "n_targets"),
   weight_cutoff = NULL
 ) {
+  check_r(c("thisplot"), strict = TRUE, verbose = FALSE)
   plot_network_summary(
     object = object,
     network = network,
@@ -5280,10 +5281,10 @@ plot_state_rewiring <- function(
   type = c("rewiring", "networks", "regulators", "targets"),
   plot_type = c("heatmap", "venn", "upset"),
   weight.by = "weight",
-  group.by = NULL,
   palette = "Chinese",
   palcolor = NULL
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "thisplot"), strict = TRUE, verbose = FALSE)
   type <- match.arg(type)
   plot_type <- match.arg(plot_type)
   plot_rewiring(
@@ -5292,7 +5293,6 @@ plot_state_rewiring <- function(
     type = type,
     plot_type = plot_type,
     weight.by = weight.by,
-    group.by = group.by,
     palette = palette,
     palcolor = palcolor
   )

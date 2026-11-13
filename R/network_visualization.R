@@ -70,6 +70,7 @@ plot_static_networks <- function(
   seed = NULL,
   edge_alpha = 0.7
 ) {
+  check_r(c("ggnetwork", "thisplot"), strict = TRUE, verbose = FALSE)
   theme_use <- if (is.character(theme_use)) theme_use[1] else "theme_this"
   network_table <- inferCSN::network_format(
     network_table,
@@ -122,7 +123,7 @@ plot_static_networks <- function(
   layout <- igraph::layout_with_fr(net)
   rownames(layout) <- igraph::V(net)$name
   layout_ordered <- layout[igraph::V(net)$name, ]
-  regulator_network <- ggnetwork(
+  regulator_network <- ggnetwork::ggnetwork(
     net,
     layout = layout_ordered,
     cell.jitter = 0
@@ -170,7 +171,7 @@ plot_static_networks <- function(
         show.legend = FALSE
       )
     } else {
-      plot + geom_nodetext(
+      plot + ggnetwork::geom_nodetext(
         data = data,
         aes(x = x, y = y, label = name),
         size = size,
@@ -181,7 +182,7 @@ plot_static_networks <- function(
   }
 
   g <- ggplot() +
-    geom_edges(
+    ggnetwork::geom_edges(
       data = regulator_network,
       aes(
         x = x, y = y,
@@ -272,7 +273,7 @@ plot_static_networks <- function(
     ))
   } else {
     g <- g +
-      geom_nodes(
+      ggnetwork::geom_nodes(
         data = regulator_network[regulator_network$is_regulator == "FALSE", ],
         aes(x = x, y = y),
         color = "grey50",
@@ -282,7 +283,7 @@ plot_static_networks <- function(
         size = 3.5,
         alpha = 0.8
       ) +
-      geom_nodes(
+      ggnetwork::geom_nodes(
         data = regulator_network[regulator_network$is_regulator == "TRUE", ],
         aes(x = x, y = y),
         color = "black",
@@ -352,6 +353,7 @@ plot_contrast_networks <- function(
   base_family = "",
   legend_position = "bottom"
 ) {
+  check_r(c("ggraph", "tidygraph"), strict = TRUE, verbose = FALSE)
   if (is.null(cols)) {
     cols <- c("Activation" = "#1F78B4", "Repression" = "#E31A1C")
   }
@@ -369,27 +371,27 @@ plot_contrast_networks <- function(
     tidygraph::activate(edges) |>
     dplyr::filter(weight > weight_value)
 
-  g <- ggraph(graph, layout = "linear", circular = TRUE) +
-    geom_edge_arc(
+  g <- ggraph::ggraph(graph, layout = "linear", circular = TRUE) +
+    ggraph::geom_edge_arc(
       aes(
         edge_colour = Interaction,
         edge_width = abs_weight,
         edge_alpha = abs_weight
       ),
       arrow = arrow(length = unit(2.5, "mm"), type = "closed"),
-      end_cap = circle(3, "mm")
+      end_cap = ggraph::circle(3, "mm")
     ) +
-    scale_edge_width(range = c(0.4, 1.3)) +
-    scale_edge_alpha(range = c(0.4, 0.9)) +
-    scale_edge_colour_manual(values = cols) +
-    geom_node_point(aes(size = degree, color = is_regulator)) +
+    ggraph::scale_edge_width(range = c(0.4, 1.3)) +
+    ggraph::scale_edge_alpha(range = c(0.4, 0.9)) +
+    ggraph::scale_edge_colour_manual(values = cols) +
+    ggraph::geom_node_point(aes(size = degree, color = is_regulator)) +
     scale_color_manual(
       values = c(`TRUE` = regulator_color, `FALSE` = target_color),
       labels = c(`TRUE` = "Regulator", `FALSE` = "Target"),
       name = "Node type"
     ) +
-    geom_node_text(aes(label = name), repel = TRUE, size = label.size, fontface = "bold") +
-    facet_edges(~Interaction) +
+    ggraph::geom_node_text(aes(label = name), repel = TRUE, size = label.size, fontface = "bold") +
+    ggraph::facet_edges(~Interaction) +
     coord_fixed() +
     guides(
       edge_colour = guide_legend(title = "Interaction", order = 1),
@@ -441,6 +443,7 @@ setMethod(
            ntop = 10,
            filter_by_ntop = TRUE,
            ...) {
+    check_r(c("ggnetwork", "thisplot"), strict = TRUE, verbose = FALSE)
     network <- multicsn_resolve_network(
       object,
       network = network,
@@ -601,6 +604,7 @@ setMethod(
            figure_width = 6,
            figure_height = 6,
            seed = 1) {
+    check_r(c("ggnetwork", "thisplot"), strict = TRUE, verbose = FALSE)
     network_table <- as.data.frame(object)
     names(network_table)[1:4] <- c("regulator", "target", "weight", "celltype")
     if (is.null(celltypes_order)) celltypes_order <- unique(network_table$celltype)
@@ -616,7 +620,7 @@ setMethod(
     }
 
     if (filter_by_ntop) {
-      network_table <- purrr::map_dfr(
+      network_table <- map_dfr_list(
         celltypes_list,
         .f = function(x) {
           sub <- network_table[which(network_table$celltype == x), ]
@@ -633,7 +637,7 @@ setMethod(
         }
       )
     } else {
-      network_table <- purrr::map_dfr(
+      network_table <- map_dfr_list(
         celltypes_list,
         .f = function(x) network_table[which(network_table$celltype == x), ]
       )
@@ -707,7 +711,7 @@ setMethod(
       layout_param <- layout
     }
 
-    ggnetwork_data <- ggnetwork(
+    ggnetwork_data <- ggnetwork::ggnetwork(
       network_data,
       arrow.size = 0.1,
       arrow.gap = 0.015,
@@ -716,7 +720,7 @@ setMethod(
       layout = layout_param
     )
 
-    nodes_data <- purrr::map_dfr(
+    nodes_data <- map_dfr_list(
       celltypes_list,
       .f = function(x) {
         nodes_data_celltype <- network_table[which(network_table$celltype == x), ] |>
@@ -787,13 +791,13 @@ setMethod(
     )
     p <- ggplot(ggnetwork_data, aes(x, y, xend = xend, yend = yend))
     if (plot_type == "ggplotly") {
-      p <- p + geom_edges(
+      p <- p + ggnetwork::geom_edges(
         aes(color = Interaction),
         linewidth = 0.65,
         arrow = arrow(length = unit(3, "pt"), type = "closed")
       )
     } else {
-      p <- p + geom_edges(
+      p <- p + ggnetwork::geom_edges(
         aes(color = Interaction, alpha = weight),
         linewidth = 0.65,
         arrow = arrow(length = unit(3.5, "pt"), type = "closed")
@@ -815,7 +819,7 @@ setMethod(
     }
 
     p <- p +
-      geom_nodes(
+      ggnetwork::geom_nodes(
         data = node_df_fun(FALSE),
         aes(size = pmax(targets_num, 1)),
         color = "grey55",
@@ -824,7 +828,7 @@ setMethod(
         stroke = 0.35,
         alpha = 0.75
       ) +
-      geom_nodes(
+      ggnetwork::geom_nodes(
         data = node_df_fun(TRUE),
         aes(size = pmax(targets_num, 3)),
         color = "grey15",
@@ -850,7 +854,7 @@ setMethod(
         )
     } else {
       p <- p +
-        geom_nodetext(
+        ggnetwork::geom_nodetext(
           data = label_df_fun,
           aes(label = label_genes),
           color = label.fg,

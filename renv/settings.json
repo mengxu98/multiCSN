@@ -1,7 +1,11 @@
 {
   "bioconductor.version": [],
   "external.libraries": [],
-  "ignored.packages": [],
+  "ignored.packages": [
+    "thisutils",
+    "inferCSN",
+    "thisplot"
+  ],
   "package.dependency.fields": [
     "Imports",
     "Depends",
@@ -10,7 +14,7 @@
   "ppm.enabled": null,
   "ppm.ignored.urls": [],
   "r.version": [],
-  "snapshot.type": "implicit",
+  "snapshot.type": "explicit",
   "use.cache": true,
   "vcs.ignore.cellar": true,
   "vcs.ignore.library": true,

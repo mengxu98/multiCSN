@@ -36,7 +36,7 @@ consensus_peak_set <- function(peaks, seqlevels = NULL, seqinfo = NULL) {
     }
     GenomeInfoDb::seqinfo(consensus) <- seqinfo[levels_used]
   }
-  names(consensus) <- Signac::GRangesToString(grange = consensus, sep = c(":", "-"))
+  names(consensus) <- ranges_to_string(grange = consensus, sep = c(":", "-"))
   consensus
 }
 
@@ -114,6 +114,6 @@ as_peak_ranges <- function(x) {
   if (!is.character(x) || !length(x)) {
     stop("Peaks must be GRanges or 'chr:start-end' strings.", call. = FALSE)
   }
-  ranges <- Signac::StringToGRanges(regions = x, sep = c(":", "-"))
+  ranges <- string_to_ranges(x)
   ranges
 }

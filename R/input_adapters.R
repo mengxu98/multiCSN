@@ -14,6 +14,25 @@ get_layer_data <-
     stop("object must be a Seurat or CSNObject object.", call. = FALSE)
   }
 
+check_layered_assay_layers <- function(object, assays, layers = "data") {
+  for (assay in assays) {
+    for (layer in layers) {
+      available <- SeuratObject::Layers(csn_get_assay(object, assay), search = NA)
+      available <- available[grepl(paste0("^", layer, "($|[.])"), available)]
+      if (!identical(available, layer)) {
+        stop(
+          "Assay '", assay, "' requires one joined '", layer,
+          "' layer. Normalize the assay if this layer is missing; ",
+          "for split layers use SeuratObject::JoinLayers(object, assay = '",
+          assay, "', layers = '", layer, "', new = '", layer, "').",
+          call. = FALSE
+        )
+      }
+    }
+  }
+  invisible(NULL)
+}
+
 #' Read peak assay annotations
 #' @param object A Seurat object or a legacy CSNObject.
 #' @param peak_assay Name of the peak assay.
@@ -35,24 +54,31 @@ get_peak_annotation <-
     object@misc$multiCSN_annotations[[peak_assay]] %ss% object@misc$multiCSN_input$annotation
   }
 
-#' Parse peak identifiers
-#' @param peaks Character peak identifiers in chromosome:start-end, chromosome-start-end or chromosome_start_end form.
-#' @param sep Retained for compatibility with peak identifier callers.
+#' @title Parse peak identifiers
+#' @param peaks Character vector of peak identifiers.
+#' @param sep Two non-empty literal strings separating chromosome from start
+#'   and start from end, respectively. The default, \code{NULL}, recognizes
+#'   \code{chromosome:start-end}, \code{chromosome-start-end}, and
+#'   \code{chromosome_start_end} automatically.
 #' @return Named genomic ranges.
 #' @export
 parse_peak_ranges <-
-  function(peaks, sep = c("-", "-")) {
+  function(peaks, sep = NULL) {
+    if (!is.null(sep) && (!is.character(sep) || length(sep) != 2L ||
+      anyNA(sep) || any(!nzchar(sep)))) {
+      stop("`sep` must contain two non-empty character separators.", call. = FALSE)
+    }
     peaks <- as.character(peaks)
     if (length(peaks) == 0) {
       return(GenomicRanges::GRanges())
     }
-    fast <- split_peak_identifiers(peaks)
+    fast <- if (is.null(sep)) split_peak_identifiers(peaks) else split_peak_identifiers_with_sep(peaks, sep)
     chromosomes <- fast$chromosome
     starts <- fast$start
     ends <- fast$end
     pending <- which(is.na(chromosomes) | is.na(starts) | is.na(ends))
-    matched_pattern <- rep(FALSE, length(peaks))
-    for (index in pending) {
+    matched_pattern <- if (is.null(sep)) rep(FALSE, length(peaks)) else fast$matched
+    for (index in if (is.null(sep)) pending else integer()) {
       for (pattern in .peak_identifier_patterns) {
         matched <- regmatches(peaks[index], regexec(pattern, peaks[index], perl = TRUE))[[1L]]
         if (length(matched) == 4L) {
@@ -115,6 +141,31 @@ split_peak_identifiers <- function(peaks) {
   remaining <- which(is.na(chromosome))
   if (length(remaining)) take(remaining, "_[0-9]+_[0-9]+$", "_")
   list(chromosome = chromosome, start = start, end = end)
+}
+
+split_peak_identifiers_with_sep <- function(peaks, sep) {
+  last_separator <- function(values, separator) {
+    vapply(gregexpr(separator, values, fixed = TRUE), function(matches) {
+      positions <- matches[!is.na(matches) & matches > 0L]
+      if (length(positions)) positions[[length(positions)]] else NA_integer_
+    }, integer(1))
+  }
+  end_boundary <- last_separator(peaks, sep[[2L]])
+  prefix <- substr(peaks, 1L, end_boundary - 1L)
+  start_boundary <- last_separator(prefix, sep[[1L]])
+  chromosomes <- substr(prefix, 1L, start_boundary - 1L)
+  start_text <- substring(prefix, start_boundary + nchar(sep[[1L]]))
+  end_text <- substring(peaks, end_boundary + nchar(sep[[2L]]))
+  matched <- !is.na(chromosomes) & nzchar(chromosomes) &
+    !is.na(start_text) & grepl("^[0-9]+$", start_text) &
+    !is.na(end_text) & grepl("^[0-9]+$", end_text)
+  chromosomes[!matched] <- NA_character_
+  list(
+    chromosome = chromosomes,
+    start = suppressWarnings(as.integer(start_text)),
+    end = suppressWarnings(as.integer(end_text)),
+    matched = matched
+  )
 }
 
 #' Map peak sequence names to a genome
@@ -189,3 +240,16 @@ collapse_peak_gene_domains <-
       )
     ), "generalMatrix")
   }
+
+string_to_ranges <- function(regions, sep = NULL) {
+  ranges <- parse_peak_ranges(regions, sep = sep)
+  names(ranges) <- NULL
+  GenomeInfoDb::sortSeqlevels(ranges)
+}
+
+ranges_to_string <- function(grange, sep = c("-", "-")) {
+  paste0(
+    as.character(GenomicRanges::seqnames(grange)), sep[[1]],
+    GenomicRanges::start(grange), sep[[2]], GenomicRanges::end(grange)
+  )
+}

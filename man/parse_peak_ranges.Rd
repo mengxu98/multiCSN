@@ -4,12 +4,15 @@
 \alias{parse_peak_ranges}
 \title{Parse peak identifiers}
 \usage{
-parse_peak_ranges(peaks, sep = c("-", "-"))
+parse_peak_ranges(peaks, sep = NULL)
 }
 \arguments{
-\item{peaks}{Character peak identifiers in chromosome:start-end, chromosome-start-end or chromosome_start_end form.}
+\item{peaks}{Character vector of peak identifiers.}
 
-\item{sep}{Retained for compatibility with peak identifier callers.}
+\item{sep}{Two non-empty literal strings separating chromosome from start
+and start from end, respectively. The default, \code{NULL}, recognizes
+\code{chromosome:start-end}, \code{chromosome-start-end}, and
+\code{chromosome_start_end} automatically.}
 }
 \value{
 Named genomic ranges.

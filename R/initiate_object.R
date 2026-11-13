@@ -17,7 +17,7 @@ parse_regulators_targets <- function(x, celltypes, arg_name = "targets") {
 
   if (is.atomic(x) && !is.list(x)) {
     return(
-      purrr::set_names(
+      stats::setNames(
         rep(list(as.character(x)), length(celltypes)),
         celltypes
       )
@@ -27,7 +27,7 @@ parse_regulators_targets <- function(x, celltypes, arg_name = "targets") {
   if (is.list(x)) {
     if (length(x) == 1L) {
       return(
-        purrr::set_names(
+        stats::setNames(
           rep(list(as.character(x[[1]])), length(celltypes)),
           celltypes
         )
@@ -223,7 +223,7 @@ setMethod(
         function(t) intersect(t, all_genes)
       )
 
-      genes_markers <- purrr::map_dfr(
+      genes_markers <- map_dfr_list(
         celltypes,
         function(ct) {
           feats <- targets_list[[ct]]
@@ -405,9 +405,7 @@ process_features <- function(
       celltypes,
       by,
       is_peak,
-      params,
-      verbose,
-      ...
+      params
     ),
     "unfiltered" = create_feature_matrix(
       rownames(Seurat::GetAssayData(object, assay = params$assay, layer = "data")),
@@ -428,7 +426,7 @@ process_celltype_features <- function(
   if (length(celltypes) <= 1) {
     return(
       process_variable_features(
-        object, celltypes, "aggregate", is_peak, params, verbose, ...
+        object, celltypes, "aggregate", is_peak, params
       )
     )
   }
@@ -439,7 +437,7 @@ process_celltype_features <- function(
     verbose = verbose
   )
 
-  purrr::map_dfr(
+  map_dfr_list(
     celltypes, function(x) {
       markers <- suppressWarnings(
         Seurat::FindMarkers(
@@ -470,9 +468,7 @@ process_variable_features <- function(
   celltypes,
   by,
   is_peak,
-  params,
-  verbose,
-  ...
+  params
 ) {
   if (by == "aggregate") {
     object <- find_variable_features(
@@ -489,7 +485,7 @@ process_variable_features <- function(
     return(res)
   }
 
-  res <- purrr::map_dfr(
+  res <- map_dfr_list(
     celltypes, function(x) {
       cell_names <- colnames(object)[Seurat::Idents(object) == x]
       cell_subset <- object[, cell_names]
@@ -529,7 +525,7 @@ process_celltype_specific_genes <- function(
     return(create_empty_feature_df(is_peak = FALSE))
   }
 
-  res <- purrr::map_dfr(
+  res <- map_dfr_list(
     celltypes,
     function(x) {
       features <- gene_sets[[as.character(x)]]
@@ -611,7 +607,7 @@ create_feature_matrix <- function(
   if (length(celltypes) == 1) {
     celltypes <- list(celltypes)
   }
-  purrr::map_dfr(
+  map_dfr_list(
     celltypes,
     ~ create_feature_df(features, .x, is_peak = is_peak)
   )
@@ -626,7 +622,7 @@ process_attributes <- function(
   verbose = TRUE,
   p_value = 0.05
 ) {
-  res <- purrr::map(
+  res <- map_list(
     celltypes, function(x) {
       thisutils::log_message(
         "Processing results for {.val {x[1]}}",
@@ -644,7 +640,7 @@ process_attributes <- function(
         if (!is.null(regions_obj) && length(regions_obj@ranges) > 0) {
           if (!is.null(sig_peaks) && nrow(sig_peaks) > 0) {
             peak_names <- sig_peaks$peak
-            peak_ranges <- Signac::StringToGRanges(peak_names)
+            peak_ranges <- string_to_ranges(peak_names)
             overlaps <- IRanges::findOverlaps(peak_ranges, regions_obj@ranges)
             overlapping_indices <- unique(S4Vectors::queryHits(overlaps))
 
@@ -677,7 +673,7 @@ process_attributes <- function(
       )
     }
   ) |>
-    purrr::set_names(celltypes)
+    stats::setNames(celltypes)
 
   return(res)
 }
@@ -738,7 +734,7 @@ process_regions <- function(
     stop("Please provide a gene annotation for the ChromatinAssay.")
   }
 
-  peak_ranges <- Signac::StringToGRanges(
+  peak_ranges <- string_to_ranges(
     rownames(Seurat::GetAssay(object, assay = peak_assay))
   )
 

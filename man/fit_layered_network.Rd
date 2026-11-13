@@ -26,7 +26,10 @@ fit_layered_network(
   checkpoint_dir = NULL,
   store = FALSE,
   network_name = "multiCSN",
-  verbose = TRUE
+  verbose = TRUE,
+  preset = NULL,
+  output_dir = NULL,
+  format = c("tsv", "csv", "tsv.gz", "csv.gz")
 )
 }
 \arguments{
@@ -35,6 +38,11 @@ assays plus the multiCSN state (see \code{\link{initiate_object}}).}
 
 \item{cell_group}{Catalogue key (cell type, state or timepoint) used to select
 cells, peaks and target genes.}
+
+\item{preset}{Default settings for \code{min_detected},
+\code{tf_region_scope}, \code{exclude_response_alias}, \code{renormalize}
+and \code{sort_regulators}: \code{"state"} or \code{"timepoint"}.
+\code{NULL} keeps the individual defaults.}
 
 \item{cells}{Optional character vector of exact cells to fit; when supplied the
 fit uses exactly these cells and validates them against \code{cell_group}.}
@@ -79,16 +87,28 @@ selected inputs and fitting settings match. A SHA-256 identity is computed
 when checkpointing is enabled; \code{NULL} keeps everything in memory.}
 
 \item{store}{Store the three layers as \code{Network} entries in the returned
-object.}
+object. The default \code{FALSE} returns only the fitted result and does not
+include a copy of the Seurat object.}
 
 \item{network_name}{Name of the stored network entries.}
+
+\item{output_dir}{Optional directory receiving the endpoint tables (see
+\code{\link{write_network_endpoints}}). The tables are written to a
+temporary sibling directory and published only after the fit completes. Use
+\code{checkpoint_dir} to retain resumable checkpoints. An existing
+\code{output_dir} is never overwritten.}
+
+\item{format}{File format of \code{output_dir}.}
 
 \item{verbose}{Print progress messages.}
 }
 \value{
 A list with \code{tf_gene}, \code{tf_region}, \code{region_gene},
   \code{triplets}, \code{mediated_tf_gene}, \code{accounting}, \code{summary},
-  \code{settings}, \code{cells} and, when \code{store = TRUE}, \code{object}.
+  \code{settings}, \code{cells}, \code{targets}, \code{regulators} and,
+  when \code{store = TRUE}, \code{object}.
+  With \code{output_dir} the list is returned invisibly and also holds the
+  written \code{paths}.
 }
 \description{
 Fits the layered multiCSN model on single-cell multiome data: a
@@ -97,4 +117,54 @@ a region-to-gene layer, each solved as independent per-target Greedy-l0
 problems, followed by the factorized chain projection that links the three
 layers. By default only the selected cells are used and the expression layers
 stored in the object are taken as-is.
+}
+\details{
+A typical workflow is \code{\link{prepare_candidates}()} followed by
+\code{fit_layered_network(object, cell_group = "state", output_dir = "out")}.
+Two presets cover the common designs: \code{"state"} fits cell states that
+share one normalization, and \code{"timepoint"} re-normalizes each group,
+requires every target and TF to be detected in 20 cells and drops affine
+response aliases. Arguments supplied explicitly override the preset.
+
+Each assay must have one layer named \code{data}; split layers require
+\code{SeuratObject::JoinLayers()} before fitting. Per-group normalization
+also requires a single \code{counts} layer in each assay. With
+\code{store = FALSE}, fitting leaves the supplied object unchanged.
+
+Each edge layer retains its own \code{standardized_beta},
+\code{deletion_delta_bic} and signed ordinal \code{weight}. The coefficient
+sign gives that layer's fitted direction. Ordinal weights rank deletion
+evidence within an endpoint and retain coefficient signs. They are not
+coefficients or probabilities.
+
+\code{triplets} links selected TF-region and region-gene edges. Its
+\code{chain_delta_bic} is the minimum of the two endpoint deletion scores;
+\code{chain_direction} is the product of their signs.
+\code{backbone_selected} records whether the direct TF-gene edge exists,
+and \code{backbone_sign_concordant} records agreement with the direct sign.
+\code{mediated_tf_gene} keeps the strongest sign-consistent path per TF-gene
+pair. These projections retain their own scores and support flags.
+
+\code{settings} records the effective settings after applying the preset
+and explicit arguments. \code{cells}, \code{targets} and \code{regulators}
+record the entities actually used. The five endpoint tables, accounting
+tables and summary can be saved independently with
+\code{\link{write_network_endpoints}()} and read with
+\code{\link{read_network_endpoints}()}.
+
+Valid inputs can yield empty endpoint tables. If no TF has variable expression,
+the TF layers have no selected edges and their accounting status is
+\code{no_variable_candidate}; the region-gene layer is still fitted independently.
+}
+\examples{
+\dontrun{
+object <- prepare_candidates(object, group.by = "cell_type", genome = genome)
+fit <- fit_layered_network(
+  object,
+  cell_group = "Erythroblast",
+  preset = "state",
+  output_dir = "networks/erythroblast"
+)
+networks <- read_network_endpoints("networks/erythroblast")
+}
 }

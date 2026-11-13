@@ -20,6 +20,7 @@ setMethod(
                         celltypes = NULL,
                         point_size = 0.5,
                         ...) {
+    check_r(c("patchwork", "thisplot"), strict = TRUE, verbose = FALSE)
     network <- multicsn_resolve_network(
       object,
       network = network,
@@ -149,6 +150,7 @@ setMethod(
                         network = NULL,
                         celltypes = NULL,
                         ...) {
+    check_r(c("thisplot"), strict = TRUE, verbose = FALSE)
     network <- multicsn_resolve_network(
       object,
       network = network,
@@ -167,7 +169,7 @@ setMethod(
       )
     }
 
-    plot_list <- purrr::map(
+    plot_list <- map_list(
       celltypes, function(celltype) {
         modules <- NetworkModules(object, network = network)[[celltype]]@meta
 
@@ -335,6 +337,7 @@ setMethod(
                         seed = 1,
                         verbose = TRUE,
                         ...) {
+    check_r(c("tidygraph"), strict = TRUE, verbose = FALSE)
     network <- multicsn_resolve_network(
       object,
       network = network,
@@ -351,7 +354,7 @@ setMethod(
     } else {
       celltypes <- intersect(celltypes, names(modules_list))
     }
-    gene_graph_list <- purrr::map(
+    gene_graph_list <- map_list(
       celltypes, function(celltype) {
         modules <- modules_list[[celltype]]
         if (length(modules@params) == 0) {
@@ -400,7 +403,7 @@ setMethod(
           gene_net <- modules_use %>%
             dplyr::select(tf, target, tidyselect::everything()) %>%
             dplyr::group_by(target) %>%
-            left_join(
+            dplyr::left_join(
               gene_cor_df,
               by = c("tf" = "source", "target")
             ) %>%
@@ -464,7 +467,7 @@ setMethod(
           gene_net <- modules_use %>%
             dplyr::select(tf, target, tidyselect::everything()) %>%
             dplyr::group_by(target) %>%
-            left_join(gene_cor_df, by = c("tf" = "source", "target")) %>%
+            dplyr::left_join(gene_cor_df, by = c("tf" = "source", "target")) %>%
             {
               .$corr[is.na(.$corr)] <- 0
               .
@@ -603,6 +606,7 @@ setMethod(
                         ncol = NULL,
                         byrow = TRUE,
                         ...) {
+    check_r(c("ggraph", "patchwork", "thisplot", "tidygraph"), strict = TRUE, verbose = FALSE)
     network <- multicsn_resolve_network(
       object,
       network = network,
@@ -621,7 +625,7 @@ setMethod(
     } else {
       celltypes <- intersect(celltypes, names(gene_graph_list))
     }
-    plot_list <- purrr::map(
+    plot_list <- map_list(
       celltypes,
       function(celltype) {
         gene_graph <- gene_graph_list[[celltype]]
@@ -734,6 +738,7 @@ setMethod(
                         verbose = TRUE,
                         cores = 1,
                         ...) {
+    check_r(c("tidygraph"), strict = TRUE, verbose = FALSE)
     network <- multicsn_resolve_network(
       object,
       network = network,
@@ -757,10 +762,10 @@ setMethod(
       )
     }
 
-    tfs_celltype_graph_list <- purrr::map(
+    tfs_celltype_graph_list <- map_list(
       celltypes,
       function(celltype) {
-        tfs_graph_list <- purrr::map(
+        tfs_graph_list <- map_list(
           tfs,
           function(tf) {
             gene_graph <- gene_graph_list[[celltype]]
@@ -802,10 +807,10 @@ setMethod(
               edg_graph <- gene_graph |>
                 dplyr::filter(name %in% edg) |>
                 tidygraph::convert(
-                  to_shortest_path,
+                  tidygraph::to_shortest_path,
                   from = which(tidygraph::.N()$name == edg[1]),
                   to = which(tidygraph::.N()$name == edg[length(edg)])
-                ) %E>%
+                ) |> tidygraph::activate("edges") |>
                 dplyr::mutate(
                   from_node = tidygraph::.N()$name[from],
                   to_node = tidygraph::.N()$name[to]
@@ -852,12 +857,12 @@ setMethod(
             }, cores = cores, verbose = verbose)
 
             thisutils::log_message("Pruning graph", verbose = verbose)
-            spath_dir <- purrr::map_dfr(spath_list, function(x) x$path) |>
+            spath_dir <- map_dfr_list(spath_list, function(x) x$path) |>
               dplyr::mutate(
                 path_genes = stringr::str_split(path, ";"),
                 path_regions = stringr::str_split(path_regions, ";")
               )
-            spath_graph <- purrr::map_dfr(spath_list, function(x) x$graph)
+            spath_graph <- map_dfr_list(spath_list, function(x) x$graph)
 
             csn_pruned <- spath_dir |>
               dplyr::select(
@@ -887,7 +892,7 @@ setMethod(
               dplyr::select(from_node, to_node, end_node, comb_dir) |>
               dplyr::distinct()
 
-            csn_graph_pruned <- gene_graph %E>%
+            csn_graph_pruned <- gene_graph |> tidygraph::activate("edges") |>
               dplyr::mutate(
                 from_node = tidygraph::.N()$name[from],
                 to_node = tidygraph::.N()$name[to]
@@ -895,7 +900,7 @@ setMethod(
               tibble::as_tibble() |>
               dplyr::distinct()
             csn_graph_pruned <- suppressMessages(
-              inner_join(csn_graph_pruned, spath_graph_pruned)
+              dplyr::inner_join(csn_graph_pruned, spath_graph_pruned)
             ) |>
               dplyr::select(
                 from_node,
@@ -911,7 +916,7 @@ setMethod(
           }
         )
         names(tfs_graph_list) <- tfs
-        tfs_graph_list <- tfs_graph_list[!purrr::map_lgl(tfs_graph_list, is.null)]
+        tfs_graph_list <- tfs_graph_list[!map_lgl_list(tfs_graph_list, is.null)]
 
         return(tfs_graph_list)
       }
@@ -974,6 +979,7 @@ setMethod(
                         label_nodes = c("tfs", "all", "none"),
                         color_edges = TRUE,
                         ...) {
+    check_r(c("ggraph", "thisplot", "tidygraph"), strict = TRUE, verbose = FALSE)
     network <- multicsn_resolve_network(
       object,
       network = network,
@@ -1032,7 +1038,7 @@ setMethod(
     }
     names(gene_graph_list) <- celltypes
 
-    plot_list_celltype <- purrr::map(
+    plot_list_celltype <- map_list(
       celltypes,
       function(celltype) {
         if (is.null(tfs)) {
@@ -1053,7 +1059,7 @@ setMethod(
         gene_graph_celltype <- gene_graph_list[[celltype]]
         tfs <- intersect(tfs, names(gene_graph_celltype))
 
-        plot_list <- purrr::map(tfs, function(tf) {
+        plot_list <- map_list(tfs, function(tf) {
           gene_graph <- gene_graph_celltype[[tf]]
           if (is.null(gene_graph)) {
             thisutils::log_message(
@@ -1121,7 +1127,7 @@ setMethod(
             theme_void() + thisplot::no_legend()
         })
         names(plot_list) <- tfs
-        plot_list <- plot_list[!purrr::map_lgl(plot_list, is.null)]
+        plot_list <- plot_list[!map_lgl_list(plot_list, is.null)]
 
         return(plot_list)
       }

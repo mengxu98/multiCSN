@@ -80,6 +80,11 @@ reference:
 
 - subtitle: "Network evaluation"
 - contents:
+  - evaluate_network
+  - ranking_metrics
+  - signed_ordinal_weight
+  - as_edge_table
+  - weight_matrix_to_edges
   - calculate_metrics
   - calculate_accuracy
   - calculate_auc
@@ -97,14 +102,15 @@ reference:
   - calculate_stability_jaccard
   - calculate_stability_spearman
   - calculate_degree_distribution
-  - JI_across_topregs
 
 - subtitle: "Layered multi-omic network inference"
 - contents:
+  - prepare_candidates
   - fit_layered_network
   - network_endpoints
   - write_network_endpoints
   - read_network_endpoints
+  - validate_network_endpoints
   - classify_edge_transitions
 
 - subtitle: "Consensus peaks and perturbation truth"
@@ -156,7 +162,6 @@ reference:
   - NetworkTFs
   - Params
   - define_states
-  - define_states_new
   - density_points
   - diffnet_community_detection
   - dynamic_windowing
@@ -168,14 +173,11 @@ reference:
   - compile_states
   - get_network_graph
   - get_tf_network
-  - assign_genes_to_states_simple
   - assign_genes_to_states
-  - assign_genes_to_states_new1
   - assign_network
   - subnets
   - split_states_by_group
   - split_states_by_pseudotime
-  - biglist_compute_betweenness_degree
   - compute_JI_topregs
   - compute_betweenness_degree
   - compute_frobenius_distance
@@ -271,7 +273,6 @@ reference:
   - get_layer_data
   - get_peak_annotation
   - map_peak_ranges_to_genome
-  - network_ordinal_weight
   - normalize_chromatin_assay
   - parse_peak_ranges
   - parse_regulators_targets

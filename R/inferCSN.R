@@ -1,11 +1,23 @@
 #' @title inferring cell-type specific gene regulatory network
 #'
-#' @inheritParams inferCSN::inferCSN
-#' @param ... Parameters for other methods.
+#' @description Infers cell-specific gene regulatory networks. Matrix methods come from
+#' \pkg{inferCSN}; \code{Network} and \code{Seurat} methods are implemented here.
+#'
+#' @param object Expression matrix, \code{Network}, \code{Seurat}, or \code{CSNObject}.
+#'   Matrix input is handled by \code{\link[inferCSN:inferCSN]{inferCSN::inferCSN()}}.
+#' @param pseudotime Optional pseudotime vector or branch matrix for matrix input.
+#'   For \code{Seurat} objects, a single column name is treated as \code{pseudotime_column}.
+#' @param regulators,targets Optional gene subsets.
+#' @param max_support_size Optional support-size limit for matrix inference.
+#' @param lag_fraction Fractional lag used when \code{lag_steps} is \code{NULL}.
+#' @param lag_steps Optional integer lag for matrix inference.
+#' @param cores Number of workers.
+#' @param verbose Whether to report progress.
+#' @param ... Additional method arguments.
 #'
 #' @docType methods
 #' @rdname inferCSN
-#' @return A data table of regulator-target regulatory relationships or a CSNObject.
+#' @return A regulator-target edge table for matrix input, a \code{Network} object, or a \code{Seurat} object.
 #' @details The Seurat method with chromatin peaks fits TF-by-region interaction
 #' predictors through \code{fit_models}; projecting those coefficients does not
 #' fit independent TF-gene, TF-region and region-gene models. For factorized

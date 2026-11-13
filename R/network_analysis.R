@@ -600,6 +600,7 @@ heatmap_by_treatment_group <- function(
   fontSize = 8,
   anno_colors = NA
 ) {
+  check_r(c("ComplexHeatmap"), strict = TRUE, verbose = FALSE)
   if (!is.list(expList)) {
     expList <- list(A = expList)
   }
@@ -698,6 +699,7 @@ plot_heatmap_by_treatment <- function(
   anno_colors = NA,
   fontSize = 8
 ) {
+  check_r(c("ComplexHeatmap"), strict = TRUE, verbose = FALSE)
   if (!is.list(expList)) {
     expList <- list(A = expList)
   }

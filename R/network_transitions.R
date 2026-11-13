@@ -10,17 +10,27 @@
 #' @param direction_column Column holding the signed direction in both tables.
 #' @param labels Named character vector with the class names for
 #'   \code{gained}, \code{lost}, \code{stable} and \code{flip}.
+#' @param from,to Optional state names added as \code{previous_state},
+#'   \code{next_state} and \code{transition} (\code{"from -> to"}) columns.
 #' @return A \code{data.table} with the key columns,
 #'   \code{previous_direction}, \code{next_direction} and \code{topology_class};
 #'   edges present in only one state have \code{NA} on the other side.
+#' @examples
+#' early <- data.frame(regulator = c("A", "B"), target = "X", direction = c(1, -1))
+#' late <- data.frame(regulator = c("B", "C"), target = "X", direction = c(1, 1))
+#' classify_edge_transitions(
+#'   early, late, c("regulator", "target"),
+#'   from = "early", to = "late"
+#' )
 #' @export
-classify_edge_transitions <- function(previous, next_state, keys,
+classify_edge_transitions <- function(previous, next_state, keys = c("regulator", "target"),
                                       direction_column = "direction",
                                       labels = c(
                                         gained = "gained", lost = "lost",
                                         stable = "shared_sign_stable",
                                         flip = "shared_sign_flip"
-                                      )) {
+                                      ),
+                                      from = NULL, to = NULL) {
   if (!all(c("gained", "lost", "stable", "flip") %in% names(labels))) {
     stop("labels must name gained, lost, stable and flip.", call. = FALSE)
   }
@@ -54,5 +64,13 @@ classify_edge_transitions <- function(previous, next_state, keys,
       )
     )
   )
+  if (!is.null(from) || !is.null(to)) {
+    if (length(from) != 1L || length(to) != 1L) {
+      stop("`from` and `to` must both be single state names.", call. = FALSE)
+    }
+    data.table::set(merged, j = "previous_state", value = rep(as.character(from), nrow(merged)))
+    data.table::set(merged, j = "next_state", value = rep(as.character(to), nrow(merged)))
+    data.table::set(merged, j = "transition", value = rep(paste0(from, " -> ", to), nrow(merged)))
+  }
   merged[]
 }

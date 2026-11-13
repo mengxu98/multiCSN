@@ -16,6 +16,7 @@ plot_dynamic_network <- function(
   network_order = NULL,
   weight_threshold = NULL
 ) {
+  check_r(c("ggnetwork"), strict = TRUE, verbose = FALSE)
   network <- normalize_state_data(network)
   plot_list <- list()
 
@@ -44,7 +45,7 @@ plot_dynamic_network <- function(
     layout <- igraph::layout_with_fr(net)
     rownames(layout) <- igraph::V(net)$name
     layout_ordered <- layout[igraph::V(net)$name, ]
-    network_plot_data <- ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
+    network_plot_data <- ggnetwork::ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
     network_plot_data$is_regulator <- as.character(network_plot_data$name %in% regulators)
 
     cols <- c("Activation" = "blue", "Repression" = "red")
@@ -71,19 +72,19 @@ plot_dynamic_network <- function(
         alpha = 0.8
       ) +
       scale_color_manual(values = cols) +
-      geom_nodelabel_repel(
+      ggnetwork::geom_nodelabel_repel(
         data = network_plot_data[network_plot_data$is_regulator == "FALSE", ],
         aes(x = x, y = y, label = name),
         size = 2,
         color = "#5A8BAD"
       ) +
-      geom_nodelabel_repel(
+      ggnetwork::geom_nodelabel_repel(
         data = network_plot_data[network_plot_data$is_regulator == "TRUE", ],
         aes(x = x, y = y, label = name),
         size = 3.5,
         color = "black"
       ) +
-      theme_blank() +
+      ggnetwork::theme_blank() +
       ggtitle(names(network)[i])
 
     common_legend <- get_legend(plot_list[[i]])
@@ -119,6 +120,7 @@ plot_detail_network <- function(
   communities = NULL,
   compute_betweenness = TRUE
 ) {
+  check_r(c("ggnetwork"), strict = TRUE, verbose = FALSE)
   network <- normalize_state_data(network)
   communities <- normalize_state_data(communities)
   plot_list <- list()
@@ -275,19 +277,19 @@ plot_detail_network <- function(
         )
     }
     p <- p +
-      geom_nodelabel_repel(
+      ggnetwork::geom_nodelabel_repel(
         data = network_plot_data[network_plot_data$is_regulator == "TRUE", ],
         aes(x = x, y = y, label = name),
         size = 2.5,
         color = "#8C4985"
       ) +
-      geom_nodelabel_repel(
+      ggnetwork::geom_nodelabel_repel(
         data = network_plot_data[network_plot_data$is_regulator == "FALSE", ],
         aes(x = x, y = y, label = name),
         size = 2.5,
         color = "#5A8BAD"
       ) +
-      theme_blank() +
+      ggnetwork::theme_blank() +
       ggtitle(names(network)[i]) +
       theme(legend.position = "none")
 
@@ -324,6 +326,7 @@ plot_top_features <- function(
   network_order = NULL,
   method = "weight"
 ) {
+  check_r(c("ggnetwork", "patchwork"), strict = TRUE, verbose = FALSE)
   network_list <- normalize_state_data(network_list)
   gene_ranks <- normalize_state_data(gene_ranks)
   plot_list <- list()
@@ -369,7 +372,7 @@ plot_top_features <- function(
       next
     }
 
-    network_table_plot <- purrr::map_dfr(
+    network_table_plot <- map_dfr_list(
       top_regulators, function(x) {
         if (is.null(targets)) {
           targets <- as.character(
@@ -439,19 +442,19 @@ plot_top_features <- function(
         alpha = 0.8
       ) +
       scale_color_manual(values = cols) +
-      geom_nodelabel_repel(
+      ggnetwork::geom_nodelabel_repel(
         data = network_plot_data[network_plot_data$is_regulator == "FALSE", ],
         aes(x = x, y = y, label = name),
         size = 2,
         color = "#5A8BAD"
       ) +
-      geom_nodelabel_repel(
+      ggnetwork::geom_nodelabel_repel(
         data = network_plot_data[network_plot_data$is_regulator == "TRUE", ],
         aes(x = x, y = y, label = name),
         size = 2.5,
         color = "#8C4985"
       ) +
-      theme_blank() +
+      ggnetwork::theme_blank() +
       ggtitle(names(network_list)[i])
 
     if (is.null(common_legend) | length(unique(network_table_plot$interaction)) == 2) {
@@ -493,6 +496,7 @@ plot_targets_with_top_regulators_detail <- function(
   layout_alg = "fr",
   declutter = TRUE
 ) {
+  check_r(c("ggnetwork"), strict = TRUE, verbose = FALSE)
   network <- normalize_state_data(network)
   states_list <- normalize_state_data(states_list)
   gene_ranks <- normalize_state_data(gene_ranks)
@@ -621,12 +625,12 @@ plot_targets_with_top_regulators_detail <- function(
 
     if (fixed_layout) {
       layout_ordered <- layout[igraph::V(net)$name, ]
-      network_plot_data <- ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
+      network_plot_data <- ggnetwork::ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
     } else {
       layout <- igraph::layout_with_fr(net)
       rownames(layout) <- igraph::V(net)$name
       layout_ordered <- layout[igraph::V(net)$name, ]
-      network_plot_data <- ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
+      network_plot_data <- ggnetwork::ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
     }
 
 
@@ -639,17 +643,17 @@ plot_targets_with_top_regulators_detail <- function(
     cols <- c("Activation" = "blue", "Repression" = "red")
 
     plot_list[[i]] <- ggplot() +
-      geom_edges(data = network_plot_data, aes(x = x, y = y, xend = xend, yend = yend, color = interaction), size = 0.75, curvature = 0.1, alpha = .6) +
+      ggnetwork::geom_edges(data = network_plot_data, aes(x = x, y = y, xend = xend, yend = yend, color = interaction), size = 0.75, curvature = 0.1, alpha = .6) +
       ggnetwork::geom_nodes(data = network_plot_data, aes(x = x, y = y, xend = xend, yend = yend, shape = type, size = expression, alpha = expression), color = "black") +
       scale_color_manual(values = cols) +
-      theme_blank() +
+      ggnetwork::theme_blank() +
       ggtitle(names(network)[i])
 
     if (declutter) {
       keep <- union(edges_to_keep$regulator, edges_to_keep$target)
-      plot_list[[i]] <- plot_list[[i]] + geom_nodelabel_repel(data = network_plot_data[network_plot_data$name %in% keep, ], aes(x = x, y = y, label = name), size = 2.5, color = "#5A8BAD")
+      plot_list[[i]] <- plot_list[[i]] + ggnetwork::geom_nodelabel_repel(data = network_plot_data[network_plot_data$name %in% keep, ], aes(x = x, y = y, label = name), size = 2.5, color = "#5A8BAD")
     } else {
-      plot_list[[i]] <- plot_list[[i]] + geom_nodelabel_repel(data = network_plot_data, aes(x = x, y = y, label = name), size = 2.5, color = "#5A8BAD")
+      plot_list[[i]] <- plot_list[[i]] + ggnetwork::geom_nodelabel_repel(data = network_plot_data, aes(x = x, y = y, label = name), size = 2.5, color = "#5A8BAD")
     }
 
     common_legend <- get_legend(plot_list[[i]])
@@ -703,6 +707,7 @@ plot_targets_and_regulators <- function(
   title_size = 10,
   legend_size = 8
 ) {
+  check_r(c("ggnetwork"), strict = TRUE, verbose = FALSE)
   network <- normalize_state_data(network)
   states <- normalize_state_data(states)
   gene_ranks <- normalize_state_data(gene_ranks)
@@ -828,12 +833,12 @@ plot_targets_and_regulators <- function(
 
     if (fixed_layout) {
       layout_ordered <- layout[igraph::V(net)$name, ]
-      network_plot_data <- ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
+      network_plot_data <- ggnetwork::ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
     } else {
       layout <- igraph::layout_with_fr(net)
       rownames(layout) <- igraph::V(net)$name
       layout_ordered <- layout[igraph::V(net)$name, ]
-      network_plot_data <- ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
+      network_plot_data <- ggnetwork::ggnetwork(net, layout = layout_ordered, cell.jitter = 0)
     }
 
 
@@ -846,7 +851,7 @@ plot_targets_and_regulators <- function(
     cols <- c("Activation" = "blue", "Repression" = "red")
 
     plot_list[[i]] <- ggplot() +
-      geom_edges(
+      ggnetwork::geom_edges(
         data = network_plot_data,
         aes(x = x, y = y, xend = xend, yend = yend, color = interaction),
         size = 0.75,
@@ -881,13 +886,13 @@ plot_targets_and_regulators <- function(
 
     plot_list[[i]] <- plot_list[[i]] +
       scale_color_manual(values = cols) +
-      theme_blank() +
+      ggnetwork::theme_blank() +
       ggtitle(names(network)[i])
 
     if (declutter) {
       keep <- union(edges_to_keep$regulator, edges_to_keep$target)
       plot_list[[i]] <- plot_list[[i]] +
-        geom_nodelabel_repel(
+        ggnetwork::geom_nodelabel_repel(
           data = network_plot_data[network_plot_data$name %in% keep, ],
           aes(x = x, y = y, label = name),
           size = label_size,
@@ -895,7 +900,7 @@ plot_targets_and_regulators <- function(
         )
     } else {
       plot_list[[i]] <- plot_list[[i]] +
-        geom_nodelabel_repel(
+        ggnetwork::geom_nodelabel_repel(
           data = network_plot_data,
           aes(x = x, y = y, label = name),
           size = label_size,
@@ -944,6 +949,7 @@ hm_dyn_clust <- function(
   toScale = FALSE,
   fontsize_row = 4
 ) {
+  check_r(c("ComplexHeatmap"), strict = TRUE, verbose = FALSE)
   dynRes <- normalize_state_data(dynRes)
   geneAnn <- normalize_state_data(geneAnn)
   meta_data <- dynRes$cells
@@ -1043,6 +1049,7 @@ hm_dyn <- function(
   width = NA,
   height = NA
 ) {
+  check_r(c("ComplexHeatmap"), strict = TRUE, verbose = FALSE)
   dynRes <- normalize_state_data(dynRes)
   geneAnn <- normalize_state_data(geneAnn)
   anno_colors <- normalize_state_data(anno_colors)
@@ -1167,6 +1174,7 @@ hm_dyn_state <- function(
   toScale = FALSE,
   fontsize_row = 4
 ) {
+  check_r(c("ComplexHeatmap"), strict = TRUE, verbose = FALSE)
   state_result <- normalize_state_data(state_result)
   meta_data <- state_result$cells
   t1 <- meta_data$pseudotime

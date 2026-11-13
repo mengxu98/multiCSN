@@ -8,30 +8,7 @@
 \alias{fit_models,matrix-method}
 \title{Fit models for gene expression}
 \usage{
-fit_models(
-  object,
-  regulators = NULL,
-  targets = NULL,
-  network_name = paste0(method, "_network"),
-  peak_to_gene_method = c("Signac", "GREAT"),
-  upstream = 1e+05,
-  downstream = 0,
-  extend = 1e+06,
-  only_tss = FALSE,
-  peak_to_gene_domains = NULL,
-  gene_cor_threshold = 0.1,
-  peak_cor_threshold = 0.1,
-  aggregate_rna_col = NULL,
-  aggregate_peaks_col = NULL,
-  method = "greedy_l0",
-  interaction_term = ":",
-  adjust_method = "fdr",
-  scale = FALSE,
-  verbose = TRUE,
-  cores = 1,
-  celltype = NULL,
-  ...
-)
+fit_models(object, ...)
 
 \S4method{fit_models}{Seurat}(
   object,
@@ -58,58 +35,24 @@ fit_models(
   ...
 )
 
-\S4method{fit_models}{CSNObject}(
-  object,
-  regulators = NULL,
-  targets = NULL,
-  network_name = paste0(method, "_network"),
-  peak_to_gene_method = c("Signac", "GREAT"),
-  upstream = 1e+05,
-  downstream = 0,
-  extend = 1e+06,
-  only_tss = FALSE,
-  peak_to_gene_domains = NULL,
-  gene_cor_threshold = 0.1,
-  peak_cor_threshold = 0.1,
-  aggregate_rna_col = NULL,
-  aggregate_peaks_col = NULL,
-  method = "greedy_l0",
-  interaction_term = ":",
-  adjust_method = "fdr",
-  scale = FALSE,
-  verbose = TRUE,
-  cores = 1,
-  celltype = NULL,
-  ...
-)
+\S4method{fit_models}{CSNObject}(object, ...)
 
 \S4method{fit_models}{matrix}(
   object,
   regulators = NULL,
   targets = NULL,
-  network_name = paste0(method, "_network"),
-  peak_to_gene_method = c("Signac", "GREAT"),
-  upstream = 1e+05,
-  downstream = 0,
-  extend = 1e+06,
-  only_tss = FALSE,
-  peak_to_gene_domains = NULL,
-  gene_cor_threshold = 0.1,
-  peak_cor_threshold = 0.1,
-  aggregate_rna_col = NULL,
-  aggregate_peaks_col = NULL,
+  gene_cor_threshold = 0,
   method = "greedy_l0",
-  interaction_term = ":",
-  adjust_method = "fdr",
   scale = FALSE,
   verbose = TRUE,
   cores = 1,
-  celltype = NULL,
   ...
 )
 }
 \arguments{
 \item{object}{The input data for model fitting}
+
+\item{...}{Additional arguments passed to methods}
 
 \item{regulators}{A character vector of regulators}
 
@@ -150,8 +93,6 @@ fit_models(
 \item{cores}{Number of cores for parallel processing}
 
 \item{celltype}{Current cell type being processed}
-
-\item{...}{Additional arguments passed to methods}
 }
 \value{
 A list containing model coefficients and fit statistics

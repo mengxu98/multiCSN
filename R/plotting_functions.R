@@ -40,6 +40,7 @@ plot_coefficient <- function(
   show_values = TRUE,
   ...
 ) {
+  check_r(c("thisplot"), strict = TRUE, verbose = FALSE)
   style <- match.arg(style)
   data <- as.data.frame(data)
   if (!all(c("regulator", "weight") %in% colnames(data))) {
@@ -101,6 +102,7 @@ plot_coefficients <- function(
   nrow = NULL,
   ...
 ) {
+  check_r(c("patchwork", "thisplot"), strict = TRUE, verbose = FALSE)
   if (is.null(targets)) {
     targets <- unique(data$target)
   }

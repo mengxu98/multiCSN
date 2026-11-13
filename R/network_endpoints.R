@@ -1,13 +1,13 @@
 #' Endpoint tables of a layered multi-omic network
 #'
-#' The five endpoint tables written by \code{\link{fit_layered_network}} (and by
-#' the manuscript pipeline) share one contract: a file name, a key column set and
-#' a signed weight. This function returns that contract so writers, readers and
-#' validators cannot drift apart.
+#' The five endpoint tables written by \code{\link{fit_layered_network}} share
+#' one contract: a file name, a key column set and a signed weight. This
+#' function returns that contract so writers, readers and validators cannot
+#' drift apart.
 #'
 #' @return A data frame with columns \code{endpoint} and \code{file} plus a list
 #'   column \code{keys} holding the key columns of each endpoint.
-#' @export network_endpoints write_network_endpoints
+#' @export
 network_endpoints <- function() {
   spec <- data.frame(
     endpoint = c("TF-gene", "TF-region", "region-gene", "factorized-chain", "mediated-TF-gene"),
@@ -24,6 +24,25 @@ network_endpoints <- function() {
   spec
 }
 
+network_endpoint_files <- function(format = "tsv", accounting = FALSE) {
+  stems <- sub("[.]tsv$", "", network_endpoints()$file)
+  if (isTRUE(accounting)) {
+    stems <- c(
+      stems, "tf_gene_accounting", "tf_region_accounting",
+      "region_gene_accounting", "endpoint_summary"
+    )
+  }
+  paste0(stems, ".", format)
+}
+
+#' Write the endpoint tables of a layered network
+#'
+#' @param fit A result of \code{\link{fit_layered_network}}.
+#' @param root Output directory.
+#' @param format File format: tsv, csv, tsv.gz or csv.gz.
+#' @param overwrite Replace existing files.
+#' @return The written paths, invisibly.
+#' @export
 write_network_endpoints <- function(fit, root,
                                     format = c("tsv", "csv", "tsv.gz", "csv.gz"),
                                     overwrite = FALSE) {
@@ -61,17 +80,19 @@ write_network_endpoints <- function(fit, root,
 #'
 #' @param root Directory holding the endpoint files of one fitted network.
 #' @param endpoints Endpoints to read; defaults to all five.
-#' @param direction Replace the signed weight column with a \code{direction}
-#'   column holding its sign (finite, non-zero).
-#' @param format File format: tsv, csv, tsv.gz or csv.gz.
+#' @param direction Return only the key columns plus a \code{direction} column
+#'   holding the sign of \code{weight_column} (finite, non-zero).
+#' @param format File format: tsv, csv, tsv.gz or csv.gz. Detected from the
+#'   files in \code{root} when \code{NULL}.
 #' @param weight_column Name of the signed weight column.
 #' @param validate Check that key columns are present, complete and unique.
-#' @return A named list of \code{data.table}s, one per endpoint.
+#' @return A named list of \code{data.table}s, one per endpoint. When a single
+#'   endpoint is requested with \code{simplify = TRUE}, that table.
+#' @param simplify Return the table itself when one endpoint is requested.
 #' @export
 read_network_endpoints <- function(root, endpoints = NULL, direction = FALSE,
                                    weight_column = "weight", validate = TRUE,
-                                   format = c("tsv", "csv", "tsv.gz", "csv.gz")) {
-  format <- match.arg(format)
+                                   format = NULL, simplify = FALSE) {
   spec <- network_endpoints()
   if (is.null(endpoints)) {
     endpoints <- spec$endpoint
@@ -83,6 +104,7 @@ read_network_endpoints <- function(root, endpoints = NULL, direction = FALSE,
   if (!dir.exists(root)) {
     stop("Result directory does not exist: ", root, call. = FALSE)
   }
+  format <- detect_endpoint_format(root, format)
   output <- vector("list", length(endpoints))
   names(output) <- endpoints
   for (index in seq_along(endpoints)) {
@@ -90,8 +112,7 @@ read_network_endpoints <- function(root, endpoints = NULL, direction = FALSE,
     spec_row <- spec[spec$endpoint == endpoint, , drop = FALSE]
     keys <- spec_row$keys[[1L]]
     path <- file.path(root, sub("[.]tsv$", paste0(".", format), spec_row$file))
-    sep <- if (startsWith(format, "csv")) "," else "\t"
-    table <- read_endpoint_table(path, sep, keys)
+    table <- read_endpoint_table(path, keys)
     columns <- if (isTRUE(direction)) c(keys, weight_column) else keys
     check_endpoint_keys(table, keys, endpoint, columns, validate)
     if (isTRUE(direction)) {
@@ -100,12 +121,101 @@ read_network_endpoints <- function(root, endpoints = NULL, direction = FALSE,
         stop(endpoint, " endpoint weights must be finite and non-zero.", call. = FALSE)
       }
       table <- table[, keys, with = FALSE]
-      data.table::setDT(table)
       data.table::set(table, j = "direction", value = sign(values))
     }
     output[[index]] <- table
   }
+  if (isTRUE(simplify) && length(output) == 1L) {
+    return(output[[1L]])
+  }
   output
+}
+
+#' Validate a layered network result directory
+#'
+#' Checks that every endpoint and accounting table is present and non-empty,
+#' that the endpoint keys are complete and unique, and that the row counts
+#' match \code{endpoint_summary}.
+#'
+#' @inheritParams read_network_endpoints
+#' @param error Signal an error on the first problem; otherwise return
+#'   \code{FALSE}.
+#' @return \code{TRUE} (invisibly) for a complete result.
+#' @export
+validate_network_endpoints <- function(root, format = NULL, error = TRUE) {
+  tryCatch(withCallingHandlers({
+    if (!dir.exists(root)) {
+      stop("Result directory does not exist: ", root, call. = FALSE)
+    }
+    format <- detect_endpoint_format(root, format)
+    paths <- file.path(root, network_endpoint_files(format, accounting = TRUE))
+    sizes <- file.size(paths)
+    if (anyNA(sizes) || any(sizes == 0)) {
+      stop("Incomplete network output: ", root, call. = FALSE)
+    }
+    summary <- read_endpoint_table(utils::tail(paths, 1L))
+    spec <- network_endpoints()
+    if (anyDuplicated(names(summary)) ||
+      !all(c("endpoint", "selected") %in% names(summary)) ||
+      anyNA(summary$endpoint) || anyDuplicated(summary$endpoint) ||
+      !setequal(summary$endpoint, spec$endpoint) ||
+      !is.numeric(summary$selected) || any(!is.finite(summary$selected)) ||
+      any(summary$selected < 0 | summary$selected != floor(summary$selected))) {
+      stop("Invalid endpoint summary: ", root, call. = FALSE)
+    }
+    tables <- read_network_endpoints(root, format = format)
+    for (endpoint in spec$endpoint) {
+      table <- tables[[endpoint]]
+      if (anyDuplicated(names(table))) {
+        stop(endpoint, " endpoint has duplicated column names.", call. = FALSE)
+      }
+      if (nrow(table) != summary$selected[match(endpoint, summary$endpoint)]) {
+        stop("Endpoint count mismatch: ", endpoint, " in ", root, call. = FALSE)
+      }
+    }
+    accounting_paths <- paths[seq.int(nrow(spec) + 1L, length(paths) - 1L)]
+    for (index in seq_along(accounting_paths)) {
+      endpoint <- spec$endpoint[[index]]
+      accounting <- tryCatch(
+        read_endpoint_table(accounting_paths[[index]], c("endpoint", "target")),
+        warning = function(problem) {
+          stop("Invalid ", endpoint, " accounting table: ", conditionMessage(problem), call. = FALSE)
+        },
+        error = function(problem) {
+          stop("Invalid ", endpoint, " accounting table: ", conditionMessage(problem), call. = FALSE)
+        }
+      )
+      if (anyDuplicated(names(accounting)) ||
+        !all(c("endpoint", "target", "n_selected") %in% names(accounting)) ||
+        anyNA(accounting$endpoint) || any(accounting$endpoint != endpoint) ||
+        anyNA(accounting$target) || anyDuplicated(accounting$target) ||
+        (nrow(accounting) > 0L && (!is.numeric(accounting$n_selected) ||
+          any(!is.finite(accounting$n_selected)) ||
+          any(accounting$n_selected < 0 | accounting$n_selected != floor(accounting$n_selected))))) {
+        stop("Invalid ", endpoint, " accounting table: ", root, call. = FALSE)
+      }
+    }
+    invisible(TRUE)
+  }, warning = function(warning) {
+    stop(conditionMessage(warning), call. = FALSE)
+  }), error = function(problem) {
+    if (isTRUE(error)) {
+      stop(conditionMessage(problem), call. = FALSE)
+    }
+    FALSE
+  })
+}
+
+detect_endpoint_format <- function(root, format = NULL) {
+  formats <- c("tsv", "csv", "tsv.gz", "csv.gz")
+  if (!is.null(format)) {
+    return(match.arg(format, formats))
+  }
+  present <- formats[file.exists(file.path(root, paste0("tf_gene.", formats)))]
+  if (length(present) > 1L) {
+    stop("Several endpoint formats in ", root, "; set `format`.", call. = FALSE)
+  }
+  if (!length(present)) "tsv" else present
 }
 
 check_endpoint_keys <- function(table, keys, endpoint, columns = keys, validate = TRUE) {
@@ -131,7 +241,11 @@ write_endpoint_table <- function(table, path, format) {
   invisible(path)
 }
 
-read_endpoint_table <- function(path, sep = "\t", keys = character()) {
+read_endpoint_table <- function(path, keys = character()) {
+  if (!file.exists(path)) {
+    stop("Endpoint file does not exist: ", path, call. = FALSE)
+  }
+  sep <- if (grepl("[.]csv([.]gz)?$", path)) "," else "\t"
   data.table::as.data.table(utils::read.delim(
     path,
     sep = sep, check.names = FALSE, stringsAsFactors = FALSE,

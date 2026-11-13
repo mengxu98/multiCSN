@@ -292,10 +292,12 @@ multicsn_palette_colors <- function(values, palette = "Chinese", fallback = NULL
     return(character(0))
   }
 
-  cols <- tryCatch(
-    thisplot::palette_colors(vals_unique, palette = palette),
-    error = function(e) NULL
-  )
+  cols <- if (requireNamespace("thisplot", quietly = TRUE)) {
+    tryCatch(
+      thisplot::palette_colors(vals_unique, palette = palette),
+      error = function(e) NULL
+    )
+  }
   if (!is.null(cols) && length(cols) > 0) {
     if (is.null(names(cols)) || any(!nzchar(names(cols)))) {
       names(cols) <- vals_unique[seq_len(min(length(cols), length(vals_unique)))]

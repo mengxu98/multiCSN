@@ -7,10 +7,12 @@
 classify_edge_transitions(
   previous,
   next_state,
-  keys,
+  keys = c("regulator", "target"),
   direction_column = "direction",
   labels = c(gained = "gained", lost = "lost", stable = "shared_sign_stable", flip =
-    "shared_sign_flip")
+    "shared_sign_flip"),
+  from = NULL,
+  to = NULL
 )
 }
 \arguments{
@@ -23,6 +25,9 @@ direction column.}
 
 \item{labels}{Named character vector with the class names for
 \code{gained}, \code{lost}, \code{stable} and \code{flip}.}
+
+\item{from, to}{Optional state names added as \code{previous_state},
+\code{next_state} and \code{transition} (\code{"from -> to"}) columns.}
 }
 \value{
 A \code{data.table} with the key columns,
@@ -33,4 +38,12 @@ A \code{data.table} with the key columns,
 Merges two endpoint tables on their key columns and labels every edge as
 gained, lost, sign-stable or sign-flipped. This is the shared reduction behind
 the state-transition, donor-deletion and cell-budget summaries.
+}
+\examples{
+early <- data.frame(regulator = c("A", "B"), target = "X", direction = c(1, -1))
+late <- data.frame(regulator = c("B", "C"), target = "X", direction = c(1, 1))
+classify_edge_transitions(
+  early, late, c("regulator", "target"),
+  from = "early", to = "late"
+)
 }

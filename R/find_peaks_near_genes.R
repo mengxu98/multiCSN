@@ -53,16 +53,18 @@ find_peaks_near_genes <- function(
         length(genes_extended)
       )
     )
-    rownames(hit_matrix) <- Signac::GRangesToString(grange = peaks, sep = sep)
+    rownames(hit_matrix) <- ranges_to_string(grange = peaks, sep = sep)
     colnames(hit_matrix) <- genes_extended$gene_name
   } else if (method == "GREAT") {
     utils::data(EnsDb.Hsapiens.v93.annot.UCSC.hg38, envir = environment())
     gene_annot_use <- EnsDb.Hsapiens.v93.annot.UCSC.hg38[
       which(EnsDb.Hsapiens.v93.annot.UCSC.hg38$gene_name %in% genes$gene_name),
     ]
-    gene_annot_tss <- dplyr::select(
-      tibble::as_tibble(gene_annot_use), "seqnames",
-      "start" = "tss", "end" = "tss", "strand"
+    gene_annot_tss <- data.frame(
+      seqnames = GenomicRanges::seqnames(gene_annot_use),
+      start = gene_annot_use$tss,
+      end = gene_annot_use$tss,
+      strand = GenomicRanges::strand(gene_annot_use)
     )
     tss <- GenomicRanges::GRanges(gene_annot_tss)
     basal_reg <- suppressWarnings(
@@ -81,11 +83,11 @@ find_peaks_near_genes <- function(
         minoverlap = 2
       )
     )
-    peak_all <- Signac::GRangesToString(grange = peaks, sep = sep)
+    peak_all <- ranges_to_string(grange = peaks, sep = sep)
     basal_peak_mapped_idx <- S4Vectors::queryHits(basal_overlaps)
     peak_unmapped_idx <- setdiff(seq_along(peak_all), basal_peak_mapped_idx)
     peak_unmapped <- peak_all[peak_unmapped_idx]
-    peak_unmapped_region <- Signac::StringToGRanges(peak_unmapped)
+    peak_unmapped_region <- string_to_ranges(peak_unmapped)
     gene_bound <- GenomicRanges::GRanges(gene_annot_use)
     body_overlaps <- IRanges::findOverlaps(
       query = peak_unmapped_region,
@@ -98,7 +100,7 @@ find_peaks_near_genes <- function(
     peak_mapped_idx <- c(basal_peak_mapped_idx, body_peak_mapped_idx)
     peak_unmapped_idx <- setdiff(seq_along(peak_all), peak_mapped_idx)
     peak_unmapped <- peak_all[peak_unmapped_idx]
-    peak_unmapped_region <- Signac::StringToGRanges(peak_unmapped)
+    peak_unmapped_region <- string_to_ranges(peak_unmapped)
     extend_reg <- suppressWarnings(
       expr = Signac::Extend(
         basal_reg,

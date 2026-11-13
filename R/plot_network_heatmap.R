@@ -120,6 +120,7 @@ plot_network_heatmap <- function(
   row_title = "Regulators",
   heatmap_title_color = NULL
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "patchwork", "thisplot"), strict = TRUE, verbose = FALSE)
   show_names_position <- match.arg(show_names_position)
   if (is.null(heatmap_palcolor)) {
     heatmap_palcolor <- heatmap_color
@@ -1172,8 +1173,11 @@ print.multicsn_heatmap_grid <- function(x, ...) {
   invisible(x)
 }
 
-register_multicsn_heatmap_grid_draw_method <- function() {
-  methods::setOldClass(c("multicsn_heatmap_grid", "gTree", "grob", "gDesc"))
+register_multicsn_heatmap_grid_draw_method <- function(where = topenv(parent.frame())) {
+  if (!requireNamespace("ComplexHeatmap", quietly = TRUE)) {
+    return(invisible(FALSE))
+  }
+  methods::setOldClass(c("multicsn_heatmap_grid", "gTree", "grob", "gDesc"), where = where)
   methods::setMethod(
     ComplexHeatmap::draw,
     methods::signature(object = "multicsn_heatmap_grid"),
@@ -1183,13 +1187,16 @@ register_multicsn_heatmap_grid_draw_method <- function() {
       }
       grid::grid.draw(object)
       invisible(object)
-    }
+    },
+    where = where
   )
   invisible(TRUE)
 }
 
 .onLoad <- function(libname, pkgname) {
-  register_multicsn_heatmap_grid_draw_method()
+  if (requireNamespace("ComplexHeatmap", quietly = TRUE)) {
+    register_multicsn_heatmap_grid_draw_method(asNamespace(pkgname))
+  }
 }
 
 network_value_label <- function(network_table, switch_matrix = TRUE) {

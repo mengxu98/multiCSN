@@ -57,7 +57,7 @@ normalize_chromatin_assay <- function(
   }
 
   peak_ranges <- tryCatch(
-    Signac::StringToGRanges(rownames(counts), sep = sep),
+    string_to_ranges(rownames(counts), sep = if (missing(sep)) NULL else sep),
     error = function(e) NULL
   )
   if (is.null(peak_ranges) || length(peak_ranges) != nrow(counts)) {
@@ -78,6 +78,8 @@ normalize_chromatin_assay <- function(
     error = function(e) NULL
   )
   if (!is.null(data_layer) && all(dim(data_layer) == dim(counts))) {
+    data_layer <- data_layer[rownames(counts), colnames(counts), drop = FALSE]
+    rownames(data_layer) <- rownames(chrom_assay)
     chrom_assay <- SeuratObject::SetAssayData(
       object = chrom_assay,
       layer = "data",
@@ -134,7 +136,7 @@ build_gene_peak_map_local <- function(
     return(NULL)
   }
 
-  peak_ranges <- Signac::StringToGRanges(rownames(object[[peak_assay]]))
+  peak_ranges <- string_to_ranges(rownames(object[[peak_assay]]))
   peak_gene <- find_peaks_near_genes(
     peaks = peak_ranges,
     genes = gene_annot,
@@ -165,6 +167,7 @@ plot_tf_peak_overlap_scenic_style <- function(
   peak_assay = NULL,
   top_targets_per_tf = 6
 ) {
+  check_r(c("ComplexHeatmap", "circlize", "patchwork", "thisplot"), strict = TRUE, verbose = FALSE)
   peak_assay <- resolve_peak_assay_for_locus(object, peak_assay)
   tfs <- unique(as.character(tfs))
   tfs <- tfs[!is.na(tfs) & nzchar(tfs)]
@@ -372,7 +375,7 @@ build_signac_links_for_target <- function(
         )
         as.numeric(acc[[1]] %ss% 0)
       }, numeric(1))
-      peak_ranges <- Signac::StringToGRanges(pk)
+      peak_ranges <- string_to_ranges(pk)
       peak_mid <- floor((GenomicRanges::start(peak_ranges) + GenomicRanges::end(peak_ranges)) / 2)
       data.frame(
         peak = pk,
@@ -442,8 +445,8 @@ build_peak_pseudocoverage_plot <- function(
   n_bins = 200,
   normalize_by_group = TRUE
 ) {
-  peak_ranges <- Signac::StringToGRanges(rownames(object[[peak_assay]]))
-  region_gr <- Signac::StringToGRanges(region)
+  peak_ranges <- string_to_ranges(rownames(object[[peak_assay]]))
+  region_gr <- string_to_ranges(region)
   hits <- GenomicRanges::findOverlaps(peak_ranges, region_gr)
   if (length(hits) == 0) {
     return(
@@ -526,7 +529,7 @@ build_gene_model_plot <- function(
   region,
   gene_label = NULL
 ) {
-  region_gr <- Signac::StringToGRanges(region)
+  region_gr <- string_to_ranges(region)
   gene_label <- gene_label %ss% as.character(gene_gr$gene_name[[1]] %ss% "gene")
   gene_df <- data.frame(
     start = GenomicRanges::start(gene_gr),
@@ -568,7 +571,7 @@ build_link_arc_plot <- function(
   top_n = 8,
   show_tf_labels = TRUE
 ) {
-  region_gr <- Signac::StringToGRanges(region)
+  region_gr <- string_to_ranges(region)
   if (is.null(link_table) || nrow(link_table) == 0) {
     return(
       ggplot2::ggplot() +
@@ -682,6 +685,7 @@ plot_target_locus_signac <- function(
   show_tf_labels = TRUE,
   normalize_tracks = TRUE
 ) {
+  check_r(c("patchwork", "thisplot"), strict = TRUE, verbose = FALSE)
   peak_assay <- resolve_peak_assay_for_locus(object, peak_assay)
   state_info <- ensure_state_group_column(
     object = object,
