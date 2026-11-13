@@ -1,4 +1,14 @@
-# multiCSN (development version)
+# multiCSN 0.0.2
+
+* The independent layered workflow has an explicit input and result contract.
+  Candidate preparation and fitting require one joined `data` layer per assay;
+  per-group normalization also requires one joined `counts` layer.
+* Candidate preparation rebuilds the multiCSN catalogue. In-memory fitting
+  returns the complete scientific tables without storing a Seurat object by default.
+* Fitting returns valid empty endpoint tables when the peak detection threshold
+  removes every candidate region.
+* Constant TF expression produces empty TF layers with explicit accounting;
+  the independent region-gene layer is retained.
 
 * Checkpoint hashes use SHA-256 through `digest`, retaining support for R 4.1.
 * Explicit peak separators are respected when normalizing chromatin assays,

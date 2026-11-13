@@ -218,6 +218,25 @@ layered_candidate_functions <- function(gene_by_cell, peaks2gene, peak_tf_gate,
 fit_layered_shared_design <- function(design, response, response_names,
                                       candidate_function, endpoint, settings,
                                       checkpoint_root = NULL, gram = NULL) {
+  if (!length(response_names) || !ncol(design)) {
+    edges <- data.frame(
+      feature = character(), target = character(), standardized_beta = numeric(),
+      deletion_delta_bic = numeric(), stringsAsFactors = FALSE
+    )
+    accounting <- if (length(response_names)) {
+      data.frame(
+        endpoint = endpoint, target = response_names,
+        n_candidates = integer(length(response_names)),
+        n_selected = integer(length(response_names)),
+        rss = rep(NA_real_, length(response_names)),
+        bic = rep(NA_real_, length(response_names)),
+        status = "no_variable_candidate", stringsAsFactors = FALSE
+      )
+    } else {
+      empty_shared_accounting()
+    }
+    return(list(edges = edges, accounting = accounting))
+  }
   n_obs <- nrow(design)
   if (is.null(gram)) gram <- crossprod(design)
   response_stats <- layered_response_statistics(response, n_obs)
@@ -437,6 +456,10 @@ layered_inputs <- function(object, cell_group, cells, regulators, targets,
   if (is.null(peak_assay)) {
     stop("A layered multi-omic fit requires a chromatin accessibility assay.", call. = FALSE)
   }
+  check_layered_assay_layers(
+    object, c(rna_assay, peak_assay),
+    layers = if (isTRUE(renormalize)) c("data", "counts") else "data"
+  )
   catalogue <- if (is.null(cell_group)) {
     NULL
   } else {
@@ -512,13 +535,14 @@ layered_inputs <- function(object, cell_group, cells, regulators, targets,
   domain_peak <- Matrix::colSums(peaks2gene != 0) > 0 &
     observed[colnames(peaks2gene)]
   peaks2gene <- peaks2gene[, domain_peak, drop = FALSE]
+  domain_peak_names <- as.character(colnames(peaks2gene))
   all_peak_by_cell <- peak_by_cell
-  peak_by_cell <- peak_by_cell[colnames(peaks2gene), , drop = FALSE]
+  peak_by_cell <- peak_by_cell[domain_peak_names, , drop = FALSE]
   motif_peak <- Matrix::rowSums(
-    peaks2motif[colnames(peaks2gene), , drop = FALSE] != 0
+    peaks2motif[domain_peak_names, , drop = FALSE] != 0
   ) > 0
   tf_region_names <- if (identical(tf_region_scope, "domain_peaks")) {
-    colnames(peaks2gene)[motif_peak]
+    domain_peak_names[motif_peak]
   } else {
     peaks_requested[observed & Matrix::rowSums(peaks2motif != 0) > 0]
   }

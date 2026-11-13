@@ -343,6 +343,7 @@ prepare_candidates <- function(object,
   if (length(missing_assays)) {
     stop("Missing assay(s): ", paste(missing_assays, collapse = ", "), call. = FALSE)
   }
+  check_layered_assay_layers(object, c(rna_assay, peak_assay))
   if (is.null(targets)) {
     targets <- rownames(object[[rna_assay]])
   }

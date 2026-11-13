@@ -82,7 +82,8 @@ inferCSN(
 }
 \arguments{
 \item{object}{Expression matrix, \code{Network}, \code{Seurat}, or \code{CSNObject}.
-Matrix input is handled by \code{\link[inferCSN:inferCSN]{inferCSN::inferCSN()}}.}
+Matrix input has cells in rows and genes in columns and is handled by
+\code{\link[inferCSN:inferCSN]{inferCSN::inferCSN()}}.}
 
 \item{pseudotime}{Optional pseudotime vector or branch matrix for matrix input.
 For \code{Seurat} objects, a single column name is treated as \code{pseudotime_column}.}

@@ -14,6 +14,25 @@ get_layer_data <-
     stop("object must be a Seurat or CSNObject object.", call. = FALSE)
   }
 
+check_layered_assay_layers <- function(object, assays, layers = "data") {
+  for (assay in assays) {
+    for (layer in layers) {
+      available <- SeuratObject::Layers(csn_get_assay(object, assay), search = NA)
+      available <- available[grepl(paste0("^", layer, "($|[.])"), available)]
+      if (!identical(available, layer)) {
+        stop(
+          "Assay '", assay, "' requires one joined '", layer,
+          "' layer. Normalize the assay if this layer is missing; ",
+          "for split layers use SeuratObject::JoinLayers(object, assay = '",
+          assay, "', layers = '", layer, "', new = '", layer, "').",
+          call. = FALSE
+        )
+      }
+    }
+  }
+  invisible(NULL)
+}
+
 #' Read peak assay annotations
 #' @param object A Seurat object or a legacy CSNObject.
 #' @param peak_assay Name of the peak assay.

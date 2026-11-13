@@ -53,6 +53,18 @@ it initializes the multiCSN state without marker filtering (every RNA gene
 is a candidate target), aligns the gene annotation with the peak chromosome
 names and scans the selected peaks for motifs.
 }
+\details{
+Both assays require a single normalized layer named \code{data}. Join split
+layers with \code{SeuratObject::JoinLayers()} before preparing candidates.
+RNA values must use the normalization intended for the fit; chromatin values
+must be TF-IDF normalized. This function does not normalize either assay.
+
+Every call rebuilds the multiCSN candidate catalogue and clears networks from
+the previous catalogue on the returned object. It sets active identities from
+\code{group.by}, selects the RNA default assay and, when requested, extends
+annotation sequence levels. Other assays and metadata are retained.
+Keep the returned object and reuse it for fits of the same catalogue.
+}
 \examples{
 \dontrun{
 genome <- BSgenome.Hsapiens.UCSC.hg38::BSgenome.Hsapiens.UCSC.hg38

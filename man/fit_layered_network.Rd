@@ -87,7 +87,8 @@ selected inputs and fitting settings match. A SHA-256 identity is computed
 when checkpointing is enabled; \code{NULL} keeps everything in memory.}
 
 \item{store}{Store the three layers as \code{Network} entries in the returned
-object.}
+object. The default \code{FALSE} returns only the fitted result and does not
+include a copy of the Seurat object.}
 
 \item{network_name}{Name of the stored network entries.}
 
@@ -104,7 +105,8 @@ after the fit completes. An existing \code{output_dir} is never overwritten.}
 \value{
 A list with \code{tf_gene}, \code{tf_region}, \code{region_gene},
   \code{triplets}, \code{mediated_tf_gene}, \code{accounting}, \code{summary},
-  \code{settings}, \code{cells} and, when \code{store = TRUE}, \code{object}.
+  \code{settings}, \code{cells}, \code{targets}, \code{regulators} and,
+  when \code{store = TRUE}, \code{object}.
   With \code{output_dir} the list is returned invisibly and also holds the
   written \code{paths}.
 }
@@ -123,6 +125,36 @@ Two presets cover the common designs: \code{"state"} fits cell states that
 share one normalization, and \code{"timepoint"} re-normalizes each group,
 requires every target and TF to be detected in 20 cells and drops affine
 response aliases. Arguments supplied explicitly override the preset.
+
+Each assay must have one layer named \code{data}; split layers require
+\code{SeuratObject::JoinLayers()} before fitting. Per-group normalization
+also requires a single \code{counts} layer in each assay. With
+\code{store = FALSE}, fitting leaves the supplied object unchanged.
+
+Each edge layer retains its own \code{standardized_beta},
+\code{deletion_delta_bic} and signed ordinal \code{weight}. The coefficient
+sign gives that layer's fitted direction. Ordinal weights rank deletion
+evidence within an endpoint and retain coefficient signs. They are not
+coefficients or probabilities.
+
+\code{triplets} links selected TF-region and region-gene edges. Its
+\code{chain_delta_bic} is the minimum of the two endpoint deletion scores;
+\code{chain_direction} is the product of their signs.
+\code{backbone_selected} records whether the direct TF-gene edge exists,
+and \code{backbone_sign_concordant} records agreement with the direct sign.
+\code{mediated_tf_gene} keeps the strongest sign-consistent path per TF-gene
+pair. These projections retain their own scores and support flags.
+
+\code{settings} records the effective settings after applying the preset
+and explicit arguments. \code{cells}, \code{targets} and \code{regulators}
+record the entities actually used. The five endpoint tables, accounting
+tables and summary can be saved independently with
+\code{\link{write_network_endpoints}()} and read with
+\code{\link{read_network_endpoints}()}.
+
+Valid inputs can yield empty endpoint tables. If no TF has variable expression,
+the TF layers have no selected edges and their accounting status is
+\code{no_variable_candidate}; the region-gene layer is still fitted independently.
 }
 \examples{
 \dontrun{

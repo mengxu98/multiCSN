@@ -47,6 +47,17 @@ fit <- fit_layered_network(
 
 `preset = "state"` fits cell states that share one normalization; `preset = "timepoint"` re-normalizes each group and requires target genes and TFs to be detected in at least 20 cells. Arguments you pass explicitly override the preset. With `output_dir` the network tables are written only after the fit completes, and an existing directory is never overwritten.
 
+Each assay needs one normalized `data` layer. Join split RNA layers before
+candidate preparation with
+`object <- SeuratObject::JoinLayers(object, assay = "RNA", layers = "data", new = "data")`.
+Per-group normalization also needs joined `counts` layers. Candidate preparation
+rebuilds the catalogue, so prepare once and then fit each group from that object.
+
+For an in-memory result, omit `output_dir`. The default `store = FALSE` keeps
+the input object unchanged and returns the complete layer and path tables, accounting,
+effective settings and selected cell and feature IDs. It does not include a
+Seurat object. Set `store = TRUE` to also return an object with stored networks.
+
 Read, check and compare the saved networks:
 
 ``` r
@@ -72,7 +83,15 @@ evaluate_network(prediction, ground_truth)$AUPRC
 library(multiCSN)
 data("example_matrix", package = "inferCSN")
 
-network <- inferCSN(example_matrix)
+network <- inferCSN(example_matrix, verbose = FALSE)
+
+pseudotime <- setNames(seq(0, 1, length.out = nrow(example_matrix)), rownames(example_matrix))
+ordered_network <- inferCSN(example_matrix, pseudotime = pseudotime, verbose = FALSE)
 ```
+
+The RNA matrix has cells in rows and genes in columns. This public method uses
+the independent `inferCSN` engine. Use the layered workflow above for paired RNA
+and chromatin assays. See `?fit_layered_network` for the meanings of layer
+coefficients, deletion evidence, ordinal weights and mediated paths.
 
 See the [function reference](https://mengxu98.github.io/multiCSN/reference/index.html) for the full interface.
