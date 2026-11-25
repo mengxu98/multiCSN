@@ -10,7 +10,7 @@ find_motifs(object, ...)
 # S4 method for class 'Seurat'
 find_motifs(
   object,
-  pfm,
+  pfm = NULL,
   genome,
   motif_tfs = NULL,
   backend = c("signac", "motifmatchr"),
@@ -34,7 +34,9 @@ find_motifs(object, ...)
 
 - pfm:
 
-  A PFMatrixList object with position weight matrices.
+  A PFMatrixList object with position weight matrices. Defaults to the
+  bundled
+  [`motifs`](https://mengxu98.github.io/multiCSN/reference/motifs.md).
 
 - genome:
 
@@ -43,6 +45,8 @@ find_motifs(object, ...)
 - motif_tfs:
 
   A data frame matching motifs with TFs. First column motif, second TF.
+  Defaults to the bundled
+  [`motif2tf`](https://mengxu98.github.io/multiCSN/reference/motif2tf.md).
 
 - backend:
 

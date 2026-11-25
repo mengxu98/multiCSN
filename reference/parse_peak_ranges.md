@@ -5,19 +5,21 @@ Parse peak identifiers
 ## Usage
 
 ``` r
-parse_peak_ranges(peaks, sep = c("-", "-"))
+parse_peak_ranges(peaks, sep = NULL)
 ```
 
 ## Arguments
 
 - peaks:
 
-  Character peak identifiers in chromosome:start-end,
-  chromosome-start-end or chromosome_start_end form.
+  Character vector of peak identifiers.
 
 - sep:
 
-  Retained for compatibility with peak identifier callers.
+  Two non-empty literal strings separating chromosome from start and
+  start from end, respectively. The default, `NULL`, recognizes
+  `chromosome:start-end`, `chromosome-start-end`, and
+  `chromosome_start_end` automatically.
 
 ## Value
 

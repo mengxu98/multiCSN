@@ -23,12 +23,9 @@ inferCSN(
 # S4 method for class 'Network'
 inferCSN(
   object,
-  pseudotime = NULL,
   regulators = NULL,
   targets = NULL,
   max_support_size = NULL,
-  lag_fraction = 0.05,
-  lag_steps = NULL,
   cores = 1,
   verbose = TRUE,
   seed = 1,
@@ -45,11 +42,8 @@ inferCSN(
   regulators = NULL,
   targets = NULL,
   max_support_size = NULL,
-  lag_fraction = 0.05,
-  lag_steps = NULL,
   cores = 1,
   verbose = TRUE,
-  seed = 1,
   r_squared_threshold = 0,
   celltypes = NULL,
   network_name = paste0(method, "_network"),
@@ -93,7 +87,7 @@ inferCSN(
 - object:
 
   Expression matrix, `Network`, `Seurat`, or `CSNObject`. Matrix input
-  is handled by
+  has cells in rows and genes in columns and is handled by
   [`inferCSN::inferCSN()`](https://mengxu98.github.io/inferCSN/reference/inferCSN.html).
 
 - pseudotime:
@@ -126,6 +120,12 @@ inferCSN(
 
   Whether to report progress.
 
+- method:
+
+  For matrix input, `"greedy_l0"` (default) or the optional L0Learn
+  penalties `"L0"`, `"L0L1"`, and `"L0L2"`. The `Network` and `Seurat`
+  methods support only `"greedy_l0"`.
+
 - ...:
 
   Additional method arguments.
@@ -138,12 +138,6 @@ inferCSN(
 
   Threshold of \\R^2\\ used when formatting `Network` / `Seurat`
   results.
-
-- method:
-
-  For matrix input, `"greedy_l0"` (default) or the optional L0Learn
-  penalties `"L0"`, `"L0L1"`, and `"L0L2"`. The `Network` and `Seurat`
-  methods support only `"greedy_l0"`.
 
 - gene_cor_threshold:
 
@@ -243,9 +237,9 @@ data("example_matrix", package = "inferCSN")
 network_table_1 <- inferCSN(
   example_matrix
 )
-#> ℹ [2026-10-28 07:35:02] Inferring network for <matrix/array>...
-#> ✔ [2026-10-28 07:35:02] Inferring network done
-#> ℹ [2026-10-28 07:35:02] Network information:
+#> ℹ [2026-11-25 02:22:53] Inferring network for <matrix/array>...
+#> ✔ [2026-11-25 02:22:53] Inferring network done
+#> ℹ [2026-11-25 02:22:53] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -253,9 +247,9 @@ network_table_2 <- inferCSN(
   example_matrix,
   cores = 2
 )
-#> ℹ [2026-10-28 07:35:02] Inferring network for <matrix/array>...
-#> ✔ [2026-10-28 07:35:02] Inferring network done
-#> ℹ [2026-10-28 07:35:02] Network information:
+#> ℹ [2026-11-25 02:22:53] Inferring network for <matrix/array>...
+#> ✔ [2026-11-25 02:22:53] Inferring network done
+#> ℹ [2026-11-25 02:22:53] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1    12          6       6
 
@@ -279,9 +273,9 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g4")
 )
-#> ℹ [2026-10-28 07:35:02] Inferring network for <matrix/array>...
-#> ✔ [2026-10-28 07:35:02] Inferring network done
-#> ℹ [2026-10-28 07:35:02] Network information:
+#> ℹ [2026-11-25 02:22:53] Inferring network for <matrix/array>...
+#> ✔ [2026-11-25 02:22:53] Inferring network done
+#> ℹ [2026-11-25 02:22:53] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     4          2       2
 #>   regulator target weight
@@ -294,11 +288,11 @@ inferCSN(
   regulators = c("g1", "g2"),
   targets = c("g3", "g0")
 )
-#> ℹ [2026-10-28 07:35:02] Inferring network for <matrix/array>...
-#> ! [2026-10-28 07:35:02] Ignoring 1 requested targets absent from `object`: g0
+#> ℹ [2026-11-25 02:22:53] Inferring network for <matrix/array>...
+#> ! [2026-11-25 02:22:53] Ignoring 1 requested targets absent from `object`: g0
 #> Warning: Ignoring 1 requested targets absent from `object`: g0
-#> ✔ [2026-10-28 07:35:02] Inferring network done
-#> ℹ [2026-10-28 07:35:02] Network information:
+#> ✔ [2026-11-25 02:22:53] Inferring network done
+#> ℹ [2026-11-25 02:22:53] Network information:
 #> ℹ                         Edges Regulators Targets
 #> ℹ                       1     2          2       1
 #>   regulator target weight
@@ -313,13 +307,9 @@ calculate_metrics(
   return_plot = TRUE
 )
 } # }
-if (FALSE) { # \dontrun{
-data("example_matrix", package = "inferCSN")
-object <- initiate_object(example_matrix)
-object <- inferCSN(object)
-} # }
-if (FALSE) { # \dontrun{
+
 # multiome input: motif scanning comes first
+if (FALSE) { # \dontrun{
 # Supply a Seurat object containing RNA and chromatin accessibility assays.
 data(motifs)
 
@@ -345,5 +335,10 @@ object <- find_motifs(
 object <- inferCSN(object, cores = 2, verbose = FALSE)
 networks <- export_csn(object)
 head(networks[[1]])
+} # }
+if (FALSE) { # \dontrun{
+data("example_matrix", package = "inferCSN")
+object <- initiate_object(example_matrix)
+object <- inferCSN(object)
 } # }
 ```

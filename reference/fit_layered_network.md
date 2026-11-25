@@ -32,7 +32,10 @@ fit_layered_network(
   checkpoint_dir = NULL,
   store = FALSE,
   network_name = "multiCSN",
-  verbose = TRUE
+  verbose = TRUE,
+  preset = NULL,
+  output_dir = NULL,
+  format = c("tsv", "csv", "tsv.gz", "csv.gz")
 )
 ```
 
@@ -48,6 +51,12 @@ fit_layered_network(
 
   Catalogue key (cell type, state or timepoint) used to select cells,
   peaks and target genes.
+
+- preset:
+
+  Default settings for `min_detected`, `tf_region_scope`,
+  `exclude_response_alias`, `renormalize` and `sort_regulators`:
+  `"state"` or `"timepoint"`. `NULL` keeps the individual defaults.
 
 - cells:
 
@@ -121,10 +130,24 @@ fit_layered_network(
 - store:
 
   Store the three layers as `Network` entries in the returned object.
+  The default `FALSE` returns only the fitted result and does not
+  include a copy of the Seurat object.
 
 - network_name:
 
   Name of the stored network entries.
+
+- output_dir:
+
+  Optional directory receiving the endpoint tables (see
+  [`write_network_endpoints`](https://mengxu98.github.io/multiCSN/reference/write_network_endpoints.md)).
+  The tables are written to a temporary sibling directory and published
+  only after the fit completes. Use `checkpoint_dir` to retain resumable
+  checkpoints. An existing `output_dir` is never overwritten.
+
+- format:
+
+  File format of `output_dir`.
 
 - verbose:
 
@@ -133,5 +156,66 @@ fit_layered_network(
 ## Value
 
 A list with `tf_gene`, `tf_region`, `region_gene`, `triplets`,
-`mediated_tf_gene`, `accounting`, `summary`, `settings`, `cells` and,
-when `store = TRUE`, `object`.
+`mediated_tf_gene`, `accounting`, `summary`, `settings`, `cells`,
+`targets`, `regulators` and, when `store = TRUE`, `object`. With
+`output_dir` the list is returned invisibly and also holds the written
+`paths`.
+
+## Details
+
+A typical workflow is
+[`prepare_candidates()`](https://mengxu98.github.io/multiCSN/reference/prepare_candidates.md)
+followed by
+`fit_layered_network(object, cell_group = "state", output_dir = "out")`.
+Two presets cover the common designs: `"state"` fits cell states that
+share one normalization, and `"timepoint"` re-normalizes each group,
+requires every target and TF to be detected in 20 cells and drops affine
+response aliases. Arguments supplied explicitly override the preset.
+
+Each assay must have one layer named `data`; split layers require
+[`SeuratObject::JoinLayers()`](https://satijalab.github.io/seurat-object/reference/SplitLayers.html)
+before fitting. Per-group normalization also requires a single `counts`
+layer in each assay. With `store = FALSE`, fitting leaves the supplied
+object unchanged.
+
+Each edge layer retains its own `standardized_beta`,
+`deletion_delta_bic` and signed ordinal `weight`. The coefficient sign
+gives that layer's fitted direction. Ordinal weights rank deletion
+evidence within an endpoint and retain coefficient signs. They are not
+coefficients or probabilities.
+
+`triplets` links selected TF-region and region-gene edges. Its
+`chain_delta_bic` is the minimum of the two endpoint deletion scores;
+`chain_direction` is the product of their signs. `backbone_selected`
+records whether the direct TF-gene edge exists, and
+`backbone_sign_concordant` records agreement with the direct sign.
+`mediated_tf_gene` keeps the strongest sign-consistent path per TF-gene
+pair. These projections retain their own scores and support flags.
+
+`settings` records the effective settings after applying the preset and
+explicit arguments. `cells`, `targets` and `regulators` record the
+entities actually used. The five endpoint tables, accounting tables and
+summary can be saved independently with
+[`write_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/write_network_endpoints.md)
+and read with
+[`read_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/read_network_endpoints.md).
+
+Valid inputs can yield empty endpoint tables. If no TF has variable
+expression, the TF layers have no selected edges and their accounting
+status is `no_variable_candidate`; the region-gene layer is still fitted
+independently.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+object <- prepare_candidates(object, group.by = "cell_type", genome = genome)
+fit <- fit_layered_network(
+  object,
+  cell_group = "Erythroblast",
+  preset = "state",
+  output_dir = "networks/erythroblast"
+)
+networks <- read_network_endpoints("networks/erythroblast")
+} # }
+```

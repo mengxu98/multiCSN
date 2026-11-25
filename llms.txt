@@ -28,55 +28,99 @@ pak::pak("mengxu98/multiCSN")
 
 ## **Usage**
 
-### **Examples**
+### **Layered multi-omic networks**
 
-### **For a `matrix` object**
+For a Seurat object with normalized RNA and TF-IDF chromatin assays,
+build the candidate catalogue once and fit one network per cell group.
+The bundled motifs are used by default.
+
+``` r
+
+library(multiCSN)
+genome <- BSgenome.Hsapiens.UCSC.hg38::BSgenome.Hsapiens.UCSC.hg38
+
+object <- prepare_candidates(object, group.by = "cell_type", genome = genome)
+
+fit <- fit_layered_network(
+  object,
+  cell_group = "Erythroblast",
+  preset = "state",
+  output_dir = "networks/erythroblast"
+)
+```
+
+`preset = "state"` fits cell states that share one normalization;
+`preset = "timepoint"` re-normalizes each group and requires target
+genes and TFs to be detected in at least 20 cells. Arguments you pass
+explicitly override the preset. With `output_dir` the network tables are
+written only after the fit completes, and an existing directory is never
+overwritten.
+
+Each assay needs one normalized `data` layer. Join split RNA layers
+before candidate preparation with
+`object <- SeuratObject::JoinLayers(object, assay = "RNA", layers = "data", new = "data")`.
+Per-group normalization also needs joined `counts` layers. Candidate
+preparation rebuilds the catalogue, so prepare once and then fit each
+group from that object.
+
+For an in-memory result, omit `output_dir`. The default `store = FALSE`
+keeps the input object unchanged and returns the complete layer and path
+tables, accounting, effective settings and selected cell and feature
+IDs. It does not include a Seurat object. Set `store = TRUE` to also
+return an object with stored networks.
+
+Read, check and compare the saved networks:
+
+``` r
+
+validate_network_endpoints("networks/erythroblast")
+networks <- read_network_endpoints("networks/erythroblast")
+
+early <- read_network_endpoints("networks/proerythroblast", "TF-gene", direction = TRUE, simplify = TRUE)
+late <- read_network_endpoints("networks/erythroblast", "TF-gene", direction = TRUE, simplify = TRUE)
+classify_edge_transitions(early, late, from = "Proerythroblast", to = "Erythroblast")
+```
+
+### **Network evaluation**
+
+[`evaluate_network()`](https://mengxu98.github.io/multiCSN/reference/evaluate_network.md)
+scores a predicted edge table against a ground truth with BEELINE-style
+metrics, and
+[`ranking_metrics()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md),
+[`tie_aware_auroc()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md),
+[`tie_aware_average_precision()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+and
+[`expected_precision_at_k()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+give tie-aware ranking metrics for any score vector.
+
+``` r
+
+evaluate_network(prediction, ground_truth)$AUPRC
+```
+
+### **Single-omic networks**
 
 ``` r
 
 library(multiCSN)
 data("example_matrix", package = "inferCSN")
 
-network <- inferCSN(
-  example_matrix
-)
+network <- inferCSN(example_matrix, verbose = FALSE)
+
+pseudotime <- setNames(seq(0, 1, length.out = nrow(example_matrix)), rownames(example_matrix))
+ordered_network <- inferCSN(example_matrix, pseudotime = pseudotime, verbose = FALSE)
 ```
 
-### **For a `matrix` object, initiate it to `Network` object**
+The RNA matrix has cells in rows and genes in columns. This public
+method uses the independent `inferCSN` engine. Use the layered workflow
+above for paired RNA and chromatin assays. See
+[`?fit_layered_network`](https://mengxu98.github.io/multiCSN/reference/fit_layered_network.md)
+for the meanings of layer coefficients, deletion evidence, ordinal
+weights and mediated paths.
 
-``` r
-
-library(multiCSN)
-data("example_matrix", package = "inferCSN")
-
-object <- initiate_object(
-  example_matrix
-)
-object
-object <- inferCSN(
-  object
-)
-
-network_table <- export_csn(
-  object
-)
-head(network_table)
-```
-
-More functions and usages about
-[multiCSN](https://mengxu98.github.io/multiCSN/)? Please reference
-[here](https://mengxu98.github.io/multiCSN/reference/index.html).
-
-For a result returned by
-[`fit_layered_network()`](https://mengxu98.github.io/multiCSN/reference/fit_layered_network.md),
-save the network tables and read them with the same format (`tsv`,
-`csv`, `tsv.gz` or `csv.gz`):
-
-``` r
-
-write_network_endpoints(fit, "network_results", format = "csv.gz")
-networks <- read_network_endpoints("network_results", format = "csv.gz")
-```
+See the [function
+reference](https://mengxu98.github.io/multiCSN/reference/index.html) for
+the full interface.
 
 ### Package overview
 
@@ -161,6 +205,19 @@ networks <- read_network_endpoints("network_results", format = "csv.gz")
 
 ### Network evaluation
 
+- [`evaluate_network()`](https://mengxu98.github.io/multiCSN/reference/evaluate_network.md)
+  : BEELINE-style network evaluation
+- [`ranking_metrics()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+  [`tie_aware_average_precision()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+  [`tie_aware_auroc()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+  [`expected_precision_at_k()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+  : Tie-aware ranking metrics
+- [`signed_ordinal_weight()`](https://mengxu98.github.io/multiCSN/reference/signed_ordinal_weight.md)
+  : Signed ordinal edge weights
+- [`as_edge_table()`](https://mengxu98.github.io/multiCSN/reference/as_edge_table.md)
+  : Standardize an edge table
+- [`weight_matrix_to_edges()`](https://mengxu98.github.io/multiCSN/reference/weight_matrix_to_edges.md)
+  : Convert a square weight matrix to an edge table
 - [`calculate_metrics()`](https://mengxu98.github.io/multiCSN/reference/calculate_metrics.md)
   : Calculate network metrics
 - [`calculate_accuracy()`](https://mengxu98.github.io/multiCSN/reference/calculate_accuracy.md)
@@ -195,20 +252,21 @@ networks <- read_network_endpoints("network_results", format = "csv.gz")
   : Calculate Spearman Stability Across Runs
 - [`calculate_degree_distribution()`](https://mengxu98.github.io/multiCSN/reference/calculate_degree_distribution.md)
   : calculate_degree_distribution
-- [`JI_across_topregs()`](https://mengxu98.github.io/multiCSN/reference/JI_across_topregs.md)
-  : Computes Jaccard similarity between top regulators in two sets of
-  networks across a range of top X regulators
 
 ### Layered multi-omic network inference
 
+- [`prepare_candidates()`](https://mengxu98.github.io/multiCSN/reference/prepare_candidates.md)
+  : Prepare a multiome object for layered network inference
 - [`fit_layered_network()`](https://mengxu98.github.io/multiCSN/reference/fit_layered_network.md)
   : Fit a layered multi-omic gene regulatory network
 - [`network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/network_endpoints.md)
   : Endpoint tables of a layered multi-omic network
 - [`write_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/write_network_endpoints.md)
-  : Write layered network result tables
+  : Write the endpoint tables of a layered network
 - [`read_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/read_network_endpoints.md)
   : Read layered network endpoints from a result directory
+- [`validate_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/validate_network_endpoints.md)
+  : Validate a layered network result directory
 - [`classify_edge_transitions()`](https://mengxu98.github.io/multiCSN/reference/classify_edge_transitions.md)
   : Classify edges between two network states
 
@@ -297,8 +355,6 @@ networks <- read_network_endpoints("network_results", format = "csv.gz")
   : Get parameters
 - [`define_states()`](https://mengxu98.github.io/multiCSN/reference/define_states.md)
   : Define states
-- [`define_states_new()`](https://mengxu98.github.io/multiCSN/reference/define_states_new.md)
-  : Define states
 - [`density_points()`](https://mengxu98.github.io/multiCSN/reference/density_points.md)
   : Partition pseudotime states by density intersections
 - [`diffnet_community_detection()`](https://mengxu98.github.io/multiCSN/reference/diffnet_community_detection.md)
@@ -324,11 +380,7 @@ networks <- read_network_endpoints("network_results", format = "csv.gz")
   : Get network graph
 - [`get_tf_network()`](https://mengxu98.github.io/multiCSN/reference/get_tf_network.md)
   : Get TF network
-- [`assign_genes_to_states_simple()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_simple.md)
-  : Assigns genes to states just based on which mean is maximal
 - [`assign_genes_to_states()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states.md)
-  : Assigns genes to states
-- [`assign_genes_to_states_new1()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_new1.md)
   : Assigns genes to states
 - [`assign_network()`](https://mengxu98.github.io/multiCSN/reference/assign_network.md)
   : Assigns genes to states
@@ -338,9 +390,6 @@ networks <- read_network_endpoints("network_results", format = "csv.gz")
   : Splits data into states manually
 - [`split_states_by_pseudotime()`](https://mengxu98.github.io/multiCSN/reference/split_states_by_pseudotime.md)
   : Splits data into states
-- [`biglist_compute_betweenness_degree()`](https://mengxu98.github.io/multiCSN/reference/biglist_compute_betweenness_degree.md)
-  : Computes betweenness and degree of each regulator for each network
-  in a list of networks
 - [`compute_JI_topregs()`](https://mengxu98.github.io/multiCSN/reference/compute_JI_topregs.md)
   : Computes Jaccard similarity between top regulators in two sets of
   networks
@@ -515,8 +564,6 @@ networks <- read_network_endpoints("network_results", format = "csv.gz")
   : Read peak assay annotations
 - [`map_peak_ranges_to_genome()`](https://mengxu98.github.io/multiCSN/reference/map_peak_ranges_to_genome.md)
   : Map peak sequence names to a genome
-- [`network_ordinal_weight()`](https://mengxu98.github.io/multiCSN/reference/network_ordinal_weight.md)
-  : Rank signed network edges by deletion evidence
 - [`normalize_chromatin_assay()`](https://mengxu98.github.io/multiCSN/reference/normalize_chromatin_assay.md)
   : Normalize an ATAC assay to a Signac ChromatinAssay
 - [`parse_peak_ranges()`](https://mengxu98.github.io/multiCSN/reference/parse_peak_ranges.md)
@@ -545,3 +592,9 @@ networks <- read_network_endpoints("network_results", format = "csv.gz")
 - [`print(`*`<multicsn_logo>`*`)`](https://mengxu98.github.io/multiCSN/reference/print.multicsn_logo.md)
   : Print logo
 
+# Articles
+
+### All vignettes
+
+- [Layered multi-omic
+  networks](https://mengxu98.github.io/multiCSN/articles/layered-networks.md):

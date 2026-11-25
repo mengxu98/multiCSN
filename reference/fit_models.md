@@ -5,30 +5,7 @@ Fit statistical models to infer gene regulatory relationships
 ## Usage
 
 ``` r
-fit_models(
-  object,
-  regulators = NULL,
-  targets = NULL,
-  network_name = paste0(method, "_network"),
-  peak_to_gene_method = c("Signac", "GREAT"),
-  upstream = 1e+05,
-  downstream = 0,
-  extend = 1e+06,
-  only_tss = FALSE,
-  peak_to_gene_domains = NULL,
-  gene_cor_threshold = 0.1,
-  peak_cor_threshold = 0.1,
-  aggregate_rna_col = NULL,
-  aggregate_peaks_col = NULL,
-  method = "greedy_l0",
-  interaction_term = ":",
-  adjust_method = "fdr",
-  scale = FALSE,
-  verbose = TRUE,
-  cores = 1,
-  celltype = NULL,
-  ...
-)
+fit_models(object, ...)
 
 # S4 method for class 'Seurat'
 fit_models(
@@ -57,54 +34,18 @@ fit_models(
 )
 
 # S4 method for class 'CSNObject'
-fit_models(
-  object,
-  regulators = NULL,
-  targets = NULL,
-  network_name = paste0(method, "_network"),
-  peak_to_gene_method = c("Signac", "GREAT"),
-  upstream = 1e+05,
-  downstream = 0,
-  extend = 1e+06,
-  only_tss = FALSE,
-  peak_to_gene_domains = NULL,
-  gene_cor_threshold = 0.1,
-  peak_cor_threshold = 0.1,
-  aggregate_rna_col = NULL,
-  aggregate_peaks_col = NULL,
-  method = "greedy_l0",
-  interaction_term = ":",
-  adjust_method = "fdr",
-  scale = FALSE,
-  verbose = TRUE,
-  cores = 1,
-  celltype = NULL,
-  ...
-)
+fit_models(object, ...)
 
 # S4 method for class 'matrix'
 fit_models(
   object,
   regulators = NULL,
   targets = NULL,
-  network_name = paste0(method, "_network"),
-  peak_to_gene_method = c("Signac", "GREAT"),
-  upstream = 1e+05,
-  downstream = 0,
-  extend = 1e+06,
-  only_tss = FALSE,
-  peak_to_gene_domains = NULL,
-  gene_cor_threshold = 0.1,
-  peak_cor_threshold = 0.1,
-  aggregate_rna_col = NULL,
-  aggregate_peaks_col = NULL,
+  gene_cor_threshold = 0,
   method = "greedy_l0",
-  interaction_term = ":",
-  adjust_method = "fdr",
   scale = FALSE,
   verbose = TRUE,
   cores = 1,
-  celltype = NULL,
   ...
 )
 ```
@@ -114,6 +55,10 @@ fit_models(
 - object:
 
   The input data for model fitting
+
+- ...:
+
+  Additional arguments passed to methods
 
 - regulators:
 
@@ -194,10 +139,6 @@ fit_models(
 - celltype:
 
   Current cell type being processed
-
-- ...:
-
-  Additional arguments passed to methods
 
 ## Value
 

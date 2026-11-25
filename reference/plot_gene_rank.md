@@ -23,8 +23,6 @@ plot_gene_rank(
   network = NULL,
   celltypes = NULL,
   method = c("page_rank", "degree_distribution"),
-  weight_cutoff = 0.1,
-  compare_random = TRUE,
   combine = TRUE,
   top_n = 30,
   nrow = NULL,

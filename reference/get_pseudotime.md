@@ -24,7 +24,6 @@ get_pseudotime(
 # S3 method for class 'Seurat'
 get_pseudotime(
   object,
-  assay = "RNA",
   layer = "data",
   cluster_column = "cluster",
   reduction = "umap",
@@ -76,10 +75,6 @@ get_pseudotime(
 
   Logical indicating whether to print progress messages. Default is
   TRUE.
-
-- assay:
-
-  The assay used for slingshot.
 
 - layer:
 

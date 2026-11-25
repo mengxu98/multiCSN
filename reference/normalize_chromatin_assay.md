@@ -48,7 +48,9 @@ normalize_chromatin_assay(
 
 - sep:
 
-  Separator used in peak names.
+  Character vector of two literal separators used in peak names.
+  Explicit values control coordinate parsing. If omitted, the supported
+  identifier forms are detected automatically.
 
 ## Value
 

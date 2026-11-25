@@ -81,6 +81,19 @@
 
 ### Network evaluation
 
+- [`evaluate_network()`](https://mengxu98.github.io/multiCSN/reference/evaluate_network.md)
+  : BEELINE-style network evaluation
+- [`ranking_metrics()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+  [`tie_aware_average_precision()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+  [`tie_aware_auroc()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+  [`expected_precision_at_k()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+  : Tie-aware ranking metrics
+- [`signed_ordinal_weight()`](https://mengxu98.github.io/multiCSN/reference/signed_ordinal_weight.md)
+  : Signed ordinal edge weights
+- [`as_edge_table()`](https://mengxu98.github.io/multiCSN/reference/as_edge_table.md)
+  : Standardize an edge table
+- [`weight_matrix_to_edges()`](https://mengxu98.github.io/multiCSN/reference/weight_matrix_to_edges.md)
+  : Convert a square weight matrix to an edge table
 - [`calculate_metrics()`](https://mengxu98.github.io/multiCSN/reference/calculate_metrics.md)
   : Calculate network metrics
 - [`calculate_accuracy()`](https://mengxu98.github.io/multiCSN/reference/calculate_accuracy.md)
@@ -115,20 +128,21 @@
   : Calculate Spearman Stability Across Runs
 - [`calculate_degree_distribution()`](https://mengxu98.github.io/multiCSN/reference/calculate_degree_distribution.md)
   : calculate_degree_distribution
-- [`JI_across_topregs()`](https://mengxu98.github.io/multiCSN/reference/JI_across_topregs.md)
-  : Computes Jaccard similarity between top regulators in two sets of
-  networks across a range of top X regulators
 
 ### Layered multi-omic network inference
 
+- [`prepare_candidates()`](https://mengxu98.github.io/multiCSN/reference/prepare_candidates.md)
+  : Prepare a multiome object for layered network inference
 - [`fit_layered_network()`](https://mengxu98.github.io/multiCSN/reference/fit_layered_network.md)
   : Fit a layered multi-omic gene regulatory network
 - [`network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/network_endpoints.md)
   : Endpoint tables of a layered multi-omic network
 - [`write_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/write_network_endpoints.md)
-  : Write layered network result tables
+  : Write the endpoint tables of a layered network
 - [`read_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/read_network_endpoints.md)
   : Read layered network endpoints from a result directory
+- [`validate_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/validate_network_endpoints.md)
+  : Validate a layered network result directory
 - [`classify_edge_transitions()`](https://mengxu98.github.io/multiCSN/reference/classify_edge_transitions.md)
   : Classify edges between two network states
 
@@ -217,8 +231,6 @@
   : Get parameters
 - [`define_states()`](https://mengxu98.github.io/multiCSN/reference/define_states.md)
   : Define states
-- [`define_states_new()`](https://mengxu98.github.io/multiCSN/reference/define_states_new.md)
-  : Define states
 - [`density_points()`](https://mengxu98.github.io/multiCSN/reference/density_points.md)
   : Partition pseudotime states by density intersections
 - [`diffnet_community_detection()`](https://mengxu98.github.io/multiCSN/reference/diffnet_community_detection.md)
@@ -244,11 +256,7 @@
   : Get network graph
 - [`get_tf_network()`](https://mengxu98.github.io/multiCSN/reference/get_tf_network.md)
   : Get TF network
-- [`assign_genes_to_states_simple()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_simple.md)
-  : Assigns genes to states just based on which mean is maximal
 - [`assign_genes_to_states()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states.md)
-  : Assigns genes to states
-- [`assign_genes_to_states_new1()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_new1.md)
   : Assigns genes to states
 - [`assign_network()`](https://mengxu98.github.io/multiCSN/reference/assign_network.md)
   : Assigns genes to states
@@ -258,9 +266,6 @@
   : Splits data into states manually
 - [`split_states_by_pseudotime()`](https://mengxu98.github.io/multiCSN/reference/split_states_by_pseudotime.md)
   : Splits data into states
-- [`biglist_compute_betweenness_degree()`](https://mengxu98.github.io/multiCSN/reference/biglist_compute_betweenness_degree.md)
-  : Computes betweenness and degree of each regulator for each network
-  in a list of networks
 - [`compute_JI_topregs()`](https://mengxu98.github.io/multiCSN/reference/compute_JI_topregs.md)
   : Computes Jaccard similarity between top regulators in two sets of
   networks
@@ -435,8 +440,6 @@
   : Read peak assay annotations
 - [`map_peak_ranges_to_genome()`](https://mengxu98.github.io/multiCSN/reference/map_peak_ranges_to_genome.md)
   : Map peak sequence names to a genome
-- [`network_ordinal_weight()`](https://mengxu98.github.io/multiCSN/reference/network_ordinal_weight.md)
-  : Rank signed network edges by deletion evidence
 - [`normalize_chromatin_assay()`](https://mengxu98.github.io/multiCSN/reference/normalize_chromatin_assay.md)
   : Normalize an ATAC assay to a Signac ChromatinAssay
 - [`parse_peak_ranges()`](https://mengxu98.github.io/multiCSN/reference/parse_peak_ranges.md)

@@ -11,7 +11,6 @@ plot_state_rewiring(
   type = c("rewiring", "networks", "regulators", "targets"),
   plot_type = c("heatmap", "venn", "upset"),
   weight.by = "weight",
-  group.by = NULL,
   palette = "Chinese",
   palcolor = NULL
 )
@@ -41,10 +40,6 @@ plot_state_rewiring(
 - weight.by:
 
   Weight column used when exporting networks.
-
-- group.by:
-
-  Reserved for future grouping support in similarity plots.
 
 - palette:
 

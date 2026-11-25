@@ -2,9 +2,9 @@
 
 The five endpoint tables written by
 [`fit_layered_network`](https://mengxu98.github.io/multiCSN/reference/fit_layered_network.md)
-(and by the manuscript pipeline) share one contract: a file name, a key
-column set and a signed weight. This function returns that contract so
-writers, readers and validators cannot drift apart.
+share one contract: a file name, a key column set and a signed weight.
+This function returns that contract so writers, readers and validators
+cannot drift apart.
 
 ## Usage
 

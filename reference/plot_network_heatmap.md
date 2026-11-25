@@ -66,14 +66,14 @@ plot_network_heatmap(
 
   Logical display control.
 
+- show_names_position:
+
+  Name placement for multiple heatmaps.
+
 - heatmap_size_lock:
 
   Use the requested dimensions as square-cell bounds. If `FALSE`, choose
   the square-cell size automatically.
-
-- show_names_position:
-
-  Name placement for multiple heatmaps.
 
 - heatmap_size, heatmap_height, heatmap_width:
 

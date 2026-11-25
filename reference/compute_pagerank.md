@@ -5,12 +5,7 @@ Function to compute page rank of TF+target networks
 ## Usage
 
 ``` r
-compute_pagerank(
-  networks_list,
-  regulators = NULL,
-  targets = NULL,
-  directed = FALSE
-)
+compute_pagerank(networks_list, regulators = NULL, targets = NULL)
 ```
 
 ## Arguments
@@ -26,10 +21,6 @@ compute_pagerank(
 - targets:
 
   list of targets
-
-- directed:
-
-  if network is directed or not
 
 ## Value
 

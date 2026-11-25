@@ -9,60 +9,45 @@ Visualize perturbation results
 ``` r
 plotPerturbation(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 
 plotPerturbation(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 
 # S4 method for class 'Network'
 plotPerturbation(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 
 # S4 method for class 'Seurat'
 plotPerturbation(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 
 # S4 method for class 'CSNObject'
 plotPerturbation(
   object,
-  label_points = FALSE,
   point_size = 1,
-  max_overlaps = 10,
   alpha = 0.6,
   show_trajectory = TRUE,
-  arrow_size = 0.5,
-  grid_n = 25
+  arrow_size = 0.5
 )
 ```
 
@@ -72,17 +57,9 @@ plotPerturbation(
 
   A Network or CSNObject object
 
-- label_points:
-
-  Logical, whether to add point labels
-
 - point_size:
 
   Numeric, size of points
-
-- max_overlaps:
-
-  Maximum number of overlapping labels to allow
 
 - alpha:
 
@@ -95,10 +72,6 @@ plotPerturbation(
 - arrow_size:
 
   Size of trajectory arrows
-
-- grid_n:
-
-  Number of grid points for trajectory arrows
 
 ## Value
 

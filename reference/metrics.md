@@ -15,7 +15,7 @@ metrics(object, ...)
 metrics(object, network = DefaultNetwork(object), celltypes = NULL, ...)
 
 # S4 method for class 'Network'
-metrics(object, celltypes = NULL, ...)
+metrics(object, ...)
 ```
 
 ## Arguments

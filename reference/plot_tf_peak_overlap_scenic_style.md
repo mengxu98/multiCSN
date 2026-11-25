@@ -45,5 +45,4 @@ plot_tf_peak_overlap_scenic_style(
 
 ## Value
 
-A patchwork-compatible ComplexHeatmap plot. Cell labels show supporting
-peak counts.
+A `ggplot` object.

@@ -1,5 +1,120 @@
 # Changelog
 
+## multiCSN (development version)
+
+- **fix**: Validate scores, binary labels, and top-k budgets in
+  [`ranking_metrics()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md)
+  before computing metrics.
+- **breaking**: Use
+  [`inferCSN::deletion_rank_weight()`](https://mengxu98.github.io/inferCSN/reference/deletion_rank_weight.html)
+  in place of `multiCSN::network_ordinal_weight()`.
+
+## multiCSN 0.1.0
+
+- The independent layered workflow has an explicit input and result
+  contract. Candidate preparation and fitting require one joined `data`
+  layer per assay; per-group normalization also requires one joined
+  `counts` layer.
+
+- Candidate preparation rebuilds the multiCSN catalogue. In-memory
+  fitting returns the complete scientific tables without storing a
+  Seurat object by default.
+
+- Fitting returns valid empty endpoint tables when the peak detection
+  threshold removes every candidate region.
+
+- Constant TF expression produces empty TF layers with explicit
+  accounting; the independent region-gene layer is retained.
+
+- Checkpoint hashes use SHA-256 through `digest`, retaining support for
+  R 4.1.
+
+- Explicit peak separators are respected when normalizing chromatin
+  assays, and normalized values remain aligned when peak names are
+  canonicalized.
+
+- Boolean endpoint validation returns `FALSE` for malformed result files
+  and invalid summary counts.
+
+- Require inferCSN 1.2.6 for the shared deletion-evidence ranking API.
+
+- [`prepare_candidates()`](https://mengxu98.github.io/multiCSN/reference/prepare_candidates.md)
+  builds the unfiltered candidate catalogue and motif matches in one
+  call;
+  [`find_motifs()`](https://mengxu98.github.io/multiCSN/reference/find_motifs.md)
+  uses the bundled `motifs` and `motif2tf` by default.
+
+- [`fit_layered_network()`](https://mengxu98.github.io/multiCSN/reference/fit_layered_network.md)
+  gains `preset = c("state", "timepoint")` for the two common fitting
+  designs and `output_dir` to write the network tables after a complete
+  fit. Use `checkpoint_dir` to retain resumable checkpoints.
+
+- [`validate_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/validate_network_endpoints.md)
+  checks a saved result directory;
+  [`read_network_endpoints()`](https://mengxu98.github.io/multiCSN/reference/read_network_endpoints.md)
+  detects the file format and can return a single table;
+  [`classify_edge_transitions()`](https://mengxu98.github.io/multiCSN/reference/classify_edge_transitions.md)
+  labels the state transition.
+
+- New evaluation helpers:
+  [`evaluate_network()`](https://mengxu98.github.io/multiCSN/reference/evaluate_network.md),
+  [`ranking_metrics()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md),
+  [`tie_aware_auroc()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md),
+  [`tie_aware_average_precision()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md),
+  [`expected_precision_at_k()`](https://mengxu98.github.io/multiCSN/reference/ranking_metrics.md),
+  [`signed_ordinal_weight()`](https://mengxu98.github.io/multiCSN/reference/signed_ordinal_weight.md),
+  [`as_edge_table()`](https://mengxu98.github.io/multiCSN/reference/as_edge_table.md)
+  and
+  [`weight_matrix_to_edges()`](https://mengxu98.github.io/multiCSN/reference/weight_matrix_to_edges.md).
+
+- Peak coordinate parsing no longer calls the deprecated Signac
+  `StringToGRanges()` and `GRangesToString()`.
+
+- [`create_seurat_object()`](https://mengxu98.github.io/multiCSN/reference/create_seurat_object.md)
+  works with current Signac annotation checks.
+
+- Removed `define_states_new()`, `assign_genes_to_states_new1()` and
+  `assign_genes_to_states_simple()`, which duplicated
+  [`define_states()`](https://mengxu98.github.io/multiCSN/reference/define_states.md)
+  and
+  [`assign_genes_to_states()`](https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states.md),
+  and `JI_across_topregs()` and `biglist_compute_betweenness_degree()`,
+  which failed on every call.
+
+- Removed arguments that had no effect: `lag_fraction` and `lag_steps`
+  from the `Network` and `Seurat` methods of
+  [`inferCSN()`](https://mengxu98.github.io/multiCSN/reference/inferCSN.md),
+  `pseudotime` from the `Network` method and `seed` from the `Seurat`
+  method; the per-method arguments of the
+  [`fit_models()`](https://mengxu98.github.io/multiCSN/reference/fit_models.md)
+  generic; `label_points`, `max_overlaps` and `grid_n` from
+  [`plotPerturbation()`](https://mengxu98.github.io/multiCSN/reference/plotPerturbation.md);
+  `weight_cutoff` and `compare_random` from
+  [`plot_gene_rank()`](https://mengxu98.github.io/multiCSN/reference/plot_gene_rank.md)
+  for Seurat objects; `group.by` from
+  [`plot_rewiring()`](https://mengxu98.github.io/multiCSN/reference/plot_rewiring.md)
+  and
+  [`plot_state_rewiring()`](https://mengxu98.github.io/multiCSN/reference/plot_state_rewiring.md);
+  `celltypes` from
+  [`metrics()`](https://mengxu98.github.io/multiCSN/reference/metrics.md)
+  for `Network`; `method` from
+  [`compute_JI_topregs()`](https://mengxu98.github.io/multiCSN/reference/compute_JI_topregs.md);
+  `directed` from
+  [`compute_pagerank()`](https://mengxu98.github.io/multiCSN/reference/compute_pagerank.md);
+  `assay` from
+  [`get_pseudotime()`](https://mengxu98.github.io/multiCSN/reference/get_pseudotime.md)
+  for Seurat.
+
+- [`fit_models()`](https://mengxu98.github.io/multiCSN/reference/fit_models.md)
+  passes `extend` to the GREAT peak-to-gene mapping.
+
+- Fewer hard dependencies: `ComplexHeatmap`, `circlize`, `thisplot`,
+  `tidygraph`, `ggraph`, `ggnetwork`, `patchwork` and `rlang` move to
+  Suggests and are needed only by the plotting functions. Optional
+  packages are installed on first use through
+  `thisutils::check_r(strict = TRUE)` (thisutils \>= 0.5.4), which stops
+  only if installation fails; `purrr` is no longer used.
+
 ## multiCSN 0.0.1
 
 - Trajectory partitions, gene assignments, subnetworks, and heatmap

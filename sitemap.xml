@@ -2,6 +2,8 @@
 <url><loc>https://mengxu98.github.io/multiCSN/404.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/LICENSE-text.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/LICENSE.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/articles/index.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/articles/layered-networks.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/authors.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/index.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/news/index.html</loc></url>
@@ -15,7 +17,6 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/GeneRanks.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/GetAssaySummary.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/GetNetwork.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/JI_across_topregs.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/Modules-class.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/Network-class.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/NetworkGraph.html</loc></url>
@@ -32,11 +33,9 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/add_interaction_type.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/add_type.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/aggregate_assay.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/as_edge_table.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_new1.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/assign_genes_to_states_simple.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/assign_network.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/biglist_compute_betweenness_degree.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/calculate_accuracy.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/calculate_auc.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/calculate_auprc.html</loc></url>
@@ -73,7 +72,6 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/cor_and_add_action.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/create_seurat_object.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/define_states.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/define_states_new.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/density_points.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/diffnet_community_detection.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/dynamic_difference_network.html</loc></url>
@@ -82,6 +80,7 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/dynamic_windowing.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/edge_uniqueness.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/embedPerturbation.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/evaluate_network.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/export_csn.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/expression_ksmooth.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/extract_genes_transition.html</loc></url>
@@ -124,7 +123,6 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/multiCSN-package.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/multicsn_logo.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/network_endpoints.html</loc></url>
-<url><loc>https://mengxu98.github.io/multiCSN/reference/network_ordinal_weight.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/normalize_chromatin_assay.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/order_genes.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/parse_peak_ranges.html</loc></url>
@@ -169,17 +167,20 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/plot_top_features.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/pre_pseudotime_matrix.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/predictPerturbation.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/prepare_candidates.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/print.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/print.multicsn_logo.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/prioritize_features.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/project_counts_to_consensus.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/pseudobulk_perturbation.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/rank_features.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/ranking_metrics.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/read_network_endpoints.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/rough_hierarchy.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/score_targets.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/select_key_targets.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/select_key_tfs.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/signed_ordinal_weight.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/simulate_csn_data.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/split_network_by_states.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/split_states_by_group.html</loc></url>
@@ -192,6 +193,8 @@
 <url><loc>https://mengxu98.github.io/multiCSN/reference/summarize_networks.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/summarize_state_networks.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/summarize_transition_analysis.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/validate_network_endpoints.html</loc></url>
+<url><loc>https://mengxu98.github.io/multiCSN/reference/weight_matrix_to_edges.html</loc></url>
 <url><loc>https://mengxu98.github.io/multiCSN/reference/write_network_endpoints.html</loc></url>
 </urlset>
 
